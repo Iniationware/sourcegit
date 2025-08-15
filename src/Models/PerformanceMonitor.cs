@@ -147,6 +147,53 @@ namespace SourceGit.Models
                 _measurements.Clear();
             }
         }
+        
+        /// <summary>
+        /// Trim old measurements to prevent unbounded growth
+        /// </summary>
+        public static void TrimOldMeasurements()
+        {
+            lock (_lock)
+            {
+                foreach (var kvp in _measurements)
+                {
+                    // Keep only last 50 measurements instead of 100
+                    while (kvp.Value.Count > 50)
+                    {
+                        kvp.Value.RemoveAt(0);
+                    }
+                }
+                
+                // Remove operations that haven't been used recently
+                var toRemove = new List<string>();
+                foreach (var kvp in _measurements)
+                {
+                    if (kvp.Value.Count == 0)
+                        toRemove.Add(kvp.Key);
+                }
+                
+                foreach (var key in toRemove)
+                {
+                    _measurements.Remove(key);
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Get total measurement count for monitoring
+        /// </summary>
+        public static int GetMeasurementCount()
+        {
+            lock (_lock)
+            {
+                int total = 0;
+                foreach (var kvp in _measurements)
+                {
+                    total += kvp.Value.Count;
+                }
+                return total;
+            }
+        }
 
         private static void LogPerformance(string message)
         {

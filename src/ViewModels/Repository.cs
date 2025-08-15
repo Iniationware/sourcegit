@@ -615,33 +615,51 @@ namespace SourceGit.ViewModels
         public void Close()
         {
             SelectedView = null; // Do NOT modify. Used to remove exists widgets for GC.Collect
+            
+            // Clear all observable collections first to release references
             Logs.Clear();
+            _branches?.Clear();
+            _remotes?.Clear();
+            _tags?.Clear();
+            _submodules?.Clear();
+            _worktrees?.Clear();
+            _stashesPage?.Stashes?.Clear();
+            _localBranchTrees?.Clear();
+            _remoteBranchTrees?.Clear();
 
             if (!_isWorktree)
             {
-                _settings.LastCommitMessage = _workingCopy.CommitMessage;
+                _settings.LastCommitMessage = _workingCopy?.CommitMessage ?? string.Empty;
                 using var stream = File.Create(Path.Combine(_gitCommonDir, "sourcegit.settings"));
                 JsonSerializer.Serialize(stream, _settings, JsonCodeGen.Default.RepositorySettings);
             }
 
-            _autoFetchTimer.Dispose();
+            // Dispose timers and watchers first
+            _autoFetchTimer?.Dispose();
             _autoFetchTimer = null;
+            
+            _watcher?.Dispose();
+            _watcher = null;
 
             _settings = null;
             _historiesFilterMode = Models.FilterMode.None;
 
-            _watcher?.Dispose();
-            _histories.Dispose();
-            _workingCopy.Dispose();
-            _stashesPage.Dispose();
+            // Dispose view models
+            _histories?.Dispose();
+            _workingCopy?.Dispose();
+            _stashesPage?.Dispose();
 
-            _watcher = null;
             _histories = null;
             _workingCopy = null;
             _stashesPage = null;
 
             _localChangesCount = 0;
             _stashesCount = 0;
+            
+            // Force garbage collection to clean up immediately
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
 
             _remotes.Clear();
             _branches.Clear();
