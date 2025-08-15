@@ -20,7 +20,10 @@ namespace SourceGit.Commands
         public async Task<List<Models.Remote>> GetResultAsync()
         {
             var outs = new List<Models.Remote>();
-            var rs = await ReadToEndAsync().ConfigureAwait(false);
+            
+            // Use retry wrapper to handle lock files
+            var wrapper = new CommandWithRetry(this);
+            var rs = await wrapper.ReadToEndWithRetryAsync().ConfigureAwait(false);
             if (!rs.IsSuccess)
                 return outs;
 

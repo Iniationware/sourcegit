@@ -1296,9 +1296,18 @@ namespace SourceGit.ViewModels
         {
             Task.Run(async () =>
             {
-                var branches = await new Commands.QueryBranches(_fullpath).GetResultAsync().ConfigureAwait(false);
-                var remotes = await new Commands.QueryRemotes(_fullpath).GetResultAsync().ConfigureAwait(false);
-                var builder = BuildBranchTree(branches, remotes);
+                try
+                {
+                    var branches = await new Commands.QueryBranches(_fullpath).GetResultAsync().ConfigureAwait(false);
+                    var remotes = await new Commands.QueryRemotes(_fullpath).GetResultAsync().ConfigureAwait(false);
+                    
+                    // Validate results before proceeding
+                    if (branches == null)
+                        branches = new List<Models.Branch>();
+                    if (remotes == null)
+                        remotes = new List<Models.Remote>();
+                    
+                    var builder = BuildBranchTree(branches, remotes);
 
                 Dispatcher.UIThread.Invoke(() =>
                 {
@@ -1381,6 +1390,19 @@ namespace SourceGit.ViewModels
                     var hasPendingPullOrPush = CurrentBranch?.TrackStatus.IsVisible ?? false;
                     GetOwnerPage()?.ChangeDirtyState(Models.DirtyState.HasPendingPullOrPush, !hasPendingPullOrPush);
                 });
+                }
+                catch (Exception ex)
+                {
+                    // Log the error but don't crash the app
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        // Keep existing data if refresh fails
+                        if (Branches == null)
+                            Branches = new List<Models.Branch>();
+                        if (Remotes == null)
+                            Remotes = new List<Models.Remote>();
+                    });
+                }
             });
         }
 
