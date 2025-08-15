@@ -22,40 +22,52 @@ namespace SourceGit.Commands
         {
             var branches = new List<Models.Branch>();
             
-            // Use retry wrapper to handle lock files
-            var wrapper = new CommandWithRetry(this);
-            var rs = await wrapper.ReadToEndWithRetryAsync().ConfigureAwait(false);
-            if (!rs.IsSuccess)
-                return branches;
-
-            var lines = rs.StdOut.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
-            var remoteHeads = new Dictionary<string, string>();
-            foreach (var line in lines)
+            try
             {
-                var b = ParseLine(line);
-                if (b != null)
+                // Use retry wrapper to handle lock files
+                var wrapper = new CommandWithRetry(this);
+                var rs = await wrapper.ReadToEndWithRetryAsync().ConfigureAwait(false);
+                if (!rs.IsSuccess)
                 {
-                    branches.Add(b);
-                    if (!b.IsLocal)
-                        remoteHeads.Add(b.FullName, b.Head);
+                    // Log the error for debugging
+                    if (!string.IsNullOrEmpty(rs.StdErr))
+                        App.RaiseException(WorkingDirectory, $"QueryBranches failed: {rs.StdErr}");
+                    return branches;
+                }
+
+                var lines = rs.StdOut.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
+                var remoteHeads = new Dictionary<string, string>();
+                foreach (var line in lines)
+                {
+                    var b = ParseLine(line);
+                    if (b != null)
+                    {
+                        branches.Add(b);
+                        if (!b.IsLocal)
+                            remoteHeads.Add(b.FullName, b.Head);
+                    }
+                }
+
+                foreach (var b in branches)
+                {
+                    if (b.IsLocal && !string.IsNullOrEmpty(b.Upstream))
+                    {
+                        if (remoteHeads.TryGetValue(b.Upstream, out var upstreamHead))
+                        {
+                            b.IsUpstreamGone = false;
+                            b.TrackStatus ??= await new QueryTrackStatus(WorkingDirectory, b.Head, upstreamHead).GetResultAsync().ConfigureAwait(false);
+                        }
+                        else
+                        {
+                            b.IsUpstreamGone = true;
+                            b.TrackStatus ??= new Models.BranchTrackStatus();
+                        }
+                    }
                 }
             }
-
-            foreach (var b in branches)
+            catch (Exception ex)
             {
-                if (b.IsLocal && !string.IsNullOrEmpty(b.Upstream))
-                {
-                    if (remoteHeads.TryGetValue(b.Upstream, out var upstreamHead))
-                    {
-                        b.IsUpstreamGone = false;
-                        b.TrackStatus ??= await new QueryTrackStatus(WorkingDirectory, b.Head, upstreamHead).GetResultAsync().ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        b.IsUpstreamGone = true;
-                        b.TrackStatus ??= new Models.BranchTrackStatus();
-                    }
-                }
+                App.RaiseException(WorkingDirectory, $"QueryBranches exception: {ex.Message}");
             }
 
             return branches;

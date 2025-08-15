@@ -1321,9 +1321,15 @@ namespace SourceGit.ViewModels
                     
                     // Validate results before proceeding
                     if (branches == null)
+                    {
+                        App.RaiseException(_fullpath, "QueryBranches returned null, using empty list");
                         branches = new List<Models.Branch>();
+                    }
                     if (remotes == null)
+                    {
+                        App.RaiseException(_fullpath, "QueryRemotes returned null, using empty list");
                         remotes = new List<Models.Remote>();
+                    }
                     
                     var builder = BuildBranchTree(branches, remotes);
 
@@ -1409,9 +1415,11 @@ namespace SourceGit.ViewModels
                     GetOwnerPage()?.ChangeDirtyState(Models.DirtyState.HasPendingPullOrPush, !hasPendingPullOrPush);
                 });
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    // Log the error but don't crash the app
+                    // Log the detailed error to help diagnose the issue
+                    App.RaiseException(_fullpath, $"Failed to refresh branches: {ex.Message}\n\nStack trace:\n{ex.StackTrace}");
+                    
                     Dispatcher.UIThread.Invoke(() =>
                     {
                         // Keep existing data if refresh fails
