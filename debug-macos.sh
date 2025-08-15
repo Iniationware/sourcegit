@@ -16,7 +16,7 @@ dotnet build src/SourceGit.csproj -c Debug
 # Run with debugging enabled
 echo "Starting application..."
 cd src
-dotnet run --configuration Debug
+dotnet watch run --configuration Debug
 
 # Alternative: Run the binary directly
 # ./bin/Debug/net9.0/SourceGit
