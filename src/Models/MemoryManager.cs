@@ -129,13 +129,17 @@ namespace SourceGit.Models
 
         private static void CleanupUserCache()
         {
-            // User cache cleanup will be handled in User.cs
-            User.CleanupCache();
+            // User cache cleanup
+            if (User.GetCacheSize() > 2500)
+            {
+                User.CleanupCache();
+            }
         }
 
         private static void CleanupPerformanceMonitor()
         {
             // Keep only recent performance data
+            // TrimOldMeasurements is available, GetMeasurementCount is available
             var oldCount = PerformanceMonitor.GetMeasurementCount();
             if (oldCount > 1000)
             {

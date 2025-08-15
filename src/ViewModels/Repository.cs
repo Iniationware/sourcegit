@@ -1409,7 +1409,7 @@ namespace SourceGit.ViewModels
                     GetOwnerPage()?.ChangeDirtyState(Models.DirtyState.HasPendingPullOrPush, !hasPendingPullOrPush);
                 });
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // Log the error but don't crash the app
                     Dispatcher.UIThread.Invoke(() =>

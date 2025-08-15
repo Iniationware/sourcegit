@@ -59,7 +59,7 @@
           <ListBox Classes="repo_left_content_list"
                    ItemsSource="{Binding Branches}"
                    SelectionMode="Single"
-                   Margin="20,0,0,0"
+                   Margin="20,0,4,0"
                    Background="Transparent"
                    ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                    ScrollViewer.VerticalScrollBarVisibility="Disabled"
@@ -71,11 +71,24 @@
                 <Setter Property="Height" Value="24"/>
                 <Setter Property="Padding" Value="4,0,4,0"/>
               </Style>
+              
+              <!-- Hide filter button by default, show on hover when no filter is active -->
+              <Style Selector="ListBoxItem Button.filter_button">
+                <Setter Property="IsVisible" Value="False"/>
+              </Style>
+              <Style Selector="ListBoxItem:pointerover Button.filter_button">
+                <Setter Property="IsVisible" Value="True"/>
+              </Style>
+              
+              <!-- Always show filter button when filter is active (via classes) -->
+              <Style Selector="ListBoxItem.filter-active Button.filter_button">
+                <Setter Property="IsVisible" Value="True"/>
+              </Style>
             </ListBox.Styles>
             
             <ListBox.ItemTemplate>
               <DataTemplate DataType="m:Branch">
-                <Grid ColumnDefinitions="Auto,*,Auto" Background="Transparent">
+                <Grid ColumnDefinitions="Auto,*,Auto,32" Background="Transparent">
                   <Path Grid.Column="0" 
                         Width="10" 
                         Height="10" 
@@ -99,6 +112,43 @@
                           VerticalAlignment="Center"
                           IsVisible="{Binding IsCurrent}"
                           ToolTip.Tip="{DynamicResource Text.GitFlow.CurrentBranch}"/>
+                  
+                  <!-- Filter Mode Switcher (Eye Icon) -->
+                  <Button Grid.Column="3"
+                          Classes="icon_button filter_button"
+                          Width="14" Height="14"
+                          Margin="0,0,8,0"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          Background="Transparent"
+                          Padding="1"
+                          Click="OnFilterButtonClicked"
+                          Tag="{Binding}"
+                          Name="FilterButton"
+                          ToolTip.Tip="{DynamicResource Text.Repository.FilterCommits}">
+                    <Grid>
+                      <!-- Eye icon for no filter (visible on hover) -->
+                      <Path Width="12" Height="12"
+                            Name="FilterIconNone"
+                            Data="{StaticResource Icons.Eye}"
+                            Fill="{DynamicResource Brush.FG1}"
+                            IsVisible="True"/>
+                      
+                      <!-- Filter icon for included mode -->
+                      <Path Width="12" Height="12"
+                            Name="FilterIconIncluded"
+                            Data="{StaticResource Icons.Filter}"
+                            Fill="{DynamicResource Brush.Accent}"
+                            IsVisible="False"/>
+                      
+                      <!-- EyeClose icon for excluded mode -->
+                      <Path Width="12" Height="12"
+                            Name="FilterIconExcluded"
+                            Data="{StaticResource Icons.EyeClose}"
+                            Fill="{DynamicResource Brush.Accent}"
+                            IsVisible="False"/>
+                    </Grid>
+                  </Button>
                 </Grid>
               </DataTemplate>
             </ListBox.ItemTemplate>

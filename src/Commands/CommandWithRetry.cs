@@ -111,7 +111,7 @@ namespace SourceGit.Commands
         /// <summary>
         /// Executes the command with retry logic and returns the result
         /// </summary>
-        public new async Task<Command.Result> ReadToEndWithRetryAsync()
+        public async Task<Command.Result> ReadToEndWithRetryAsync()
         {
             int retryCount = 0;
             int delayMs = INITIAL_DELAY_MS;
@@ -194,7 +194,7 @@ namespace SourceGit.Commands
             
             foreach (var lockFile in lockFiles)
             {
-                if (lockFile.Contains("*"))
+                if (lockFile.Contains('*'))
                 {
                     // Handle wildcard patterns
                     var dir = Path.GetDirectoryName(lockFile);
