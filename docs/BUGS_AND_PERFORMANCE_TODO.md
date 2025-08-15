@@ -4,26 +4,36 @@ Based on open GitHub issues as of August 2025. Priority sorted by severity and i
 
 ## 🚨 Critical Issues (Crashes & Data Loss Risk)
 
-### [ ] #1718 - Folder Creation Crash
+### [x] #1718 - Folder Creation Crash
 - **Problem**: App crashes when creating a folder while looking for a repository
 - **Impact**: Application stability, potential data loss
 - **Priority**: HIGH
 - **Affected**: All platforms
+- **Fixed**: Thread-safe repository scanning, proper exception handling
 
-### [ ] #1715 - Branch Refresh Failure
+### [x] #1715 - Branch Refresh Failure
 - **Problem**: Failed to refresh branches functionality
 - **Impact**: Core functionality broken, unable to see branch updates
 - **Priority**: HIGH
 - **Affected**: Unknown platforms
+- **Fixed**: Added comprehensive error logging and retry logic
 
 ## ⚡ Performance Issues
 
-### [ ] #1720 - macOS Performance & Stability
+### [~] #1720 - macOS Performance & Stability (Partially Fixed)
 - **Problem**: Slow performance, crashes, and git problems on macOS
 - **Impact**: Overall user experience degraded on macOS
 - **Priority**: HIGH
 - **Affected**: macOS (likely both Intel and ARM)
-- **Notes**: May be related to file watching, memory management, or native API calls
+- **Partially Fixed**: 
+  - ✅ Memory management with automatic cleanup
+  - ✅ Thread-safe file watching
+  - ✅ Git operation retry logic for lock files
+  - ✅ Memory leak fixes
+- **Still Needed**:
+  - ❌ macOS native API optimization
+  - ❌ FSEvents integration optimization
+  - ❌ Apple Silicon specific optimizations
 
 ## 🔧 Platform-Specific Bugs
 
