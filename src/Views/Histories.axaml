@@ -75,7 +75,7 @@
 
         <DataGrid.Columns>
           <!-- Column 1: Branch/Tag -->
-          <DataGridTemplateColumn Width="120" MinWidth="50" MaxWidth="400" IsReadOnly="True" CanUserResize="True">
+          <DataGridTemplateColumn Width="200" MinWidth="50" MaxWidth="400" IsReadOnly="True" CanUserResize="True">
             <DataGridTemplateColumn.Header>
               <TextBlock Classes="table_header" Text="Branch/Tag" HorizontalAlignment="Center"/>
             </DataGridTemplateColumn.Header>
@@ -102,7 +102,7 @@
           </DataGridTemplateColumn>
 
           <!-- Column 2: Graph -->
-          <DataGridTemplateColumn Width="100" MinWidth="60" MaxWidth="300" IsReadOnly="True" CanUserResize="True">
+          <DataGridTemplateColumn Width="120" MinWidth="60" MaxWidth="300" IsReadOnly="True" CanUserResize="True">
             <DataGridTemplateColumn.Header>
               <Grid ColumnDefinitions="Auto,*">
                 <Button Grid.Column="0" 
@@ -163,7 +163,7 @@
             </DataGridTemplateColumn.CellTemplate>
           </DataGridTemplateColumn>
 
-          <DataGridTemplateColumn MinWidth="160" CanUserResize="True" IsReadOnly="True">
+          <DataGridTemplateColumn MinWidth="170" CanUserResize="True" IsReadOnly="True">
             <DataGridTemplateColumn.Width>
               <Binding Source="{x:Static vm:Preferences.Instance}"
                        Path="Layout.AuthorColumnWidth"
@@ -214,7 +214,7 @@
             </DataGridTemplateColumn.CellTemplate>
           </DataGridTemplateColumn>
 
-          <DataGridTemplateColumn MinWidth="140" MaxWidth="300" CanUserResize="True" IsReadOnly="True">
+          <DataGridTemplateColumn MinWidth="150" MaxWidth="300" CanUserResize="True" IsReadOnly="True">
             <DataGridTemplateColumn.Header>
               <Grid HorizontalAlignment="Center">
                 <TextBlock Classes="table_header"

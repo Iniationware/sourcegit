@@ -272,6 +272,12 @@ namespace SourceGit.ViewModels
             }
         }
 
+        public MemoryMetrics MemoryMetrics
+        {
+            get => _memoryMetrics;
+            private set => SetProperty(ref _memoryMetrics, value);
+        }
+
         public bool IsSearching
         {
             get => _isSearching;
@@ -547,6 +553,7 @@ namespace SourceGit.ViewModels
             IsBare = isBare;
             FullPath = path;
             GitDir = gitDir;
+            MemoryMetrics = new MemoryMetrics();
 
             var commonDirFile = Path.Combine(_gitDir, "commondir");
             _isWorktree = _gitDir.Replace('\\', '/').IndexOf("/worktrees/", StringComparison.Ordinal) > 0 &&
@@ -615,6 +622,10 @@ namespace SourceGit.ViewModels
         public void Close()
         {
             SelectedView = null; // Do NOT modify. Used to remove exists widgets for GC.Collect
+            
+            // Dispose of MemoryMetrics
+            _memoryMetrics?.Dispose();
+            _memoryMetrics = null;
             
             // Clear all observable collections first to release references
             Logs.Clear();
@@ -2376,6 +2387,7 @@ namespace SourceGit.ViewModels
         private int _localChangesCount = 0;
         private int _stashesCount = 0;
 
+        private MemoryMetrics _memoryMetrics = null;
         private bool _isSearching = false;
         private bool _isSearchLoadingVisible = false;
         private int _searchCommitFilterType = (int)Models.CommitSearchMethod.ByMessage;
