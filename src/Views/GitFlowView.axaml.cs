@@ -39,14 +39,14 @@ namespace SourceGit.Views
             e.Handled = true;
         }
 
-        private void OnBranchDoubleTapped(object sender, TappedEventArgs e)
+        private async void OnBranchDoubleTapped(object sender, TappedEventArgs e)
         {
             if (DataContext is ViewModels.Repository repo && sender is ListBox listBox)
             {
                 var selected = listBox.SelectedItem as Models.Branch;
                 if (selected != null && !selected.IsCurrent)
                 {
-                    repo.CheckoutBranch(selected);
+                    await repo.CheckoutBranchAsync(selected);
                 }
             }
         }

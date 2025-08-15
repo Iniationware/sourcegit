@@ -50,7 +50,7 @@
                     Margin="0,0,4,0"
                     Click="OnStartGitFlowBranch"
                     Tag="{Binding Type}"
-                    ToolTip.Tip="Start new branch">
+                    ToolTip.Tip="{DynamicResource Text.GitFlow.StartNewBranch}">
               <Path Width="12" Height="12" Data="{StaticResource Icons.Branch.Add}"/>
             </Button>
           </Grid>
@@ -87,16 +87,18 @@
                   <TextBlock Grid.Column="1" 
                              Classes="primary"
                              Text="{Binding Name}"
+                             FontWeight="{Binding IsCurrent, Converter={x:Static c:BoolConverters.IsBoldToFontWeight}}"
                              TextTrimming="CharacterEllipsis"
                              VerticalAlignment="Center"/>
                   
                   <Border Grid.Column="2"
-                          Width="4" Height="4"
+                          Width="6" Height="6"
                           Margin="4,0,0,0"
-                          CornerRadius="2"
-                          Background="{DynamicResource Brush.Accent}"
+                          CornerRadius="3"
+                          Background="LimeGreen"
                           VerticalAlignment="Center"
-                          IsVisible="{Binding IsCurrent}"/>
+                          IsVisible="{Binding IsCurrent}"
+                          ToolTip.Tip="{DynamicResource Text.GitFlow.CurrentBranch}"/>
                 </Grid>
               </DataTemplate>
             </ListBox.ItemTemplate>

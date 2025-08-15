@@ -287,11 +287,11 @@ namespace SourceGit.Views
             var desiredTag = vm.IsTagGroupExpanded ? 24.0 * TagsList.Rows : 0;
             var desiredSubmodule = vm.IsSubmoduleGroupExpanded ? 24.0 * SubmoduleList.Rows : 0;
             var desiredWorktree = vm.IsWorktreeGroupExpanded ? 24.0 * vm.Worktrees.Count : 0;
-            var desiredGitFlow = (vm.Settings.ShowGitFlowInSidebar && vm.IsGitFlowGroupExpanded) ? CalculateGitFlowHeight(vm) : 0;
+            var desiredGitFlow = (vm.ShowGitFlowInSidebar && vm.IsGitFlowGroupExpanded) ? CalculateGitFlowHeight(vm) : 0;
             var desiredOthers = desiredTag + desiredSubmodule + desiredWorktree + desiredGitFlow;
             var hasOverflow = (desiredBranches + desiredOthers > leftHeight);
 
-            if (vm.Settings.ShowGitFlowInSidebar && vm.IsGitFlowGroupExpanded)
+            if (vm.ShowGitFlowInSidebar && vm.IsGitFlowGroupExpanded)
             {
                 var height = desiredGitFlow;
                 if (hasOverflow)

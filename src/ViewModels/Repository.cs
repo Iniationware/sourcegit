@@ -424,6 +424,19 @@ namespace SourceGit.ViewModels
             }
         }
 
+        public bool ShowGitFlowInSidebar
+        {
+            get => _settings.ShowGitFlowInSidebar;
+            set
+            {
+                if (value != _settings.ShowGitFlowInSidebar)
+                {
+                    _settings.ShowGitFlowInSidebar = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public bool IsGitFlowGroupExpanded
         {
             get => _settings.IsGitFlowExpandedInSideBar;
@@ -1274,6 +1287,11 @@ namespace SourceGit.ViewModels
             return info.Exists && info.Length > 20;
         }
 
+        public void NotifySettingsChanged()
+        {
+            OnPropertyChanged(nameof(Settings));
+        }
+
         public void RefreshBranches()
         {
             Task.Run(async () =>
@@ -1747,6 +1765,16 @@ namespace SourceGit.ViewModels
             StartGitFlowBranch(Models.GitFlowBranchType.Feature);
         }
 
+        public void StartGitFlowRelease()
+        {
+            StartGitFlowBranch(Models.GitFlowBranchType.Release);
+        }
+
+        public void StartGitFlowHotfix()
+        {
+            StartGitFlowBranch(Models.GitFlowBranchType.Hotfix);
+        }
+
         public ContextMenu CreateContextMenuForGitFlowBranch(Models.Branch branch)
         {
             if (branch == null)
@@ -1759,9 +1787,9 @@ namespace SourceGit.ViewModels
             checkout.Header = App.Text("BranchCM.Checkout", branch.Name);
             checkout.Icon = App.CreateMenuIcon("Icons.Check");
             checkout.IsEnabled = !branch.IsCurrent;
-            checkout.Click += (_, e) =>
+            checkout.Click += async (_, e) =>
             {
-                CheckoutBranch(branch);
+                await CheckoutBranchAsync(branch);
                 e.Handled = true;
             };
             menu.Items.Add(checkout);
