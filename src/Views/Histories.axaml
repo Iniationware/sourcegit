@@ -96,7 +96,7 @@
         </DataGrid.Styles>
 
         <DataGrid.Columns>
-          <DataGridTemplateColumn Width="*" IsReadOnly="True">
+          <DataGridTemplateColumn Width="*" IsReadOnly="True" CanUserResize="False">
             <DataGridTemplateColumn.Header>
               <TextBlock Classes="table_header" Text="{DynamicResource Text.Histories.Header.GraphAndSubject}" HorizontalAlignment="Center"/>
             </DataGridTemplateColumn.Header>
@@ -148,7 +148,7 @@
             </DataGridTemplateColumn.CellTemplate>
           </DataGridTemplateColumn>
 
-          <DataGridTemplateColumn MinWidth="80" CanUserResize="True" IsReadOnly="True">
+          <DataGridTemplateColumn MinWidth="160" CanUserResize="True" IsReadOnly="True">
             <DataGridTemplateColumn.Width>
               <Binding Source="{x:Static vm:Preferences.Instance}"
                        Path="Layout.AuthorColumnWidth"

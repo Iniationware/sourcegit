@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 using Avalonia;
 using Avalonia.Collections;
@@ -9,6 +10,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using Avalonia.VisualTree;
 
 namespace SourceGit.Views
@@ -146,6 +148,99 @@ namespace SourceGit.Views
                     dataGrid.ScrollIntoView(dataGrid.SelectedItem, null);
             }
         }
+        
+        protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToVisualTree(e);
+            
+            // Subscribe to window bounds changes to handle fullscreen transitions
+            if (e.Root is Window window)
+            {
+                window.PropertyChanged += OnWindowPropertyChanged;
+            }
+            
+            // Subscribe to column width changes
+            if (CommitListContainer?.Columns.Count > 0)
+            {
+                CommitListContainer.Columns[0].PropertyChanged += OnGraphColumnPropertyChanged;
+            }
+        }
+        
+        protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            base.OnDetachedFromVisualTree(e);
+            
+            // Unsubscribe from window events
+            if (e.Root is Window window)
+            {
+                window.PropertyChanged -= OnWindowPropertyChanged;
+            }
+            
+            // Unsubscribe from column events
+            if (CommitListContainer?.Columns.Count > 0)
+            {
+                CommitListContainer.Columns[0].PropertyChanged -= OnGraphColumnPropertyChanged;
+            }
+        }
+        
+        private void OnWindowPropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            // Handle window state changes, especially fullscreen on macOS
+            if (e.Property == Window.WindowStateProperty || 
+                e.Property == Window.BoundsProperty ||
+                e.Property == Window.ClientSizeProperty)
+            {
+                // Schedule a layout refresh with a small delay for transitions
+                Dispatcher.UIThread.InvokeAsync(async () =>
+                {
+                    await Task.Delay(100); // Small delay for transition to complete
+                    RefreshGraphLayout();
+                }, DispatcherPriority.Background);
+            }
+        }
+        
+        private void OnGraphColumnPropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            // Handle column width changes
+            if (e.Property == DataGridColumn.WidthProperty)
+            {
+                RefreshGraphLayout();
+            }
+        }
+        
+        private void RefreshGraphLayout()
+        {
+            if (!IsLoaded || CommitListContainer == null)
+                return;
+                
+            var dataGrid = CommitListContainer;
+            var rowsPresenter = dataGrid.FindDescendantOfType<DataGridRowsPresenter>();
+            if (rowsPresenter == null || dataGrid.Columns.Count == 0)
+                return;
+                
+            // Get current row height
+            double rowHeight = dataGrid.RowHeight;
+            if (rowsPresenter.Children.Count > 0)
+            {
+                foreach (var child in rowsPresenter.Children)
+                {
+                    if (child is DataGridRow { IsVisible: true } row)
+                    {
+                        rowHeight = row.Bounds.Height;
+                        break;
+                    }
+                }
+            }
+            
+            // Calculate graph clip width
+            var firstColumn = dataGrid.Columns[0];
+            var clipWidth = Math.Max(0, firstColumn.ActualWidth - 4);
+            
+            // Force update the graph layout
+            CommitGraph.Layout = new(_lastGraphStartY, clipWidth, rowHeight);
+            _lastGraphClipWidth = clipWidth;
+            _lastGraphRowHeight = rowHeight;
+        }
 
         private void OnCommitListLoaded(object sender, RoutedEventArgs e)
         {
@@ -187,10 +282,20 @@ namespace SourceGit.Views
 
             SetCurrentValue(IsScrollToTopVisibleProperty, startY >= rowHeight);
 
-            var clipWidth = dataGrid.Columns[0].ActualWidth - 4;
+            // Ensure column width is properly calculated and accounts for potential resize
+            var firstColumn = dataGrid.Columns[0];
+            if (firstColumn == null)
+                return;
+                
+            var clipWidth = Math.Max(0, firstColumn.ActualWidth - 4);
+            
+            // Force update if dimensions are significantly different (for fullscreen transitions)
+            var forceUpdate = Math.Abs(_lastGraphClipWidth - clipWidth) > 1.0;
+            
             if (_lastGraphStartY != startY ||
                 _lastGraphClipWidth != clipWidth ||
-                _lastGraphRowHeight != rowHeight)
+                _lastGraphRowHeight != rowHeight ||
+                forceUpdate)
             {
                 _lastGraphStartY = startY;
                 _lastGraphClipWidth = clipWidth;
