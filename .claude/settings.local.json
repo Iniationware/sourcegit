@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet --version)",
+      "Bash(dotnet restore:*)",
+      "Bash(dotnet publish:*)",
+      "Bash(mkdir:*)",
+      "Bash(chmod:*)",
+      "Bash(xattr:*)",
+      "Bash(codesign:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(dotnet build:*)",
+      "Bash(./build-macos-signed.sh:*)",
+      "Bash(touch:*)"
+    ],
+    "deny": [],
+    "ask": [],
+    "defaultMode": "acceptEdits"
+  }
+}

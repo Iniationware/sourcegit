@@ -101,6 +101,12 @@ namespace SourceGit.ViewModels
             }
         }
 
+        public bool ShowGitFlowInSidebar
+        {
+            get => _repo.Settings.ShowGitFlowInSidebar;
+            set => _repo.Settings.ShowGitFlowInSidebar = value;
+        }
+
         public AvaloniaList<Models.CommitTemplate> CommitTemplates
         {
             get => _repo.Settings.CommitTemplates;

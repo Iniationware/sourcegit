@@ -256,6 +256,12 @@ namespace SourceGit.Views
                 UpdateLeftSidebarLayout();
         }
 
+        private void OnGitFlowListPropertyChanged(object _, AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.Property == ItemsControl.ItemsSourceProperty || e.Property == IsVisibleProperty)
+                UpdateLeftSidebarLayout();
+        }
+
         private void OnLeftSidebarSizeChanged(object _, SizeChangedEventArgs e)
         {
             if (e.HeightChanged)
@@ -271,7 +277,7 @@ namespace SourceGit.Views
             if (!IsLoaded)
                 return;
 
-            var leftHeight = LeftSidebarGroups.Bounds.Height - 28.0 * 5 - 4;
+            var leftHeight = LeftSidebarGroups.Bounds.Height - 28.0 * 6 - 4; // Now 6 groups including GitFlow
             if (leftHeight <= 0)
                 return;
 
@@ -281,8 +287,26 @@ namespace SourceGit.Views
             var desiredTag = vm.IsTagGroupExpanded ? 24.0 * TagsList.Rows : 0;
             var desiredSubmodule = vm.IsSubmoduleGroupExpanded ? 24.0 * SubmoduleList.Rows : 0;
             var desiredWorktree = vm.IsWorktreeGroupExpanded ? 24.0 * vm.Worktrees.Count : 0;
-            var desiredOthers = desiredTag + desiredSubmodule + desiredWorktree;
+            var desiredGitFlow = (vm.Settings.ShowGitFlowInSidebar && vm.IsGitFlowGroupExpanded) ? CalculateGitFlowHeight(vm) : 0;
+            var desiredOthers = desiredTag + desiredSubmodule + desiredWorktree + desiredGitFlow;
             var hasOverflow = (desiredBranches + desiredOthers > leftHeight);
+
+            if (vm.Settings.ShowGitFlowInSidebar && vm.IsGitFlowGroupExpanded)
+            {
+                var height = desiredGitFlow;
+                if (hasOverflow)
+                {
+                    var test = leftHeight - desiredBranches - desiredTag - desiredSubmodule - desiredWorktree;
+                    if (test < 0)
+                        height = Math.Min(120, height);
+                    else
+                        height = Math.Max(120, test);
+                }
+
+                leftHeight -= height;
+                GitFlowList.Height = height;
+                hasOverflow = (desiredBranches + desiredTag + desiredSubmodule + desiredWorktree) > leftHeight;
+            }
 
             if (vm.IsWorktreeGroupExpanded)
             {
@@ -683,6 +707,22 @@ namespace SourceGit.Views
                 await repo.ExecBisectCommandAsync(button.Tag as string);
 
             e.Handled = true;
+        }
+
+        private double CalculateGitFlowHeight(ViewModels.Repository vm)
+        {
+            if (vm.GitFlowBranchGroups == null || vm.GitFlowBranchGroups.Count == 0)
+                return 0;
+
+            double height = 0;
+            foreach (var group in vm.GitFlowBranchGroups)
+            {
+                // Group header height
+                height += 24.0;
+                // Each branch item height
+                height += group.Branches.Count * 24.0;
+            }
+            return height;
         }
     }
 }

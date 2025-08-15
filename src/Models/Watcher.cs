@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SourceGit.Models
 {
@@ -116,52 +117,74 @@ namespace SourceGit.Models
                 return;
 
             var now = DateTime.Now.ToFileTime();
+            
+            // Collect all pending updates that have passed their debounce delay
+            var pendingUpdates = new List<Action>();
+            bool needsCommitRefresh = false;
+            
             if (_updateBranch > 0 && now > _updateBranch)
             {
                 _updateBranch = 0;
-                _updateWC = 0;
-
+                _updateWC = 0;  // Branch changes often affect working copy
+                
+                pendingUpdates.Add(() => _repo.RefreshBranches());
+                pendingUpdates.Add(() => _repo.RefreshWorktrees());
+                pendingUpdates.Add(() => _repo.RefreshWorkingCopyChanges());
+                needsCommitRefresh = true;
+                
                 if (_updateTags > 0)
                 {
                     _updateTags = 0;
-                    _repo.RefreshTags();
+                    pendingUpdates.Add(() => _repo.RefreshTags());
                 }
-
+                
                 if (_updateSubmodules > 0 || _repo.MayHaveSubmodules())
                 {
                     _updateSubmodules = 0;
-                    _repo.RefreshSubmodules();
+                    pendingUpdates.Add(() => _repo.RefreshSubmodules());
+                }
+            }
+            else
+            {
+                // Handle individual updates if no branch update is pending
+                if (_updateWC > 0 && now > _updateWC)
+                {
+                    _updateWC = 0;
+                    pendingUpdates.Add(() => _repo.RefreshWorkingCopyChanges());
                 }
 
-                _repo.RefreshBranches();
-                _repo.RefreshCommits();
-                _repo.RefreshWorkingCopyChanges();
-                _repo.RefreshWorktrees();
-            }
+                if (_updateSubmodules > 0 && now > _updateSubmodules)
+                {
+                    _updateSubmodules = 0;
+                    pendingUpdates.Add(() => _repo.RefreshSubmodules());
+                }
 
-            if (_updateWC > 0 && now > _updateWC)
-            {
-                _updateWC = 0;
-                _repo.RefreshWorkingCopyChanges();
-            }
+                if (_updateStashes > 0 && now > _updateStashes)
+                {
+                    _updateStashes = 0;
+                    pendingUpdates.Add(() => _repo.RefreshStashes());
+                }
 
-            if (_updateSubmodules > 0 && now > _updateSubmodules)
-            {
-                _updateSubmodules = 0;
-                _repo.RefreshSubmodules();
+                if (_updateTags > 0 && now > _updateTags)
+                {
+                    _updateTags = 0;
+                    pendingUpdates.Add(() => _repo.RefreshTags());
+                    needsCommitRefresh = true;
+                }
             }
-
-            if (_updateStashes > 0 && now > _updateStashes)
+            
+            // Execute all pending updates in parallel for better multi-core utilization
+            if (pendingUpdates.Count > 0)
             {
-                _updateStashes = 0;
-                _repo.RefreshStashes();
-            }
-
-            if (_updateTags > 0 && now > _updateTags)
-            {
-                _updateTags = 0;
-                _repo.RefreshTags();
-                _repo.RefreshCommits();
+                Task.Run(() =>
+                {
+                    // Run all independent refresh operations in parallel
+                    Parallel.Invoke(pendingUpdates.ToArray());
+                    
+                    // Refresh commits last as it may depend on other data
+                    if (needsCommitRefresh)
+                        _repo.RefreshCommits();
+                });
             }
         }
 
