@@ -101,6 +101,20 @@ namespace SourceGit.ViewModels
             }
         }
 
+        public bool ShowGitFlowInSidebar
+        {
+            get => _repo.Settings.ShowGitFlowInSidebar;
+            set
+            {
+                if (_repo.Settings.ShowGitFlowInSidebar != value)
+                {
+                    // Use the Repository's property setter which handles notification
+                    _repo.ShowGitFlowInSidebar = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public AvaloniaList<Models.CommitTemplate> CommitTemplates
         {
             get => _repo.Settings.CommitTemplates;
@@ -161,7 +175,7 @@ namespace SourceGit.ViewModels
             if (!AvailableOpenAIServices.Contains(PreferredOpenAIService))
                 PreferredOpenAIService = "---";
 
-            _cached = new Commands.Config(repo.FullPath).ReadAllAsync().Result;
+            _cached = new Commands.Config(repo.FullPath).ReadAll();
             if (_cached.TryGetValue("user.name", out var name))
                 UserName = name;
             if (_cached.TryGetValue("user.email", out var email))

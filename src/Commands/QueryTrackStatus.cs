@@ -16,7 +16,9 @@ namespace SourceGit.Commands
         {
             var status = new Models.BranchTrackStatus();
 
-            var rs = await ReadToEndAsync().ConfigureAwait(false);
+            // Use retry wrapper to handle lock files
+            var wrapper = new CommandWithRetry(this);
+            var rs = await wrapper.ReadToEndWithRetryAsync().ConfigureAwait(false);
             if (!rs.IsSuccess)
                 return status;
 

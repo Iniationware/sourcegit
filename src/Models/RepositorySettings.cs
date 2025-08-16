@@ -212,6 +212,24 @@ namespace SourceGit.Models
             set;
         } = false;
 
+        public bool IsGitFlowExpandedInSideBar
+        {
+            get;
+            set;
+        } = true;
+
+        public bool ShowGitFlowInSidebar
+        {
+            get;
+            set;
+        } = false;
+
+        public GitFlow GitFlowConfig
+        {
+            get;
+            set;
+        } = new GitFlow();
+
         public List<string> ExpandedBranchNodesInSideBar
         {
             get;

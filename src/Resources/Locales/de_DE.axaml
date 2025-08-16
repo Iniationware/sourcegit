@@ -77,7 +77,6 @@
   <x:String x:Key="Text.BranchTree.Remote" xml:space="preserve">REMOTE</x:String>
   <x:String x:Key="Text.BranchTree.Tracking" xml:space="preserve">VERFOLGT</x:String>
   <x:String x:Key="Text.BranchTree.URL" xml:space="preserve">URL</x:String>
-  <x:String x:Key="Text.BranchUpstreamInvalid" xml:space="preserve">Ungültiger Upstream!</x:String>
   <x:String x:Key="Text.Cancel" xml:space="preserve">ABBRECHEN</x:String>
   <x:String x:Key="Text.ChangeCM.CheckoutFirstParentRevision" xml:space="preserve">Auf Vorgänger-Revision zurücksetzen</x:String>
   <x:String x:Key="Text.ChangeCM.CheckoutThisRevision" xml:space="preserve">Auf diese Revision zurücksetzen</x:String>
@@ -177,11 +176,9 @@
   <x:String x:Key="Text.Configure.CommitMessageTemplate.Name" xml:space="preserve">Template Name:</x:String>
   <x:String x:Key="Text.Configure.CustomAction" xml:space="preserve">BENUTZERDEFINIERTE AKTION</x:String>
   <x:String x:Key="Text.Configure.CustomAction.Arguments" xml:space="preserve">Argumente:</x:String>
-  <x:String x:Key="Text.Configure.CustomAction.Arguments.Tip" xml:space="preserve">Vordefinierte Parameter: ${REPO} - Repository Pfad; ${BRANCH} - selektierter Branch; ${SHA} - Hash des selektierten Commits; ${TAG} - selektiertes Tag</x:String>
   <x:String x:Key="Text.Configure.CustomAction.Executable" xml:space="preserve">Ausführbare Datei:</x:String>
   <x:String x:Key="Text.Configure.CustomAction.InputControls" xml:space="preserve">Eingabe-Steuerelemente:</x:String>
   <x:String x:Key="Text.Configure.CustomAction.InputControls.Edit" xml:space="preserve">Bearbeiten</x:String>
-  <x:String x:Key="Text.Configure.CustomAction.InputControls.Tip" xml:space="preserve">$1, $2 ... können als Argumente in Eingabe-Steuerelementen benutzt werden</x:String>
   <x:String x:Key="Text.Configure.CustomAction.Name" xml:space="preserve">Name:</x:String>
   <x:String x:Key="Text.Configure.CustomAction.Scope" xml:space="preserve">Geltungsbereich:</x:String>
   <x:String x:Key="Text.Configure.CustomAction.Scope.Branch" xml:space="preserve">Branch</x:String>

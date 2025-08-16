@@ -39,3 +39,10 @@ build/*.AppImage
 SourceGit.app/
 build.command
 src/Properties/launchSettings.json
+publish-*
+
+# Ignore build artifacts
+publish-*
+*.dmg
+*.zip
+

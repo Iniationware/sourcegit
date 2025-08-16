@@ -20,9 +20,19 @@ namespace SourceGit.Commands
         public async Task<List<Models.Remote>> GetResultAsync()
         {
             var outs = new List<Models.Remote>();
-            var rs = await ReadToEndAsync().ConfigureAwait(false);
-            if (!rs.IsSuccess)
-                return outs;
+            
+            try
+            {
+                // Use retry wrapper to handle lock files
+                var wrapper = new CommandWithRetry(this);
+                var rs = await wrapper.ReadToEndWithRetryAsync().ConfigureAwait(false);
+                if (!rs.IsSuccess)
+                {
+                    // Log the error for debugging
+                    if (!string.IsNullOrEmpty(rs.StdErr))
+                        App.RaiseException(WorkingDirectory, $"QueryRemotes failed: {rs.StdErr}");
+                    return outs;
+                }
 
             var lines = rs.StdOut.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
             foreach (var line in lines)
@@ -41,6 +51,11 @@ namespace SourceGit.Commands
                     continue;
 
                 outs.Add(remote);
+            }
+            }
+            catch (Exception ex)
+            {
+                App.RaiseException(WorkingDirectory, $"QueryRemotes exception: {ex.Message}");
             }
 
             return outs;

@@ -6,11 +6,24 @@ This document shows the translation status of each locale file in the repository
 
 ### ![en_US](https://img.shields.io/badge/en__US-%E2%88%9A-brightgreen)
 
-### ![de__DE](https://img.shields.io/badge/de__DE-99.07%25-yellow)
+### ![de__DE](https://img.shields.io/badge/de__DE-97.47%25-yellow)
 
 <details>
 <summary>Missing keys in de_DE.axaml</summary>
 
+- Text.App.Hide
+- Text.App.ShowAll
+- Text.BranchTree.InvalidUpstream
+- Text.Configure.CustomAction.Arguments.Tip
+- Text.Configure.CustomAction.Scope.Remote
+- Text.Configure.Git.ShowGitFlowInSidebar
+- Text.DeleteMultiTags
+- Text.DeleteMultiTags.DeleteFromRemotes
+- Text.DeleteMultiTags.Tip
+- Text.GitFlow.StartNewBranch
+- Text.GitFlow.CurrentBranch
+- Text.Preferences.Appearance.EnableCompactFolders
+- Text.RemoteCM.CustomAction
 - Text.Repository.Dashboard
 - Text.Repository.MoreOptions
 - Text.Tag.Tagger
@@ -19,12 +32,25 @@ This document shows the translation status of each locale file in the repository
 - Text.TagCM.Copy.Name
 - Text.TagCM.Copy.Tagger
 - Text.TagCM.CopyName
+- Text.TagCM.DeleteMultiple
 
 </details>
 
-### ![es__ES](https://img.shields.io/badge/es__ES-%E2%88%9A-brightgreen)
+### ![es__ES](https://img.shields.io/badge/es__ES-99.31%25-yellow)
 
-### ![fr__FR](https://img.shields.io/badge/fr__FR-81.24%25-yellow)
+<details>
+<summary>Missing keys in es_ES.axaml</summary>
+
+- Text.App.Hide
+- Text.App.ShowAll
+- Text.Configure.CustomAction.Arguments.Tip
+- Text.Configure.Git.ShowGitFlowInSidebar
+- Text.GitFlow.StartNewBranch
+- Text.GitFlow.CurrentBranch
+
+</details>
+
+### ![fr__FR](https://img.shields.io/badge/fr__FR-80.09%25-yellow)
 
 <details>
 <summary>Missing keys in fr_FR.axaml</summary>
@@ -32,6 +58,8 @@ This document shows the translation status of each locale file in the repository
 - Text.AddToIgnore
 - Text.AddToIgnore.Pattern
 - Text.AddToIgnore.Storage
+- Text.App.Hide
+- Text.App.ShowAll
 - Text.Askpass.Passphrase
 - Text.Avatar.Load
 - Text.Bisect
@@ -42,6 +70,7 @@ This document shows the translation status of each locale file in the repository
 - Text.Bisect.Skip
 - Text.Bisect.WaitingForRange
 - Text.BranchCM.ResetToSelectedCommit
+- Text.BranchTree.InvalidUpstream
 - Text.BranchTree.Remote
 - Text.BranchTree.Tracking
 - Text.BranchTree.URL
@@ -74,9 +103,10 @@ This document shows the translation status of each locale file in the repository
 - Text.Configure.CustomAction.Arguments.Tip
 - Text.Configure.CustomAction.InputControls
 - Text.Configure.CustomAction.InputControls.Edit
-- Text.Configure.CustomAction.InputControls.Tip
+- Text.Configure.CustomAction.Scope.Remote
 - Text.Configure.CustomAction.Scope.Tag
 - Text.Configure.Git.PreferredMergeMode
+- Text.Configure.Git.ShowGitFlowInSidebar
 - Text.Configure.IssueTracker.AddSampleGerritChangeIdCommit
 - Text.Configure.IssueTracker.Share
 - Text.ConfigureCustomActionControls
@@ -99,6 +129,9 @@ This document shows the translation status of each locale file in the repository
 - Text.DeinitSubmodule
 - Text.DeinitSubmodule.Force
 - Text.DeinitSubmodule.Path
+- Text.DeleteMultiTags
+- Text.DeleteMultiTags.DeleteFromRemotes
+- Text.DeleteMultiTags.Tip
 - Text.Diff.Image.Blend
 - Text.Diff.Image.SideBySide
 - Text.Diff.Image.Swipe
@@ -111,6 +144,8 @@ This document shows the translation status of each locale file in the repository
 - Text.ExecuteCustomAction.Repository
 - Text.GitFlow.FinishWithPush
 - Text.GitFlow.FinishWithSquash
+- Text.GitFlow.StartNewBranch
+- Text.GitFlow.CurrentBranch
 - Text.Hotkeys.Global.SwitchWorkspace
 - Text.Hotkeys.Global.SwitchTab
 - Text.Hotkeys.TextEditor.OpenExternalMergeTool
@@ -121,12 +156,14 @@ This document shows the translation status of each locale file in the repository
 - Text.MoveSubmodule
 - Text.MoveSubmodule.MoveTo
 - Text.MoveSubmodule.Submodule
+- Text.Preferences.Appearance.EnableCompactFolders
 - Text.Preferences.Git.IgnoreCRAtEOLInDiff
 - Text.Preferences.Git.UseLibsecret
 - Text.Pull.RecurseSubmodules
 - Text.Push.New
 - Text.Push.Revision
 - Text.Push.Revision.Title
+- Text.RemoteCM.CustomAction
 - Text.Repository.BranchSort
 - Text.Repository.BranchSort.ByCommitterDate
 - Text.Repository.BranchSort.ByName
@@ -177,6 +214,7 @@ This document shows the translation status of each locale file in the repository
 - Text.TagCM.Copy.Tagger
 - Text.TagCM.CopyName
 - Text.TagCM.CustomAction
+- Text.TagCM.DeleteMultiple
 - Text.UpdateSubmodules.UpdateToRemoteTrackingBranch
 - Text.ViewLogs
 - Text.ViewLogs.Clear
@@ -193,7 +231,7 @@ This document shows the translation status of each locale file in the repository
 
 </details>
 
-### ![it__IT](https://img.shields.io/badge/it__IT-86.48%25-yellow)
+### ![it__IT](https://img.shields.io/badge/it__IT-85.27%25-yellow)
 
 <details>
 <summary>Missing keys in it_IT.axaml</summary>
@@ -201,9 +239,12 @@ This document shows the translation status of each locale file in the repository
 - Text.AddToIgnore
 - Text.AddToIgnore.Pattern
 - Text.AddToIgnore.Storage
+- Text.App.Hide
+- Text.App.ShowAll
 - Text.Askpass.Passphrase
 - Text.Avatar.Load
 - Text.BranchCM.ResetToSelectedCommit
+- Text.BranchTree.InvalidUpstream
 - Text.BranchTree.Remote
 - Text.BranchTree.Tracking
 - Text.BranchTree.URL
@@ -231,8 +272,9 @@ This document shows the translation status of each locale file in the repository
 - Text.Configure.CustomAction.Arguments.Tip
 - Text.Configure.CustomAction.InputControls
 - Text.Configure.CustomAction.InputControls.Edit
-- Text.Configure.CustomAction.InputControls.Tip
+- Text.Configure.CustomAction.Scope.Remote
 - Text.Configure.CustomAction.Scope.Tag
+- Text.Configure.Git.ShowGitFlowInSidebar
 - Text.Configure.IssueTracker.AddSampleGerritChangeIdCommit
 - Text.Configure.IssueTracker.Share
 - Text.ConfigureCustomActionControls
@@ -251,6 +293,9 @@ This document shows the translation status of each locale file in the repository
 - Text.DeinitSubmodule
 - Text.DeinitSubmodule.Force
 - Text.DeinitSubmodule.Path
+- Text.DeleteMultiTags
+- Text.DeleteMultiTags.DeleteFromRemotes
+- Text.DeleteMultiTags.Tip
 - Text.Diff.Image.Blend
 - Text.Diff.Image.SideBySide
 - Text.Diff.Image.Swipe
@@ -261,6 +306,8 @@ This document shows the translation status of each locale file in the repository
 - Text.Discard.IncludeUntracked
 - Text.ExecuteCustomAction.Target
 - Text.ExecuteCustomAction.Repository
+- Text.GitFlow.StartNewBranch
+- Text.GitFlow.CurrentBranch
 - Text.Hotkeys.Global.SwitchWorkspace
 - Text.Hotkeys.Global.SwitchTab
 - Text.InteractiveRebase.ReorderTip
@@ -270,11 +317,13 @@ This document shows the translation status of each locale file in the repository
 - Text.MoveSubmodule
 - Text.MoveSubmodule.MoveTo
 - Text.MoveSubmodule.Submodule
+- Text.Preferences.Appearance.EnableCompactFolders
 - Text.Preferences.Git.UseLibsecret
 - Text.Pull.RecurseSubmodules
 - Text.Push.New
 - Text.Push.Revision
 - Text.Push.Revision.Title
+- Text.RemoteCM.CustomAction
 - Text.Repository.ClearStashes
 - Text.Repository.Dashboard
 - Text.Repository.MoreOptions
@@ -310,6 +359,7 @@ This document shows the translation status of each locale file in the repository
 - Text.TagCM.Copy.Tagger
 - Text.TagCM.CopyName
 - Text.TagCM.CustomAction
+- Text.TagCM.DeleteMultiple
 - Text.UpdateSubmodules.UpdateToRemoteTrackingBranch
 - Text.WorkingCopy.AddToGitIgnore.InFolder
 - Text.WorkingCopy.ConfirmCommitWithDetachedHead
@@ -317,7 +367,7 @@ This document shows the translation status of each locale file in the repository
 
 </details>
 
-### ![ja__JP](https://img.shields.io/badge/ja__JP-81.24%25-yellow)
+### ![ja__JP](https://img.shields.io/badge/ja__JP-80.09%25-yellow)
 
 <details>
 <summary>Missing keys in ja_JP.axaml</summary>
@@ -325,6 +375,8 @@ This document shows the translation status of each locale file in the repository
 - Text.AddToIgnore
 - Text.AddToIgnore.Pattern
 - Text.AddToIgnore.Storage
+- Text.App.Hide
+- Text.App.ShowAll
 - Text.Askpass.Passphrase
 - Text.Avatar.Load
 - Text.Bisect
@@ -336,6 +388,7 @@ This document shows the translation status of each locale file in the repository
 - Text.Bisect.WaitingForRange
 - Text.BranchCM.CompareWithCurrent
 - Text.BranchCM.ResetToSelectedCommit
+- Text.BranchTree.InvalidUpstream
 - Text.BranchTree.Remote
 - Text.BranchTree.Tracking
 - Text.BranchTree.URL
@@ -368,9 +421,10 @@ This document shows the translation status of each locale file in the repository
 - Text.Configure.CustomAction.Arguments.Tip
 - Text.Configure.CustomAction.InputControls
 - Text.Configure.CustomAction.InputControls.Edit
-- Text.Configure.CustomAction.InputControls.Tip
+- Text.Configure.CustomAction.Scope.Remote
 - Text.Configure.CustomAction.Scope.Tag
 - Text.Configure.Git.PreferredMergeMode
+- Text.Configure.Git.ShowGitFlowInSidebar
 - Text.Configure.IssueTracker.AddSampleGerritChangeIdCommit
 - Text.Configure.IssueTracker.Share
 - Text.ConfigureCustomActionControls
@@ -393,6 +447,9 @@ This document shows the translation status of each locale file in the repository
 - Text.DeinitSubmodule
 - Text.DeinitSubmodule.Force
 - Text.DeinitSubmodule.Path
+- Text.DeleteMultiTags
+- Text.DeleteMultiTags.DeleteFromRemotes
+- Text.DeleteMultiTags.Tip
 - Text.Diff.Image.Blend
 - Text.Diff.Image.SideBySide
 - Text.Diff.Image.Swipe
@@ -405,6 +462,8 @@ This document shows the translation status of each locale file in the repository
 - Text.ExecuteCustomAction.Repository
 - Text.GitFlow.FinishWithPush
 - Text.GitFlow.FinishWithSquash
+- Text.GitFlow.StartNewBranch
+- Text.GitFlow.CurrentBranch
 - Text.Hotkeys.Global.SwitchWorkspace
 - Text.Hotkeys.Global.SwitchTab
 - Text.Hotkeys.TextEditor.OpenExternalMergeTool
@@ -415,12 +474,14 @@ This document shows the translation status of each locale file in the repository
 - Text.MoveSubmodule
 - Text.MoveSubmodule.MoveTo
 - Text.MoveSubmodule.Submodule
+- Text.Preferences.Appearance.EnableCompactFolders
 - Text.Preferences.Git.IgnoreCRAtEOLInDiff
 - Text.Preferences.Git.UseLibsecret
 - Text.Pull.RecurseSubmodules
 - Text.Push.New
 - Text.Push.Revision
 - Text.Push.Revision.Title
+- Text.RemoteCM.CustomAction
 - Text.Repository.BranchSort
 - Text.Repository.BranchSort.ByCommitterDate
 - Text.Repository.BranchSort.ByName
@@ -470,6 +531,7 @@ This document shows the translation status of each locale file in the repository
 - Text.TagCM.Copy.Tagger
 - Text.TagCM.CopyName
 - Text.TagCM.CustomAction
+- Text.TagCM.DeleteMultiple
 - Text.UpdateSubmodules.UpdateToRemoteTrackingBranch
 - Text.ViewLogs
 - Text.ViewLogs.Clear
@@ -486,7 +548,7 @@ This document shows the translation status of each locale file in the repository
 
 </details>
 
-### ![pt__BR](https://img.shields.io/badge/pt__BR-74.24%25-red)
+### ![pt__BR](https://img.shields.io/badge/pt__BR-73.30%25-red)
 
 <details>
 <summary>Missing keys in pt_BR.axaml</summary>
@@ -496,6 +558,8 @@ This document shows the translation status of each locale file in the repository
 - Text.AddToIgnore.Storage
 - Text.AIAssistant.Regen
 - Text.AIAssistant.Use
+- Text.App.Hide
+- Text.App.ShowAll
 - Text.ApplyStash
 - Text.ApplyStash.DropAfterApply
 - Text.ApplyStash.RestoreIndex
@@ -512,10 +576,10 @@ This document shows the translation status of each locale file in the repository
 - Text.BranchCM.CustomAction
 - Text.BranchCM.MergeMultiBranches
 - Text.BranchCM.ResetToSelectedCommit
+- Text.BranchTree.InvalidUpstream
 - Text.BranchTree.Remote
 - Text.BranchTree.Tracking
 - Text.BranchTree.URL
-- Text.BranchUpstreamInvalid
 - Text.ChangeSubmoduleUrl
 - Text.ChangeSubmoduleUrl.Submodule
 - Text.ChangeSubmoduleUrl.URL
@@ -550,11 +614,12 @@ This document shows the translation status of each locale file in the repository
 - Text.Configure.CustomAction.Arguments.Tip
 - Text.Configure.CustomAction.InputControls
 - Text.Configure.CustomAction.InputControls.Edit
-- Text.Configure.CustomAction.InputControls.Tip
 - Text.Configure.CustomAction.Scope.Branch
+- Text.Configure.CustomAction.Scope.Remote
 - Text.Configure.CustomAction.Scope.Tag
 - Text.Configure.CustomAction.WaitForExit
 - Text.Configure.Git.PreferredMergeMode
+- Text.Configure.Git.ShowGitFlowInSidebar
 - Text.Configure.IssueTracker.AddSampleGerritChangeIdCommit
 - Text.Configure.IssueTracker.AddSampleGiteeIssue
 - Text.Configure.IssueTracker.AddSampleGiteePullRequest
@@ -581,6 +646,9 @@ This document shows the translation status of each locale file in the repository
 - Text.DeinitSubmodule
 - Text.DeinitSubmodule.Force
 - Text.DeinitSubmodule.Path
+- Text.DeleteMultiTags
+- Text.DeleteMultiTags.DeleteFromRemotes
+- Text.DeleteMultiTags.Tip
 - Text.DeleteRepositoryNode.Path
 - Text.DeleteRepositoryNode.TipForGroup
 - Text.DeleteRepositoryNode.TipForRepository
@@ -601,6 +669,8 @@ This document shows the translation status of each locale file in the repository
 - Text.FileCM.ResolveUsing
 - Text.GitFlow.FinishWithPush
 - Text.GitFlow.FinishWithSquash
+- Text.GitFlow.StartNewBranch
+- Text.GitFlow.CurrentBranch
 - Text.Hotkeys.Global.Clone
 - Text.Hotkeys.Global.SwitchWorkspace
 - Text.Hotkeys.Global.SwitchTab
@@ -623,6 +693,7 @@ This document shows the translation status of each locale file in the repository
 - Text.MoveSubmodule.Submodule
 - Text.Preferences.AI.Streaming
 - Text.Preferences.Appearance.EditorTabWidth
+- Text.Preferences.Appearance.EnableCompactFolders
 - Text.Preferences.General.DateFormat
 - Text.Preferences.General.ShowChildren
 - Text.Preferences.General.ShowTagsInGraph
@@ -633,6 +704,7 @@ This document shows the translation status of each locale file in the repository
 - Text.Push.New
 - Text.Push.Revision
 - Text.Push.Revision.Title
+- Text.RemoteCM.CustomAction
 - Text.Repository.BranchSort
 - Text.Repository.BranchSort.ByCommitterDate
 - Text.Repository.BranchSort.ByName
@@ -697,6 +769,7 @@ This document shows the translation status of each locale file in the repository
 - Text.TagCM.Copy.Tagger
 - Text.TagCM.CopyName
 - Text.TagCM.CustomAction
+- Text.TagCM.DeleteMultiple
 - Text.UpdateSubmodules.UpdateToRemoteTrackingBranch
 - Text.ViewLogs
 - Text.ViewLogs.Clear
@@ -715,9 +788,21 @@ This document shows the translation status of each locale file in the repository
 
 </details>
 
-### ![ru__RU](https://img.shields.io/badge/ru__RU-%E2%88%9A-brightgreen)
+### ![ru__RU](https://img.shields.io/badge/ru__RU-99.31%25-yellow)
 
-### ![ta__IN](https://img.shields.io/badge/ta__IN-81.35%25-yellow)
+<details>
+<summary>Missing keys in ru_RU.axaml</summary>
+
+- Text.App.Hide
+- Text.App.ShowAll
+- Text.Configure.CustomAction.Arguments.Tip
+- Text.Configure.Git.ShowGitFlowInSidebar
+- Text.GitFlow.StartNewBranch
+- Text.GitFlow.CurrentBranch
+
+</details>
+
+### ![ta__IN](https://img.shields.io/badge/ta__IN-80.21%25-yellow)
 
 <details>
 <summary>Missing keys in ta_IN.axaml</summary>
@@ -725,6 +810,8 @@ This document shows the translation status of each locale file in the repository
 - Text.AddToIgnore
 - Text.AddToIgnore.Pattern
 - Text.AddToIgnore.Storage
+- Text.App.Hide
+- Text.App.ShowAll
 - Text.Askpass.Passphrase
 - Text.Avatar.Load
 - Text.Bisect
@@ -736,6 +823,7 @@ This document shows the translation status of each locale file in the repository
 - Text.Bisect.WaitingForRange
 - Text.BranchCM.CompareWithCurrent
 - Text.BranchCM.ResetToSelectedCommit
+- Text.BranchTree.InvalidUpstream
 - Text.BranchTree.Remote
 - Text.BranchTree.Tracking
 - Text.BranchTree.URL
@@ -768,9 +856,10 @@ This document shows the translation status of each locale file in the repository
 - Text.Configure.CustomAction.Arguments.Tip
 - Text.Configure.CustomAction.InputControls
 - Text.Configure.CustomAction.InputControls.Edit
-- Text.Configure.CustomAction.InputControls.Tip
+- Text.Configure.CustomAction.Scope.Remote
 - Text.Configure.CustomAction.Scope.Tag
 - Text.Configure.Git.PreferredMergeMode
+- Text.Configure.Git.ShowGitFlowInSidebar
 - Text.Configure.IssueTracker.AddSampleGerritChangeIdCommit
 - Text.Configure.IssueTracker.Share
 - Text.ConfigureCustomActionControls
@@ -793,6 +882,9 @@ This document shows the translation status of each locale file in the repository
 - Text.DeinitSubmodule
 - Text.DeinitSubmodule.Force
 - Text.DeinitSubmodule.Path
+- Text.DeleteMultiTags
+- Text.DeleteMultiTags.DeleteFromRemotes
+- Text.DeleteMultiTags.Tip
 - Text.Diff.Image.Blend
 - Text.Diff.Image.SideBySide
 - Text.Diff.Image.Swipe
@@ -805,6 +897,8 @@ This document shows the translation status of each locale file in the repository
 - Text.ExecuteCustomAction.Repository
 - Text.GitFlow.FinishWithPush
 - Text.GitFlow.FinishWithSquash
+- Text.GitFlow.StartNewBranch
+- Text.GitFlow.CurrentBranch
 - Text.Hotkeys.Global.SwitchWorkspace
 - Text.Hotkeys.Global.SwitchTab
 - Text.Hotkeys.TextEditor.OpenExternalMergeTool
@@ -815,12 +909,14 @@ This document shows the translation status of each locale file in the repository
 - Text.MoveSubmodule
 - Text.MoveSubmodule.MoveTo
 - Text.MoveSubmodule.Submodule
+- Text.Preferences.Appearance.EnableCompactFolders
 - Text.Preferences.Git.IgnoreCRAtEOLInDiff
 - Text.Preferences.Git.UseLibsecret
 - Text.Pull.RecurseSubmodules
 - Text.Push.New
 - Text.Push.Revision
 - Text.Push.Revision.Title
+- Text.RemoteCM.CustomAction
 - Text.Repository.BranchSort
 - Text.Repository.BranchSort.ByCommitterDate
 - Text.Repository.BranchSort.ByName
@@ -869,6 +965,7 @@ This document shows the translation status of each locale file in the repository
 - Text.TagCM.Copy.Tagger
 - Text.TagCM.CopyName
 - Text.TagCM.CustomAction
+- Text.TagCM.DeleteMultiple
 - Text.UpdateSubmodules.Target
 - Text.UpdateSubmodules.UpdateToRemoteTrackingBranch
 - Text.ViewLogs
@@ -885,7 +982,7 @@ This document shows the translation status of each locale file in the repository
 
 </details>
 
-### ![uk__UA](https://img.shields.io/badge/uk__UA-82.52%25-yellow)
+### ![uk__UA](https://img.shields.io/badge/uk__UA-81.36%25-yellow)
 
 <details>
 <summary>Missing keys in uk_UA.axaml</summary>
@@ -893,6 +990,8 @@ This document shows the translation status of each locale file in the repository
 - Text.AddToIgnore
 - Text.AddToIgnore.Pattern
 - Text.AddToIgnore.Storage
+- Text.App.Hide
+- Text.App.ShowAll
 - Text.Askpass.Passphrase
 - Text.Avatar.Load
 - Text.Bisect
@@ -903,6 +1002,7 @@ This document shows the translation status of each locale file in the repository
 - Text.Bisect.Skip
 - Text.Bisect.WaitingForRange
 - Text.BranchCM.ResetToSelectedCommit
+- Text.BranchTree.InvalidUpstream
 - Text.BranchTree.Remote
 - Text.BranchTree.Tracking
 - Text.BranchTree.URL
@@ -935,8 +1035,9 @@ This document shows the translation status of each locale file in the repository
 - Text.Configure.CustomAction.Arguments.Tip
 - Text.Configure.CustomAction.InputControls
 - Text.Configure.CustomAction.InputControls.Edit
-- Text.Configure.CustomAction.InputControls.Tip
+- Text.Configure.CustomAction.Scope.Remote
 - Text.Configure.CustomAction.Scope.Tag
+- Text.Configure.Git.ShowGitFlowInSidebar
 - Text.Configure.IssueTracker.AddSampleGerritChangeIdCommit
 - Text.Configure.IssueTracker.Share
 - Text.ConfigureCustomActionControls
@@ -956,6 +1057,9 @@ This document shows the translation status of each locale file in the repository
 - Text.DeinitSubmodule
 - Text.DeinitSubmodule.Force
 - Text.DeinitSubmodule.Path
+- Text.DeleteMultiTags
+- Text.DeleteMultiTags.DeleteFromRemotes
+- Text.DeleteMultiTags.Tip
 - Text.Diff.Image.Blend
 - Text.Diff.Image.SideBySide
 - Text.Diff.Image.Swipe
@@ -968,6 +1072,8 @@ This document shows the translation status of each locale file in the repository
 - Text.ExecuteCustomAction.Repository
 - Text.GitFlow.FinishWithPush
 - Text.GitFlow.FinishWithSquash
+- Text.GitFlow.StartNewBranch
+- Text.GitFlow.CurrentBranch
 - Text.Hotkeys.Global.SwitchWorkspace
 - Text.Hotkeys.Global.SwitchTab
 - Text.Hotkeys.TextEditor.OpenExternalMergeTool
@@ -978,12 +1084,14 @@ This document shows the translation status of each locale file in the repository
 - Text.MoveSubmodule
 - Text.MoveSubmodule.MoveTo
 - Text.MoveSubmodule.Submodule
+- Text.Preferences.Appearance.EnableCompactFolders
 - Text.Preferences.Git.IgnoreCRAtEOLInDiff
 - Text.Preferences.Git.UseLibsecret
 - Text.Pull.RecurseSubmodules
 - Text.Push.New
 - Text.Push.Revision
 - Text.Push.Revision.Title
+- Text.RemoteCM.CustomAction
 - Text.Repository.BranchSort
 - Text.Repository.BranchSort.ByCommitterDate
 - Text.Repository.BranchSort.ByName
@@ -1032,6 +1140,7 @@ This document shows the translation status of each locale file in the repository
 - Text.TagCM.Copy.Tagger
 - Text.TagCM.CopyName
 - Text.TagCM.CustomAction
+- Text.TagCM.DeleteMultiple
 - Text.UpdateSubmodules.UpdateToRemoteTrackingBranch
 - Text.ViewLogs
 - Text.ViewLogs.Clear
@@ -1043,6 +1152,24 @@ This document shows the translation status of each locale file in the repository
 
 </details>
 
-### ![zh__CN](https://img.shields.io/badge/zh__CN-%E2%88%9A-brightgreen)
+### ![zh__CN](https://img.shields.io/badge/zh__CN-99.65%25-yellow)
 
-### ![zh__TW](https://img.shields.io/badge/zh__TW-%E2%88%9A-brightgreen)
+<details>
+<summary>Missing keys in zh_CN.axaml</summary>
+
+- Text.Configure.Git.ShowGitFlowInSidebar
+- Text.GitFlow.StartNewBranch
+- Text.GitFlow.CurrentBranch
+
+</details>
+
+### ![zh__TW](https://img.shields.io/badge/zh__TW-99.65%25-yellow)
+
+<details>
+<summary>Missing keys in zh_TW.axaml</summary>
+
+- Text.Configure.Git.ShowGitFlowInSidebar
+- Text.GitFlow.StartNewBranch
+- Text.GitFlow.CurrentBranch
+
+</details>

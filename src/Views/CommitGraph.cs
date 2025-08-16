@@ -64,6 +64,8 @@ namespace SourceGit.Views
             var rowHeight = layout.RowHeight;
             var endY = startY + clipHeight + 28;
 
+            // Enable anti-aliasing for smoother rendering
+            using (context.PushRenderOptions(new RenderOptions { EdgeMode = EdgeMode.Unspecified }))
             using (context.PushClip(new Rect(0, 0, clipWidth, clipHeight)))
             using (context.PushTransform(Matrix.CreateTranslation(0, -startY)))
             {
