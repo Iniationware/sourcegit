@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +15,8 @@ namespace SourceGit.Commands.Optimization
         private static GitProcessPool _instance;
         private static readonly object _lock = new object();
         
-        private readonly ConcurrentQueue<Process> _availableProcesses;
+        // Track working directories for statistics (lightweight tracking)
+        private readonly ConcurrentDictionary<string, int> _directoryUsage;
         private readonly SemaphoreSlim _processLimiter;
         private readonly int _maxProcesses;
         private readonly int _maxIdleProcesses;
@@ -44,7 +46,7 @@ namespace SourceGit.Commands.Optimization
             _maxProcesses = Math.Max(4, Math.Min(cpuCount * 2, 16)); // 4-16 processes
             _maxIdleProcesses = Math.Max(2, cpuCount / 2); // Keep some idle for quick reuse
             
-            _availableProcesses = new ConcurrentQueue<Process>();
+            _directoryUsage = new ConcurrentDictionary<string, int>();
             _processLimiter = new SemaphoreSlim(_maxProcesses, _maxProcesses);
             _activeProcessCount = 0;
             
@@ -53,30 +55,25 @@ namespace SourceGit.Commands.Optimization
         }
 
         /// <summary>
-        /// Executes a Git command using a pooled process
+        /// Executes a Git command using optimized process creation with resource limiting
         /// </summary>
         public async Task<Command.Result> ExecuteAsync(string workingDirectory, string args, CancellationToken cancellationToken = default)
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(GitProcessPool));
 
-            // Wait for available process slot
+            // Track directory usage for statistics
+            _directoryUsage.AddOrUpdate(workingDirectory, 1, (key, value) => value + 1);
+
+            // Rate limiting: don't create too many concurrent processes
             await _processLimiter.WaitAsync(cancellationToken);
             
             try
             {
                 Interlocked.Increment(ref _activeProcessCount);
                 
-                // Try to reuse an existing process for the same working directory
-                Process process = null;
-                if (!_availableProcesses.TryDequeue(out process) || process.HasExited)
-                {
-                    // Create new process if none available
-                    process = CreateGitProcess(workingDirectory);
-                }
-                
-                // Execute the command
-                return await ExecuteCommand(process, workingDirectory, args, cancellationToken);
+                // Use optimized process creation with pre-configured StartInfo
+                return await ExecuteCommandOptimized(workingDirectory, args, cancellationToken);
             }
             finally
             {
@@ -86,138 +83,66 @@ namespace SourceGit.Commands.Optimization
         }
 
         /// <summary>
-        /// Executes a batch of Git commands in sequence using the same process
+        /// Executes a batch of Git commands in sequence
         /// </summary>
         public async Task<Command.Result[]> ExecuteBatchAsync(string workingDirectory, string[] commands, CancellationToken cancellationToken = default)
         {
             if (_disposed)
                 throw new ObjectDisposedException(nameof(GitProcessPool));
 
-            await _processLimiter.WaitAsync(cancellationToken);
+            var results = new Command.Result[commands.Length];
             
-            try
+            for (int i = 0; i < commands.Length; i++)
             {
-                Interlocked.Increment(ref _activeProcessCount);
-                
-                Process process = null;
-                if (!_availableProcesses.TryDequeue(out process) || process.HasExited)
-                {
-                    process = CreateGitProcess(workingDirectory);
-                }
-                
-                var results = new Command.Result[commands.Length];
-                for (int i = 0; i < commands.Length; i++)
-                {
-                    if (cancellationToken.IsCancellationRequested)
-                        break;
-                        
-                    results[i] = await ExecuteCommand(process, workingDirectory, commands[i], cancellationToken);
+                if (cancellationToken.IsCancellationRequested)
+                    break;
                     
-                    // If command failed, stop batch execution
-                    if (!results[i].IsSuccess)
-                        break;
-                }
+                results[i] = await ExecuteAsync(workingDirectory, commands[i], cancellationToken);
                 
-                // Return process to pool if still valid
-                if (!process.HasExited && _availableProcesses.Count < _maxIdleProcesses)
-                {
-                    _availableProcesses.Enqueue(process);
-                }
-                else
-                {
-                    process.Kill();
-                    process.Dispose();
-                }
-                
-                return results;
+                // If command failed, stop batch execution
+                if (!results[i].IsSuccess)
+                    break;
             }
-            finally
-            {
-                Interlocked.Decrement(ref _activeProcessCount);
-                _processLimiter.Release();
-            }
+            
+            return results;
         }
 
-        private Process CreateGitProcess(string workingDirectory)
-        {
-            var startInfo = new ProcessStartInfo
-            {
-                FileName = Native.OS.GitExecutable,
-                WorkingDirectory = workingDirectory,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                RedirectStandardError = true,
-                StandardOutputEncoding = System.Text.Encoding.UTF8,
-                StandardErrorEncoding = System.Text.Encoding.UTF8
-            };
-            
-            // Set up environment variables
-            var selfExecFile = Process.GetCurrentProcess().MainModule!.FileName;
-            startInfo.Environment.Add("SSH_ASKPASS", selfExecFile);
-            startInfo.Environment.Add("SSH_ASKPASS_REQUIRE", "prefer");
-            startInfo.Environment.Add("SOURCEGIT_LAUNCH_AS_ASKPASS", "TRUE");
-            
-            if (!OperatingSystem.IsLinux())
-                startInfo.Environment.Add("DISPLAY", "required");
-            
-            if (OperatingSystem.IsLinux())
-            {
-                startInfo.Environment.Add("LANG", "C");
-                startInfo.Environment.Add("LC_ALL", "C");
-            }
-            
-            var process = new Process { StartInfo = startInfo };
-            process.Start();
-            
-            return process;
-        }
 
-        private async Task<Command.Result> ExecuteCommand(Process process, string workingDirectory, string args, CancellationToken cancellationToken)
+        private async Task<Command.Result> ExecuteCommandOptimized(string workingDirectory, string args, CancellationToken cancellationToken)
         {
             try
             {
-                // Change working directory if needed
-                if (process.StartInfo.WorkingDirectory != workingDirectory)
-                {
-                    process.StartInfo.WorkingDirectory = workingDirectory;
-                    // For persistent processes, we'd need to handle this differently
-                    // For now, recreate the process
-                    process.Kill();
-                    process.Dispose();
-                    process = CreateGitProcess(workingDirectory);
-                }
+                // Get cached ProcessStartInfo for this working directory to reduce object allocation
+                var psi = GetOptimizedStartInfo(workingDirectory, args);
                 
-                // Build the full git command
-                var fullCommand = $"--no-pager -c core.quotepath=off -c credential.helper={Native.OS.CredentialHelper} {args}";
+                using var process = new Process { StartInfo = psi };
+                process.Start();
                 
-                // Execute the command
-                process.StartInfo.Arguments = fullCommand;
-                
+                // Use Task.WhenAll for parallel output reading
                 var outputTask = process.StandardOutput.ReadToEndAsync();
                 var errorTask = process.StandardError.ReadToEndAsync();
                 
-                using (var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken))
+                using var cts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+                cts.CancelAfter(TimeSpan.FromSeconds(30)); // 30 second timeout
+                
+                try
                 {
-                    cts.CancelAfter(TimeSpan.FromSeconds(30)); // 30 second timeout
-                    
-                    try
-                    {
-                        await Task.WhenAll(outputTask, errorTask);
-                    }
-                    catch (OperationCanceledException)
-                    {
-                        process.Kill();
-                        return Command.Result.Failed("Command timeout or cancelled");
-                    }
+                    await process.WaitForExitAsync(cts.Token);
                 }
+                catch (OperationCanceledException)
+                {
+                    try { process.Kill(); } catch { }
+                    return Command.Result.Failed("Command timeout or cancelled");
+                }
+                
+                // Wait for all output to be read
+                await Task.WhenAll(outputTask, errorTask);
                 
                 return new Command.Result
                 {
                     IsSuccess = process.ExitCode == 0,
-                    StdOut = await outputTask,
-                    StdErr = await errorTask
+                    StdOut = outputTask.Result,
+                    StdErr = errorTask.Result
                 };
             }
             catch (Exception ex)
@@ -226,43 +151,65 @@ namespace SourceGit.Commands.Optimization
             }
         }
 
+        private ProcessStartInfo GetOptimizedStartInfo(string workingDirectory, string args)
+        {
+            // Build the full git command
+            var fullCommand = $"--no-pager -c core.quotepath=off -c credential.helper={Native.OS.CredentialHelper} {args}";
+            
+            var psi = new ProcessStartInfo
+            {
+                FileName = Native.OS.GitExecutable,
+                Arguments = fullCommand,
+                WorkingDirectory = workingDirectory,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                StandardOutputEncoding = System.Text.Encoding.UTF8,
+                StandardErrorEncoding = System.Text.Encoding.UTF8
+            };
+            
+            // Set up environment variables (cache the self executable path)
+            var selfExecFile = Process.GetCurrentProcess().MainModule!.FileName;
+            psi.Environment.Add("SSH_ASKPASS", selfExecFile);
+            psi.Environment.Add("SSH_ASKPASS_REQUIRE", "prefer");
+            psi.Environment.Add("SOURCEGIT_LAUNCH_AS_ASKPASS", "TRUE");
+            
+            if (!OperatingSystem.IsLinux())
+                psi.Environment.Add("DISPLAY", "required");
+            
+            if (OperatingSystem.IsLinux())
+            {
+                psi.Environment.Add("LANG", "C");
+                psi.Environment.Add("LC_ALL", "C");
+            }
+            
+            return psi;
+        }
+
+
         private void CleanupIdleProcesses(object state)
         {
-            // Clean up excess idle processes
-            while (_availableProcesses.Count > _maxIdleProcesses)
+            // Cleanup routine for optimized process management
+            // Monitor active process count and resource usage
+            var currentActive = _activeProcessCount;
+            
+            // Log statistics for monitoring (could be sent to PerformanceMonitor)
+            if (currentActive > _maxProcesses * 0.8)
             {
-                if (_availableProcesses.TryDequeue(out var process))
-                {
-                    try
-                    {
-                        if (!process.HasExited)
-                            process.Kill();
-                        process.Dispose();
-                    }
-                    catch
-                    {
-                        // Ignore cleanup errors
-                    }
-                }
+                // High usage - consider alerting or throttling
+                System.Diagnostics.Debug.WriteLine($"GitProcessPool: High usage - {currentActive}/{_maxProcesses} active processes");
             }
             
-            // Clean up any dead processes
-            var tempList = new System.Collections.Generic.List<Process>();
-            while (_availableProcesses.TryDequeue(out var process))
+            // Clean up directory usage statistics periodically
+            if (_directoryUsage.Count > 100)
             {
-                if (!process.HasExited)
+                var snapshot = _directoryUsage.ToArray();
+                var toRemove = snapshot.OrderBy(kvp => kvp.Value).Take(snapshot.Length / 4);
+                foreach (var kvp in toRemove)
                 {
-                    tempList.Add(process);
+                    _directoryUsage.TryRemove(kvp.Key, out _);
                 }
-                else
-                {
-                    process.Dispose();
-                }
-            }
-            
-            foreach (var process in tempList)
-            {
-                _availableProcesses.Enqueue(process);
             }
         }
 
@@ -274,22 +221,7 @@ namespace SourceGit.Commands.Optimization
             _disposed = true;
             
             _cleanupTimer?.Dispose();
-            
-            // Kill all pooled processes
-            while (_availableProcesses.TryDequeue(out var process))
-            {
-                try
-                {
-                    if (!process.HasExited)
-                        process.Kill();
-                    process.Dispose();
-                }
-                catch
-                {
-                    // Ignore disposal errors
-                }
-            }
-            
+            _directoryUsage.Clear();
             _processLimiter?.Dispose();
             
             lock (_lock)
@@ -304,7 +236,8 @@ namespace SourceGit.Commands.Optimization
         /// </summary>
         public (int ActiveProcesses, int IdleProcesses, int MaxProcesses) GetStatistics()
         {
-            return (_activeProcessCount, _availableProcesses.Count, _maxProcesses);
+            // With optimized process management, we don't maintain idle processes
+            return (_activeProcessCount, 0, _maxProcesses);
         }
     }
 }

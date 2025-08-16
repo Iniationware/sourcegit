@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -116,7 +117,10 @@ namespace SourceGit.Commands.Optimization
         {
             var keysToRemove = new List<string>();
             
-            foreach (var kvp in _cache)
+            // Create snapshot to avoid enumeration during modification
+            var snapshot = _cache.ToArray();
+            
+            foreach (var kvp in snapshot)
             {
                 if (!kvp.Key.StartsWith(repository))
                     continue;
@@ -141,7 +145,10 @@ namespace SourceGit.Commands.Optimization
         {
             var keysToRemove = new List<string>();
             
-            foreach (var key in _cache.Keys)
+            // Create snapshot to avoid enumeration during modification
+            var snapshot = _cache.Keys.ToArray();
+            
+            foreach (var key in snapshot)
             {
                 if (key.StartsWith(repository))
                 {
@@ -162,7 +169,10 @@ namespace SourceGit.Commands.Optimization
         {
             var keysToRemove = new List<string>();
             
-            foreach (var kvp in _cache)
+            // Create snapshot to avoid enumeration during modification
+            var snapshot = _cache.ToArray();
+            
+            foreach (var kvp in snapshot)
             {
                 if (kvp.Key.StartsWith(repository) && kvp.Value.Type == type)
                 {
@@ -189,7 +199,10 @@ namespace SourceGit.Commands.Optimization
                 EstimatedMemoryMB = 0
             };
             
-            foreach (var kvp in _cache)
+            // Create snapshot to avoid enumeration during modification
+            var snapshot = _cache.ToArray();
+            
+            foreach (var kvp in snapshot)
             {
                 var entry = kvp.Value;
                 
@@ -254,7 +267,10 @@ namespace SourceGit.Commands.Optimization
             var now = DateTime.UtcNow;
             var keysToRemove = new List<string>();
             
-            foreach (var kvp in _cache)
+            // Create snapshot to avoid enumeration during modification
+            var snapshot = _cache.ToArray();
+            
+            foreach (var kvp in snapshot)
             {
                 if (kvp.Value.ExpiresAt <= now)
                 {
@@ -271,13 +287,8 @@ namespace SourceGit.Commands.Optimization
             var stats = GetStatistics();
             if (stats.EstimatedMemoryMB > 100)
             {
-                // Remove least recently used entries
-                var sortedEntries = new List<KeyValuePair<string, CacheEntry>>();
-                foreach (var kvp in _cache)
-                {
-                    sortedEntries.Add(kvp);
-                }
-                
+                // Remove least recently used entries using snapshot
+                var sortedEntries = snapshot.ToList();
                 sortedEntries.Sort((a, b) => a.Value.HitCount.CompareTo(b.Value.HitCount));
                 
                 // Remove bottom 25% by hit count
