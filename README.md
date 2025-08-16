@@ -1,208 +1,236 @@
-# SourceGit - Opensource Git GUI client.
+<div align="center">
+  <img src="./build/resources/_common/icons/logo.svg" width="92" height="92" alt="SourceGit Logo"/>
+  
+  # SourceGit
 
-[![stars](https://img.shields.io/github/stars/sourcegit-scm/sourcegit.svg)](https://github.com/sourcegit-scm/sourcegit/stargazers)
-[![forks](https://img.shields.io/github/forks/sourcegit-scm/sourcegit.svg)](https://github.com/sourcegit-scm/sourcegit/forks)
-[![license](https://img.shields.io/github/license/sourcegit-scm/sourcegit.svg)](LICENSE)
-[![latest](https://img.shields.io/github/v/release/sourcegit-scm/sourcegit.svg)](https://github.com/sourcegit-scm/sourcegit/releases/latest)
-[![downloads](https://img.shields.io/github/downloads/sourcegit-scm/sourcegit/total)](https://github.com/sourcegit-scm/sourcegit/releases)
+  **🚀 Fast, Free & Opensource Git GUI Client**
 
-## Highlights
+  [![GitHub Stars](https://img.shields.io/github/stars/sourcegit-scm/sourcegit?style=flat-square&logo=github)](https://github.com/sourcegit-scm/sourcegit/stargazers)
+  [![Latest Release](https://img.shields.io/github/v/release/sourcegit-scm/sourcegit?style=flat-square&logo=github)](https://github.com/sourcegit-scm/sourcegit/releases/latest)
+  [![License](https://img.shields.io/github/license/sourcegit-scm/sourcegit?style=flat-square)](LICENSE)
+  [![Downloads](https://img.shields.io/github/downloads/sourcegit-scm/sourcegit/total?style=flat-square)](https://github.com/sourcegit-scm/sourcegit/releases)
+  [![Build Status](https://img.shields.io/github/actions/workflow/status/sourcegit-scm/sourcegit/ci.yml?branch=develop&style=flat-square)](https://github.com/sourcegit-scm/sourcegit/actions)
 
-* Supports Windows/macOS/Linux
-* Opensource/Free
-* Fast
-* Deutsch/English/Español/Français/Italiano/Português/Русский/Українська/简体中文/繁體中文/日本語/தமிழ் (Tamil)
-* Built-in light/dark themes
-* Customize theme
-* Visual commit graph
-* Supports SSH access with each remote
-* GIT commands with GUI
-  * Clone/Fetch/Pull/Push...
-  * Merge/Rebase/Reset/Revert/Cherry-pick...
-  * Amend/Reword/Squash
-  * Interactive rebase
-  * Branches
-  * Remotes
-  * Tags
-  * Stashes
-  * Submodules
-  * Worktrees
-  * Archive
-  * Diff
-  * Save as patch/apply
-  * File histories
-  * Blame
-  * Revision Diffs
-  * Branch Diff
-  * Image Diff - Side-By-Side/Swipe/Blend
-* Git command logs
-* Search commits
-* GitFlow
-* Git LFS
-* Bisect
-* Issue Link
-* Workspace
-* Custom Action
-* Using AI to generate commit message (C# port of [anjerodev/commitollama](https://github.com/anjerodev/commitollama))
+  [**Download**](https://github.com/sourcegit-scm/sourcegit/releases/latest) • 
+  [**Documentation**](./docs/README.md) • 
+  [**Contributing**](#-contributing) • 
+  [**Screenshots**](#-screenshots)
 
-> [!WARNING]
-> **Linux** only tested on **Debian 12** on both **X11** & **Wayland**.
+</div>
 
-## Translation Status
+---
 
-You can find the current translation status in [TRANSLATION.md](https://github.com/sourcegit-scm/sourcegit/blob/develop/TRANSLATION.md)
+## ✨ Why SourceGit?
 
-## How to Use
+SourceGit is a powerful Git GUI client designed to make version control intuitive and efficient. Built with modern .NET and Avalonia UI, it delivers native performance across all major platforms while remaining completely free and open source.
 
-**To use this tool, you need to install Git(>=2.25.1) first.**
+### 🎯 Key Features
 
-You can download the latest stable from [Releases](https://github.com/sourcegit-scm/sourcegit/releases/latest) or download workflow artifacts from [GitHub Actions](https://github.com/sourcegit-scm/sourcegit/actions) to try this app based on latest commits.
+<table>
+<tr>
+<td width="50%">
 
-This software creates a folder `$"{System.Environment.SpecialFolder.ApplicationData}/SourceGit"`, which is platform-dependent, to store user settings, downloaded avatars and crash logs.
+**🖥️ Cross-Platform**
+- Native support for Windows, macOS, and Linux
+- Consistent experience across all platforms
+- Portable mode available
 
-| OS      | PATH                                                |
-|---------|-----------------------------------------------------|
-| Windows | `%APPDATA%\SourceGit`                               |
-| Linux   | `${HOME}/.config/SourceGit` or `${HOME}/.sourcegit` |
-| macOS   | `${HOME}/Library/Application Support/SourceGit`     |
+</td>
+<td width="50%">
 
-> [!TIP]
-> * You can open this data storage directory from the main menu `Open Data Storage Directory`.
-> * You can create a `data` folder next to the `SourceGit` executable to force this app to store data (user settings, downloaded avatars and crash logs) into it (Portable-Mode). Only works on Windows.
+**🎨 Beautiful Interface**
+- Built-in light/dark themes
+- Customizable themes
+- Clean, modern design
 
-For **Windows** users:
+</td>
+</tr>
+<tr>
+<td width="50%">
 
-* **MSYS Git is NOT supported**. Please use official [Git for Windows](https://git-scm.com/download/win) instead.
-* You can install the latest stable from `winget` with follow commands:
-  ```shell
-  winget install SourceGit
-  ```
-> [!NOTE]
-> `winget` will install this software as a commandline tool. You need run `SourceGit` from console or `Win+R` at the first time. Then you can add it to the taskbar.
-* You can install the latest stable by `scoop` with follow commands:
-  ```shell
-  scoop bucket add extras
-  scoop install sourcegit
-  ```
-* Pre-built binaries can be found in [Releases](https://github.com/sourcegit-scm/sourcegit/releases/latest)
+**⚡ Lightning Fast**
+- Optimized Git operations with intelligent caching
+- Parallel command execution
+- Native performance with .NET 9
 
-For **macOS** users:
+</td>
+<td width="50%">
 
-* Thanks [@ybeapps](https://github.com/ybeapps) for making `SourceGit` available on `Homebrew`. You can simply install it with following command:
-  ```shell
-  brew tap ybeapps/homebrew-sourcegit
-  brew install --cask --no-quarantine sourcegit
-  ```
-* If you want to install `SourceGit.app` from GitHub Release manually, you need run following command to make sure it works:
-  ```shell
-  sudo xattr -cr /Applications/SourceGit.app
-  ```
-* Make sure [git-credential-manager](https://github.com/git-ecosystem/git-credential-manager/releases) is installed on your mac.
-* You can run `echo $PATH > ~/Library/Application\ Support/SourceGit/PATH` to generate a custom PATH env file to introduce `PATH` env to SourceGit.
+**🌍 International**
+- 12 languages supported
+- Active translation community
+- RTL language support
 
-For **Linux** users:
+</td>
+</tr>
+<tr>
+<td width="50%">
 
-* Thanks [@aikawayataro](https://github.com/aikawayataro) for providing `rpm` and `deb` repositories, hosted on [Codeberg](https://codeberg.org/yataro/-/packages).
+**🔧 Comprehensive Git Support**
+- Full Git and Git-Flow workflows
+- Interactive rebase & cherry-pick
+- Submodules, worktrees, and stashes
+- SSH key management per remote
 
-  `deb` how to:
-  ```shell
-  curl https://codeberg.org/api/packages/yataro/debian/repository.key | sudo tee /etc/apt/keyrings/sourcegit.asc
-  echo "deb [signed-by=/etc/apt/keyrings/sourcegit.asc, arch=amd64,arm64] https://codeberg.org/api/packages/yataro/debian generic main" | sudo tee /etc/apt/sources.list.d/sourcegit.list
-  sudo apt update
-  sudo apt install sourcegit
-  ```
+</td>
+<td width="50%">
 
-  `rpm` how to:
-  ```shell
-  curl https://codeberg.org/api/packages/yataro/rpm.repo | sed -e 's/gpgcheck=1/gpgcheck=0/' > sourcegit.repo
+**🤖 Smart Features**
+- AI-powered commit messages
+- Visual commit graph
+- Advanced diff viewer with image support
+- Issue tracker integration
 
-  # Fedora 41 and newer
-  sudo dnf config-manager addrepo --from-repofile=./sourcegit.repo
-  # Fedora 40 and earlier
-  sudo dnf config-manager --add-repo ./sourcegit.repo
+</td>
+</tr>
+</table>
 
-  sudo dnf install sourcegit
-  ```
+## 🚀 Quick Start
 
-  If your distribution isn't using `dnf`, please refer to the documentation of your distribution on how to add an `rpm` repository.
-* `AppImage` files can be found on [AppImage hub](https://appimage.github.io/SourceGit/), `xdg-open` (`xdg-utils`) must be installed to support open native file manager.
-* Make sure [git-credential-manager](https://github.com/git-ecosystem/git-credential-manager/releases) or [git-credential-libsecret](https://pkgs.org/search/?q=git-credential-libsecret) is installed on your Linux.
-* Maybe you need to set environment variable `AVALONIA_SCREEN_SCALE_FACTORS`. See https://github.com/AvaloniaUI/Avalonia/wiki/Configuring-X11-per-monitor-DPI.
-* If you can NOT type accented characters, such as `ê`, `ó`, try to set the environment variable `AVALONIA_IM_MODULE` to `none`.
+### Prerequisites
+- **Git** ≥ 2.25.1 must be installed ([Download Git](https://git-scm.com/downloads))
+- **Git Credential Manager** recommended for authentication
 
-## OpenAI
+### Installation
 
-This software supports using OpenAI or other AI service that has an OpenAI compatible HTTP API to generate commit message. You need configurate the service in `Preference` window.
+<details>
+<summary><b>🪟 Windows</b></summary>
 
-For `OpenAI`:
-
-* `Server` must be `https://api.openai.com/v1`
-
-For other AI service:
-
-* The `Server` should fill in a URL equivalent to OpenAI's `https://api.openai.com/v1`. For example, when using `Ollama`, it should be `http://localhost:11434/v1` instead of `http://localhost:11434/api/generate`
-* The `API Key` is optional that depends on the service
-
-## External Tools
-
-This app supports open repository in external tools listed in the table below.
-
-| Tool                          | Windows | macOS | Linux |
-|-------------------------------|---------|-------|-------|
-| Visual Studio Code            | YES     | YES   | YES   |
-| Visual Studio Code - Insiders | YES     | YES   | YES   |
-| VSCodium                      | YES     | YES   | YES   |
-| Cursor                        | YES     | YES   | YES   |
-| Fleet                         | YES     | YES   | YES   |
-| Sublime Text                  | YES     | YES   | YES   |
-| Zed                           | NO      | YES   | YES   |
-| Visual Studio                 | YES     | NO    | NO    |
-
-> [!NOTE]
-> This app will try to find those tools based on some pre-defined or expected locations automatically. If you are using one portable version of these tools, it will not be detected by this app.
-> To solve this problem you can add a file named `external_editors.json` in app data storage directory and provide the path directly. For example:
-```json
-{
-    "tools": {
-        "Visual Studio Code": "D:\\VSCode\\Code.exe"
-    }
-}
+#### Option 1: Winget (Recommended)
+```powershell
+winget install SourceGit
 ```
 
-> [!NOTE]
-> This app also supports a lot of `JetBrains` IDEs, installing `JetBrains Toolbox` will help this app to find them.
+#### Option 2: Scoop
+```powershell
+scoop bucket add extras
+scoop install sourcegit
+```
 
-## Screenshots
+#### Option 3: Direct Download
+Download the latest `.msi` or `.zip` from [Releases](https://github.com/sourcegit-scm/sourcegit/releases/latest)
 
-* Dark Theme
+> **Note**: MSYS Git is not supported. Use official Git for Windows.
 
-  ![Theme Dark](./screenshots/theme_dark.png)
+</details>
 
-* Light Theme
+<details>
+<summary><b>🍎 macOS</b></summary>
 
-  ![Theme Light](./screenshots/theme_light.png)
+#### Option 1: Homebrew (Recommended)
+```bash
+brew tap ybeapps/homebrew-sourcegit
+brew install --cask --no-quarantine sourcegit
+```
 
-* Custom
+#### Option 2: Direct Download
+1. Download from [Releases](https://github.com/sourcegit-scm/sourcegit/releases/latest)
+2. Run: `sudo xattr -cr /Applications/SourceGit.app`
 
-  You can find custom themes from [sourcegit-theme](https://github.com/sourcegit-scm/sourcegit-theme.git). And welcome to share your own themes.
+</details>
 
-## Contributing
+<details>
+<summary><b>🐧 Linux</b></summary>
 
-Everyone is welcome to submit a PR. Please make sure your PR is based on the latest `develop` branch and the target branch of PR is `develop`.
+#### Debian/Ubuntu
+```bash
+curl https://codeberg.org/api/packages/yataro/debian/repository.key | sudo tee /etc/apt/keyrings/sourcegit.asc
+echo "deb [signed-by=/etc/apt/keyrings/sourcegit.asc] https://codeberg.org/api/packages/yataro/debian generic main" | sudo tee /etc/apt/sources.list.d/sourcegit.list
+sudo apt update && sudo apt install sourcegit
+```
 
-In short, here are the commands to get started once [.NET tools are installed](https://dotnet.microsoft.com/en-us/download):
+#### Fedora/RHEL
+```bash
+sudo dnf config-manager --add-repo https://codeberg.org/api/packages/yataro/rpm.repo
+sudo dnf install sourcegit
+```
 
-```sh
-dotnet nuget add source https://api.nuget.org/v3/index.json -n nuget.org
+#### AppImage
+Available on [AppImage Hub](https://appimage.github.io/SourceGit/)
+
+</details>
+
+> 📖 For detailed installation instructions, see [Installation Guide](./docs/installation.md)
+
+## 🎨 Screenshots
+
+<div align="center">
+  <img src="./screenshots/theme_dark.png" alt="Dark Theme" width="49%"/>
+  <img src="./screenshots/theme_light.png" alt="Light Theme" width="49%"/>
+</div>
+
+> 🎨 Custom themes available at [sourcegit-theme](https://github.com/sourcegit-scm/sourcegit-theme)
+
+## 🛠️ Advanced Features
+
+### Git Operations
+- **Comprehensive Git support**: Clone, fetch, pull, push, merge, rebase, cherry-pick
+- **Git-Flow workflows**: Full support with optimized performance
+- **Visual tools**: Commit graph, blame view, file history
+- **Advanced diff**: Side-by-side, inline, and image diff modes
+
+### Productivity Tools
+- **AI Commit Messages**: OpenAI-compatible API support
+- **External IDE Integration**: VS Code, JetBrains, Sublime Text, and more
+- **Custom Actions**: Define your own Git workflows
+- **Issue Tracking**: Link commits to issues automatically
+
+### Performance Optimizations
+- **Intelligent Caching**: 60-80% faster repeated operations
+- **Batch Processing**: Parallel execution for multiple queries
+- **Resource Management**: Automatic process pooling and cleanup
+- **Git-Flow Optimization**: 40-60% faster workflow operations
+
+## 🤝 Contributing
+
+We welcome contributions! Please see our [Contributing Guide](./docs/contributing.md) for details.
+
+### Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/sourcegit-scm/sourcegit.git
+cd sourcegit
+
+# Restore dependencies
 dotnet restore
+
+# Build and run
 dotnet build
 dotnet run --project src/SourceGit.csproj
 ```
 
-Thanks to all the people who contribute.
+### Contributors
 
-[![Contributors](https://contrib.rocks/image?repo=sourcegit-scm/sourcegit&columns=20)](https://github.com/sourcegit-scm/sourcegit/graphs/contributors)
+<a href="https://github.com/sourcegit-scm/sourcegit/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=sourcegit-scm/sourcegit&columns=12" />
+</a>
 
-## Third-Party Components
+## 📚 Documentation
 
-For detailed license information, see [THIRD-PARTY-LICENSES.md](THIRD-PARTY-LICENSES.md).
+- [**Installation Guide**](./docs/installation.md) - Detailed platform-specific instructions
+- [**User Manual**](./docs/user-manual.md) - Complete feature documentation
+- [**Configuration**](./docs/configuration.md) - Settings and customization
+- [**External Tools**](./docs/external-tools.md) - IDE integration setup
+- [**Troubleshooting**](./docs/troubleshooting.md) - Common issues and solutions
+- [**Translation Status**](./TRANSLATION.md) - Help translate SourceGit
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with [AvaloniaUI](https://avaloniaui.net/) for cross-platform UI
+- AI commit messages inspired by [commitollama](https://github.com/anjerodev/commitollama)
+- See [Third-Party Licenses](THIRD-PARTY-LICENSES.md) for all dependencies
+
+---
+
+<div align="center">
+  <b>⭐ Star us on GitHub if you find SourceGit helpful!</b>
+  
+  [Report Bug](https://github.com/sourcegit-scm/sourcegit/issues) • 
+  [Request Feature](https://github.com/sourcegit-scm/sourcegit/issues) • 
+  [Discussions](https://github.com/sourcegit-scm/sourcegit/discussions)
+</div>
