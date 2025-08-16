@@ -50,7 +50,7 @@ This document shows the translation status of each locale file in the repository
 
 </details>
 
-### ![fr__FR](https://img.shields.io/badge/fr__FR-80.09%25-yellow)
+### ![fr__FR](https://img.shields.io/badge/fr__FR-80.11%25-yellow)
 
 <details>
 <summary>Missing keys in fr_FR.axaml</summary>
@@ -231,7 +231,7 @@ This document shows the translation status of each locale file in the repository
 
 </details>
 
-### ![it__IT](https://img.shields.io/badge/it__IT-85.27%25-yellow)
+### ![it__IT](https://img.shields.io/badge/it__IT-85.29%25-yellow)
 
 <details>
 <summary>Missing keys in it_IT.axaml</summary>
@@ -367,7 +367,7 @@ This document shows the translation status of each locale file in the repository
 
 </details>
 
-### ![ja__JP](https://img.shields.io/badge/ja__JP-80.09%25-yellow)
+### ![ja__JP](https://img.shields.io/badge/ja__JP-80.11%25-yellow)
 
 <details>
 <summary>Missing keys in ja_JP.axaml</summary>
@@ -548,7 +548,7 @@ This document shows the translation status of each locale file in the repository
 
 </details>
 
-### ![pt__BR](https://img.shields.io/badge/pt__BR-73.30%25-red)
+### ![pt__BR](https://img.shields.io/badge/pt__BR-73.33%25-red)
 
 <details>
 <summary>Missing keys in pt_BR.axaml</summary>
@@ -802,7 +802,7 @@ This document shows the translation status of each locale file in the repository
 
 </details>
 
-### ![ta__IN](https://img.shields.io/badge/ta__IN-80.21%25-yellow)
+### ![ta__IN](https://img.shields.io/badge/ta__IN-80.23%25-yellow)
 
 <details>
 <summary>Missing keys in ta_IN.axaml</summary>
@@ -982,7 +982,7 @@ This document shows the translation status of each locale file in the repository
 
 </details>
 
-### ![uk__UA](https://img.shields.io/badge/uk__UA-81.36%25-yellow)
+### ![uk__UA](https://img.shields.io/badge/uk__UA-81.38%25-yellow)
 
 <details>
 <summary>Missing keys in uk_UA.axaml</summary>
@@ -1152,7 +1152,7 @@ This document shows the translation status of each locale file in the repository
 
 </details>
 
-### ![zh__CN](https://img.shields.io/badge/zh__CN-99.65%25-yellow)
+### ![zh__CN](https://img.shields.io/badge/zh__CN-99.66%25-yellow)
 
 <details>
 <summary>Missing keys in zh_CN.axaml</summary>
@@ -1163,7 +1163,7 @@ This document shows the translation status of each locale file in the repository
 
 </details>
 
-### ![zh__TW](https://img.shields.io/badge/zh__TW-99.65%25-yellow)
+### ![zh__TW](https://img.shields.io/badge/zh__TW-99.66%25-yellow)
 
 <details>
 <summary>Missing keys in zh_TW.axaml</summary>
