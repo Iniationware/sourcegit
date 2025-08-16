@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./build/resources/_common/icons/logo.svg" width="92" height="92" alt="SourceGit Logo"/>
+  <img src="./build/resources/_common/icons/sourcegit.png" width="92" height="92" alt="SourceGit Logo"/>
   
   # SourceGit
 
