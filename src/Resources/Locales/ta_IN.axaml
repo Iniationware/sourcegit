@@ -284,6 +284,7 @@
   <x:String x:Key="Text.GitFlow.DevelopBranch" xml:space="preserve">மேம்பாட்டு கிளை:</x:String>
   <x:String x:Key="Text.GitFlow.Feature" xml:space="preserve">நற்பொருத்தம்:</x:String>
   <x:String x:Key="Text.GitFlow.FeaturePrefix" xml:space="preserve">நற்பொருத்தம் முன்னொட்டு:</x:String>
+  <x:String x:Key="Text.GitFlow.FinishBranch" xml:space="preserve">கிளையை முடிக்கவும்</x:String>
   <x:String x:Key="Text.GitFlow.FinishFeature" xml:space="preserve">ஓட்டம் - நற்பொருத்தம் முடி</x:String>
   <x:String x:Key="Text.GitFlow.FinishHotfix" xml:space="preserve">ஓட்டம் - சூடானதிருத்தம் முடி</x:String>
   <x:String x:Key="Text.GitFlow.FinishRelease" xml:space="preserve">ஓட்டம் - வெளியீட்டை முடி</x:String>

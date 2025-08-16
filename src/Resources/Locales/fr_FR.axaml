@@ -285,6 +285,7 @@
   <x:String x:Key="Text.GitFlow.DevelopBranch" xml:space="preserve">Branche de développement :</x:String>
   <x:String x:Key="Text.GitFlow.Feature" xml:space="preserve">Feature:</x:String>
   <x:String x:Key="Text.GitFlow.FeaturePrefix" xml:space="preserve">Feature Prefix:</x:String>
+  <x:String x:Key="Text.GitFlow.FinishBranch" xml:space="preserve">Terminer la Branche</x:String>
   <x:String x:Key="Text.GitFlow.FinishFeature" xml:space="preserve">FLOW - Terminer Feature</x:String>
   <x:String x:Key="Text.GitFlow.FinishHotfix" xml:space="preserve">FLOW - Terminer Hotfix</x:String>
   <x:String x:Key="Text.GitFlow.FinishRelease" xml:space="preserve">FLOW - Terminer Release</x:String>

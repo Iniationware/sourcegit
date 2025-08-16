@@ -368,6 +368,7 @@
   <x:String x:Key="Text.GitFlow.DevelopBranch" xml:space="preserve">Rama de Desarrollo:</x:String>
   <x:String x:Key="Text.GitFlow.Feature" xml:space="preserve">Feature:</x:String>
   <x:String x:Key="Text.GitFlow.FeaturePrefix" xml:space="preserve">Prefijo de Feature:</x:String>
+  <x:String x:Key="Text.GitFlow.FinishBranch" xml:space="preserve">Finalizar Rama</x:String>
   <x:String x:Key="Text.GitFlow.FinishFeature" xml:space="preserve">FLOW - Finalizar Feature</x:String>
   <x:String x:Key="Text.GitFlow.FinishHotfix" xml:space="preserve">FLOW - Finalizar Hotfix</x:String>
   <x:String x:Key="Text.GitFlow.FinishRelease" xml:space="preserve">FLOW - Finalizar Release</x:String>

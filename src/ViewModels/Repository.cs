@@ -1089,6 +1089,9 @@ namespace SourceGit.ViewModels
 
         public void MarkBranchesDirtyManually()
         {
+            // Invalidate branch cache when branches are manually marked dirty (e.g., after create/delete operations)
+            Commands.Optimization.GitCommandCache.Instance.InvalidateByOperation(_fullpath, Commands.Optimization.GitOperation.BranchCreate);
+            
             if (_watcher == null)
             {
                 RefreshBranches();

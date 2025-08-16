@@ -289,6 +289,7 @@
   <x:String x:Key="Text.GitFlow.DevelopBranch" xml:space="preserve">Розробка гілки:</x:String>
   <x:String x:Key="Text.GitFlow.Feature" xml:space="preserve">Функція:</x:String>
   <x:String x:Key="Text.GitFlow.FeaturePrefix" xml:space="preserve">Префікс функції:</x:String>
+  <x:String x:Key="Text.GitFlow.FinishBranch" xml:space="preserve">Завершити гілку</x:String>
   <x:String x:Key="Text.GitFlow.FinishFeature" xml:space="preserve">FLOW - Завершити функцію</x:String>
   <x:String x:Key="Text.GitFlow.FinishHotfix" xml:space="preserve">FLOW - Завершити гарячу поправку</x:String>
   <x:String x:Key="Text.GitFlow.FinishRelease" xml:space="preserve">FLOW - Завершити реліз</x:String>
