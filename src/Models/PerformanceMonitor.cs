@@ -12,7 +12,7 @@ namespace SourceGit.Models
     {
         private static readonly Dictionary<string, Stopwatch> _activeTimers = new();
         private static readonly Dictionary<string, List<long>> _measurements = new();
-        private static readonly Lock _lock = new();
+        private static readonly object _lock = new object();
         private static bool _enabled = true;
 
         public static bool IsEnabled

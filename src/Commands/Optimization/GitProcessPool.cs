@@ -131,7 +131,24 @@ namespace SourceGit.Commands.Optimization
                 }
                 catch (OperationCanceledException)
                 {
-                    try { process.Kill(); } catch { }
+                    // Properly handle process termination
+                    try
+                    {
+                        if (!process.HasExited)
+                        {
+                            process.Kill();
+                            // Give it a moment to exit cleanly
+                            await process.WaitForExitAsync(CancellationToken.None).ConfigureAwait(false);
+                        }
+                    }
+                    catch (InvalidOperationException)
+                    {
+                        // Process already exited
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"Failed to kill process: {ex.Message}");
+                    }
                     return Command.Result.Failed("Command timeout or cancelled");
                 }
                 

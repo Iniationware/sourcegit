@@ -115,22 +115,11 @@ namespace SourceGit.Commands.Optimization
         /// </summary>
         public void InvalidateByOperation(string repository, GitOperation operation)
         {
-            var keysToRemove = new List<string>();
-            
-            // Create snapshot to avoid enumeration during modification
-            var snapshot = _cache.ToArray();
-            
-            foreach (var kvp in snapshot)
-            {
-                if (!kvp.Key.StartsWith(repository))
-                    continue;
-                    
-                var shouldInvalidate = ShouldInvalidate(kvp.Value.Type, operation);
-                if (shouldInvalidate)
-                {
-                    keysToRemove.Add(kvp.Key);
-                }
-            }
+            // Thread-safe approach: collect keys to remove in single pass
+            var keysToRemove = _cache
+                .Where(kvp => kvp.Key.StartsWith(repository) && ShouldInvalidate(kvp.Value.Type, operation))
+                .Select(kvp => kvp.Key)
+                .ToList();
             
             foreach (var key in keysToRemove)
             {
@@ -143,18 +132,10 @@ namespace SourceGit.Commands.Optimization
         /// </summary>
         public void InvalidateRepository(string repository)
         {
-            var keysToRemove = new List<string>();
-            
-            // Create snapshot to avoid enumeration during modification
-            var snapshot = _cache.Keys.ToArray();
-            
-            foreach (var key in snapshot)
-            {
-                if (key.StartsWith(repository))
-                {
-                    keysToRemove.Add(key);
-                }
-            }
+            // Thread-safe approach: collect keys in single pass
+            var keysToRemove = _cache.Keys
+                .Where(key => key.StartsWith(repository))
+                .ToList();
             
             foreach (var key in keysToRemove)
             {
@@ -167,18 +148,11 @@ namespace SourceGit.Commands.Optimization
         /// </summary>
         public void InvalidateCacheType(string repository, CacheType type)
         {
-            var keysToRemove = new List<string>();
-            
-            // Create snapshot to avoid enumeration during modification
-            var snapshot = _cache.ToArray();
-            
-            foreach (var kvp in snapshot)
-            {
-                if (kvp.Key.StartsWith(repository) && kvp.Value.Type == type)
-                {
-                    keysToRemove.Add(kvp.Key);
-                }
-            }
+            // Thread-safe approach: collect keys in single pass
+            var keysToRemove = _cache
+                .Where(kvp => kvp.Key.StartsWith(repository) && kvp.Value.Type == type)
+                .Select(kvp => kvp.Key)
+                .ToList();
             
             foreach (var key in keysToRemove)
             {

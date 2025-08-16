@@ -1327,13 +1327,14 @@ namespace SourceGit.ViewModels
             {
                 try
                 {
-                    var branches = await new Commands.QueryBranches(_fullpath).GetResultAsync().ConfigureAwait(false);
+                    // Use optimized query with caching and batch execution
+                    var branches = await new Commands.QueryBranchesOptimized(_fullpath).GetResultAsync().ConfigureAwait(false);
                     var remotes = await new Commands.QueryRemotes(_fullpath).GetResultAsync().ConfigureAwait(false);
                     
                     // Validate results before proceeding
                     if (branches == null)
                     {
-                        App.RaiseException(_fullpath, "QueryBranches returned null, using empty list");
+                        App.RaiseException(_fullpath, "QueryBranchesOptimized returned null, using empty list");
                         branches = new List<Models.Branch>();
                     }
                     if (remotes == null)
