@@ -101,6 +101,20 @@ namespace SourceGit.ViewModels
             }
         }
 
+        public bool ShowGitFlowInSidebar
+        {
+            get => _repo.Settings.ShowGitFlowInSidebar;
+            set
+            {
+                if (_repo.Settings.ShowGitFlowInSidebar != value)
+                {
+                    // Use the Repository's property setter which handles notification
+                    _repo.ShowGitFlowInSidebar = value;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
         public AvaloniaList<Models.CommitTemplate> CommitTemplates
         {
             get => _repo.Settings.CommitTemplates;
