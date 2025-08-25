@@ -207,7 +207,6 @@
   <x:String x:Key="Text.CreateBranch.LocalChanges.StashAndReply" xml:space="preserve">Stasha e Ripristina</x:String>
   <x:String x:Key="Text.CreateBranch.Name" xml:space="preserve">Nome Nuovo Branch:</x:String>
   <x:String x:Key="Text.CreateBranch.Name.Placeholder" xml:space="preserve">Inserisci il nome del branch.</x:String>
-  <x:String x:Key="Text.CreateBranch.Name.WarnSpace" xml:space="preserve">Gli spazi verranno rimpiazzati con dei trattini.</x:String>
   <x:String x:Key="Text.CreateBranch.Title" xml:space="preserve">Crea Branch Locale</x:String>
   <x:String x:Key="Text.CreateTag" xml:space="preserve">Crea Tag...</x:String>
   <x:String x:Key="Text.CreateTag.BasedOn" xml:space="preserve">Nuovo Tag Su:</x:String>
