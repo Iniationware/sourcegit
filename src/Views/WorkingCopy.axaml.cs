@@ -596,7 +596,7 @@ namespace SourceGit.Views
                     history.Icon = App.CreateMenuIcon("Icons.Histories");
                     history.Click += (_, e) =>
                     {
-                        App.ShowWindow(new ViewModels.FileHistories(repo, change.Path));
+                        App.ShowWindow(new ViewModels.FileHistories(repo.FullPath, change.Path));
                         e.Handled = true;
                     };
 
@@ -1062,7 +1062,7 @@ namespace SourceGit.Views
                     history.Icon = App.CreateMenuIcon("Icons.Histories");
                     history.Click += (_, e) =>
                     {
-                        App.ShowWindow(new ViewModels.FileHistories(repo, change.Path));
+                        App.ShowWindow(new ViewModels.FileHistories(repo.FullPath, change.Path));
                         e.Handled = true;
                     };
 
