@@ -9,6 +9,18 @@ namespace SourceGit.ViewModels
 {
     public class ScanRepositories : Popup
     {
+        public bool UseCustomDir
+        {
+            get => _useCustomDir;
+            set => SetProperty(ref _useCustomDir, value);
+        }
+
+        public string CustomDir
+        {
+            get => _customDir;
+            set => SetProperty(ref _customDir, value);
+        }
+
         public List<Models.ScanDir> ScanDirs
         {
             get;
@@ -34,16 +46,28 @@ namespace SourceGit.ViewModels
 
             if (ScanDirs.Count > 0)
                 _selected = ScanDirs[0];
+            else
+                _useCustomDir = true;
 
             GetManagedRepositories(Preferences.Instance.RepositoryNodes, _managed);
         }
 
         public override async Task<bool> Sure()
         {
-            ProgressDescription = $"Scan repositories under '{_selected.Path}' ...";
+            var selectedDir = _useCustomDir ? _customDir : _selected?.Path;
+            if (string.IsNullOrEmpty(selectedDir))
+            {
+                App.RaiseException(null, "Missing root directory to scan!");
+                return false;
+            }
+
+            if (!Directory.Exists(selectedDir))
+                return true;
+
+            ProgressDescription = $"Scan repositories under '{selectedDir}' ...";
 
             var minDelay = Task.Delay(500);
-            var rootDir = new DirectoryInfo(_selected.Path);
+            var rootDir = new DirectoryInfo(selectedDir);
             var found = new List<string>();
 
             // Check if directory exists and is accessible
@@ -213,6 +237,8 @@ namespace SourceGit.ViewModels
         }
 
         private HashSet<string> _managed = new();
+        private bool _useCustomDir = false;
+        private string _customDir = string.Empty;
         private Models.ScanDir _selected = null;
     }
 }
