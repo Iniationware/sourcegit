@@ -267,6 +267,12 @@ namespace SourceGit.ViewModels
             set => SetProperty(ref _lfsImageActiveIdx, value);
         }
 
+        public int ImageDiffActiveIdx
+        {
+            get => _imageDiffActiveIdx;
+            set => SetProperty(ref _imageDiffActiveIdx, value);
+        }
+
         public bool EnableCompactFoldersInChangesTree
         {
             get => _enableCompactFoldersInChangesTree;
@@ -735,6 +741,7 @@ namespace SourceGit.ViewModels
         private bool _useFullTextDiff = false;
         private bool _useBlockNavigationInDiffView = false;
         private int _lfsImageActiveIdx = 0;
+        private int _imageDiffActiveIdx = 0;
         private bool _enableCompactFoldersInChangesTree = false;
 
         private Models.ChangeViewMode _unstagedChangeViewMode = Models.ChangeViewMode.List;
