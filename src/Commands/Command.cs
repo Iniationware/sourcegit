@@ -195,8 +195,25 @@ namespace SourceGit.Commands
             var builder = new StringBuilder();
             builder.Append("--no-pager -c core.quotepath=off");
             
-            // Only add credential helper if it's configured
-            if (!string.IsNullOrEmpty(Native.OS.CredentialHelper))
+            // Check if we're working with a public repository (no credentials needed)
+            var isPublicRepo = false;
+            if (!string.IsNullOrEmpty(WorkingDirectory))
+            {
+                // Check if this appears to be a public GitHub/GitLab URL in the arguments
+                if (Args != null && (Args.Contains("github.com") || Args.Contains("gitlab.com")))
+                {
+                    // For fetch, pull, clone operations on public repos, skip credentials
+                    if (Args.Contains("fetch") || Args.Contains("pull") || Args.Contains("ls-remote") || Args.Contains("clone"))
+                    {
+                        isPublicRepo = true;
+                        // Explicitly disable credential helpers for public repos
+                        builder.Append(" -c credential.helper=");
+                    }
+                }
+            }
+            
+            // Only add credential helper if it's configured and not a public repo
+            if (!isPublicRepo && !string.IsNullOrEmpty(Native.OS.CredentialHelper))
             {
                 // For the cache helper with timeout, we need special handling
                 if (Native.OS.CredentialHelper == "cache")

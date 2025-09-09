@@ -47,6 +47,16 @@ namespace SourceGit.Commands
                     URL = match.Groups[2].Value,
                 };
 
+                // Mark public repositories to avoid credential prompts
+                if (!string.IsNullOrEmpty(remote.URL) && remote.URL.StartsWith("https://"))
+                {
+                    // Check if it's a known public repository host
+                    if (remote.URL.Contains("github.com") || remote.URL.Contains("gitlab.com"))
+                    {
+                        remote.IsPublic = true;
+                    }
+                }
+
                 if (outs.Find(x => x.Name == remote.Name) != null)
                     continue;
 
