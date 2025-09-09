@@ -1,6 +1,11 @@
 # SourceGit Iniationware Edition - Release Notes
 
-## Version 2025.34-IW.1
+## Version 2025.34-IW.2
+
+### What's New in IW.2
+This patch release integrates 11 carefully selected improvements from the upstream SourceGit repository, focusing on features that enhance usability without compromising our performance optimizations. All changes have been tested for compatibility with our fork's architecture.
+
+## Version 2025.34-IW.1 (Previous Release)
 
 ### About This Fork
 This is the Iniationware edition of SourceGit, featuring significant performance improvements, enhanced stability, and additional features not yet available in the upstream version.
@@ -42,6 +47,19 @@ This is the Iniationware edition of SourceGit, featuring significant performance
 - **Comprehensive Logging**: Better error tracking for debugging
 
 ### ✨ New Features
+
+#### Recently Integrated from Upstream (2025.34-IW.2)
+- **Vue.js Syntax Highlighting**: Added syntax highlighting support for Vue.js files
+- **Enhanced Menu Icons**: Improved visual clarity with new menu icons
+- **No-Verify Commit Option**: Support for `--no-verify` flag when committing
+- **OpenAI Environment Variable**: Read OpenAI API key from environment variables
+- **Auto-Sanitize Branch Names**: Automatically clean invalid characters from branch/tag names
+- **Custom Directory Scanning**: Support for scanning repositories in custom directories
+- **LFS Local Cache**: Load LFS images from local cache before using `git lfs smudge`
+- **Window Dragging by Toolbar**: Move window by dragging the toolbar area
+- **Preserve History Filters**: Keep history filters when checking out branches
+- **Large Output Optimization**: Better memory handling for large Git command outputs
+- **Auto-CRLF Fix**: Set `core.autocrlf=false` for consistent diff operations
 
 #### GitFlow Integration
 - **Optimized GitFlow Operations**: Faster branch creation and management
