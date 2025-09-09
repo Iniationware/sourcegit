@@ -95,6 +95,42 @@ namespace SourceGit.Views
             set;
         } = false;
 
+        public static readonly StyledProperty<List<Models.CredentialManager.CredentialHelper>> AvailableCredentialHelpersProperty =
+            AvaloniaProperty.Register<Preferences, List<Models.CredentialManager.CredentialHelper>>(nameof(AvailableCredentialHelpers));
+
+        public List<Models.CredentialManager.CredentialHelper> AvailableCredentialHelpers
+        {
+            get => GetValue(AvailableCredentialHelpersProperty);
+            set => SetValue(AvailableCredentialHelpersProperty, value);
+        }
+
+        public static readonly StyledProperty<Models.CredentialManager.CredentialHelper> SelectedCredentialHelperProperty =
+            AvaloniaProperty.Register<Preferences, Models.CredentialManager.CredentialHelper>(nameof(SelectedCredentialHelper));
+
+        public Models.CredentialManager.CredentialHelper SelectedCredentialHelper
+        {
+            get => GetValue(SelectedCredentialHelperProperty);
+            set => SetValue(SelectedCredentialHelperProperty, value);
+        }
+
+        public static readonly StyledProperty<string> CustomCredentialCommandProperty =
+            AvaloniaProperty.Register<Preferences, string>(nameof(CustomCredentialCommand));
+
+        public string CustomCredentialCommand
+        {
+            get => GetValue(CustomCredentialCommandProperty);
+            set => SetValue(CustomCredentialCommandProperty, value);
+        }
+
+        public static readonly StyledProperty<bool> IsCustomCredentialHelperProperty =
+            AvaloniaProperty.Register<Preferences, bool>(nameof(IsCustomCredentialHelper));
+
+        public bool IsCustomCredentialHelper
+        {
+            get => GetValue(IsCustomCredentialHelperProperty);
+            set => SetValue(IsCustomCredentialHelperProperty, value);
+        }
+
         public static readonly StyledProperty<Models.OpenAIService> SelectedOpenAIServiceProperty =
             AvaloniaProperty.Register<Preferences, Models.OpenAIService>(nameof(SelectedOpenAIService));
 
@@ -153,13 +189,55 @@ namespace SourceGit.Views
 
             UpdateGitVersion();
             InitializeComponent();
+            
+            // Initialize credential manager UI
+            AvailableCredentialHelpers = Models.CredentialManager.AvailableHelpers;
+            SelectedCredentialHelper = Models.CredentialManager.CurrentHelper;
+            if (SelectedCredentialHelper != null && SelectedCredentialHelper.Type == Models.CredentialManager.CredentialHelperType.Custom)
+            {
+                IsCustomCredentialHelper = true;
+                CustomCredentialCommand = SelectedCredentialHelper.Command;
+            }
         }
 
         protected override async void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
 
-            if (change.Property == GPGFormatProperty)
+            if (change.Property == SelectedCredentialHelperProperty)
+            {
+                var helper = SelectedCredentialHelper;
+                if (helper != null)
+                {
+                    IsCustomCredentialHelper = helper.Type == Models.CredentialManager.CredentialHelperType.Custom;
+                    
+                    if (helper.Type == Models.CredentialManager.CredentialHelperType.Custom)
+                    {
+                        // For custom, use the user-entered command
+                        if (!string.IsNullOrEmpty(CustomCredentialCommand))
+                        {
+                            helper.Command = CustomCredentialCommand;
+                        }
+                    }
+                    else if (helper.Type == Models.CredentialManager.CredentialHelperType.Store)
+                    {
+                        // Configure store helper with a safe path
+                        Models.CredentialManager.ConfigureStoreHelper();
+                    }
+                    
+                    Models.CredentialManager.CurrentHelper = helper;
+                    Native.OS.CredentialHelper = Models.CredentialManager.GetHelperCommand(helper);
+                }
+            }
+            else if (change.Property == CustomCredentialCommandProperty)
+            {
+                if (SelectedCredentialHelper?.Type == Models.CredentialManager.CredentialHelperType.Custom)
+                {
+                    SelectedCredentialHelper.Command = CustomCredentialCommand;
+                    Native.OS.CredentialHelper = CustomCredentialCommand;
+                }
+            }
+            else if (change.Property == GPGFormatProperty)
             {
                 var config = await new Commands.Config(null).ReadAllAsync();
                 if (GPGFormat.Value == "openpgp" && config.TryGetValue("gpg.program", out var openpgp))

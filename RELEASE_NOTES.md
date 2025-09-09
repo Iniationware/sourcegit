@@ -1,6 +1,25 @@
 # SourceGit Iniationware Edition - Release Notes
 
-## Version 2025.34-IW.3
+## Version 2025.34-IW.4
+
+### What's New in IW.4
+This release introduces comprehensive Git credential management to solve the common problem on Linux where users have to repeatedly enter credentials. The new system auto-detects and configures the best available credential helper for your platform.
+
+### Major New Feature: Git Credential Manager
+- **Automatic Detection**: Discovers all available credential helpers on your system
+- **Smart Selection**: Automatically chooses the most secure option available
+- **Platform-Specific Support**: 
+  - Linux: Libsecret (GNOME Keyring/KWallet) support
+  - macOS: Native Keychain integration
+  - Windows: Credential Store integration
+- **Multiple Options**: Support for Cache (memory), Store (file), and Git Credential Manager
+- **Custom Helpers**: Configure any custom credential helper command
+- **User-Friendly UI**: New credential manager dropdown in Preferences → Git tab
+- **Security-First**: Prioritizes secure storage methods over convenience
+
+This feature is especially beneficial for Linux users who previously had to enter credentials repeatedly for each Git operation.
+
+## Version 2025.34-IW.3 (Previous Release)
 
 ### What's New in IW.3
 This critical patch release focuses on stability improvements, integrating important bug fixes from upstream SourceGit. These fixes address crashes, UI reliability issues, and functional improvements that significantly enhance the application's stability.

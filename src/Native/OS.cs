@@ -62,7 +62,7 @@ namespace SourceGit.Native
         {
             get;
             set;
-        } = "manager";
+        } = "";
 
         public static string ShellOrTerminal
         {

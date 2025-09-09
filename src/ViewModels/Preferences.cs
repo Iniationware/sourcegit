@@ -584,6 +584,17 @@ namespace SourceGit.ViewModels
             var path = Native.OS.GitExecutable;
             if (string.IsNullOrEmpty(path) || !File.Exists(path))
                 GitInstallPath = Native.OS.FindGitExecutable();
+            
+            // Initialize credential manager after Git is found
+            if (!string.IsNullOrEmpty(Native.OS.GitExecutable))
+            {
+                // This will auto-detect available credential helpers
+                var currentHelper = Models.CredentialManager.CurrentHelper;
+                if (currentHelper != null)
+                {
+                    Native.OS.CredentialHelper = Models.CredentialManager.GetHelperCommand(currentHelper);
+                }
+            }
         }
 
         private void PrepareShellOrTerminal()
