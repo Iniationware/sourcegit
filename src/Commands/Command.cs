@@ -181,6 +181,21 @@ namespace SourceGit.Commands
             if (!OperatingSystem.IsLinux())
                 start.Environment.Add("DISPLAY", "required");
 
+            // Pass through SSH_AUTH_SOCK for SSH agent authentication
+            // This is critical for SSH agent to work properly on Linux/macOS
+            var sshAuthSock = Environment.GetEnvironmentVariable("SSH_AUTH_SOCK");
+            if (!string.IsNullOrEmpty(sshAuthSock) && !start.Environment.ContainsKey("SSH_AUTH_SOCK"))
+            {
+                start.Environment.Add("SSH_AUTH_SOCK", sshAuthSock);
+            }
+
+            // Also pass through SSH_AGENT_PID if it exists
+            var sshAgentPid = Environment.GetEnvironmentVariable("SSH_AGENT_PID");
+            if (!string.IsNullOrEmpty(sshAgentPid) && !start.Environment.ContainsKey("SSH_AGENT_PID"))
+            {
+                start.Environment.Add("SSH_AGENT_PID", sshAgentPid);
+            }
+
             // If an SSH private key was provided, sets the environment.
             if (!start.Environment.ContainsKey("GIT_SSH_COMMAND") && !string.IsNullOrEmpty(SSHKey))
                 start.Environment.Add("GIT_SSH_COMMAND", $"ssh -i '{SSHKey}'");
@@ -190,6 +205,46 @@ namespace SourceGit.Commands
             {
                 start.Environment.Add("LANG", "C");
                 start.Environment.Add("LC_ALL", "C");
+            }
+
+            // Set GPG_TTY for proper GPG signing support
+            // This is critical for GPG signing to work in non-GUI terminals
+            if (!start.Environment.ContainsKey("GPG_TTY"))
+            {
+                // Try to get the TTY from the environment
+                var tty = Environment.GetEnvironmentVariable("GPG_TTY");
+                if (string.IsNullOrEmpty(tty))
+                {
+                    // If not set, try to detect it
+                    if (OperatingSystem.IsLinux() || OperatingSystem.IsMacOS())
+                    {
+                        try
+                        {
+                            var ttyProcess = new Process();
+                            ttyProcess.StartInfo.FileName = "tty";
+                            ttyProcess.StartInfo.UseShellExecute = false;
+                            ttyProcess.StartInfo.RedirectStandardOutput = true;
+                            ttyProcess.StartInfo.CreateNoWindow = true;
+                            ttyProcess.Start();
+                            tty = ttyProcess.StandardOutput.ReadToEnd().Trim();
+                            ttyProcess.WaitForExit();
+                            
+                            if (!string.IsNullOrEmpty(tty) && tty.StartsWith("/dev/"))
+                            {
+                                start.Environment.Add("GPG_TTY", tty);
+                            }
+                        }
+                        catch
+                        {
+                            // If we can't detect TTY, GPG signing might fail
+                            // but we'll let Git handle that error
+                        }
+                    }
+                }
+                else
+                {
+                    start.Environment.Add("GPG_TTY", tty);
+                }
             }
 
             var builder = new StringBuilder();

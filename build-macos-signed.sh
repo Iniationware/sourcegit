@@ -94,7 +94,8 @@ clean_build() {
     print_status "Cleaning previous builds..."
     rm -rf "$BUILD_DIR"
     rm -rf "$APP_BUNDLE"
-    rm -rf "*.dmg"
+    rm -f *.dmg
+    rm -f *.zip
     print_success "Cleaned previous builds"
 }
 
@@ -281,6 +282,34 @@ sign_app() {
     rm -f entitlements.plist
 }
 
+# Create ZIP for distribution
+create_zip() {
+    print_status "Creating ZIP archive for distribution..."
+    
+    ZIP_NAME="${APP_NAME}-${VERSION}-arm64.zip"
+    
+    # Remove old ZIP if exists
+    rm -f "${ZIP_NAME}"
+    
+    # Create ZIP archive with proper compression
+    # Using ditto for better macOS compatibility (preserves resource forks, extended attributes)
+    ditto -c -k --sequesterRsrc --keepParent "${APP_BUNDLE}" "${ZIP_NAME}"
+    
+    # Alternatively, use zip command for cross-platform compatibility
+    # zip -r -y "${ZIP_NAME}" "${APP_BUNDLE}"
+    
+    print_success "ZIP created: ${ZIP_NAME}"
+    
+    # Verify the ZIP file
+    print_status "Verifying ZIP archive..."
+    if unzip -t "${ZIP_NAME}" > /dev/null 2>&1; then
+        print_success "ZIP archive verified successfully"
+    else
+        print_error "ZIP archive verification failed"
+        exit 1
+    fi
+}
+
 # Create DMG for distribution
 create_dmg() {
     print_status "Creating DMG for distribution..."
@@ -348,6 +377,7 @@ main() {
     build_app
     create_bundle
     sign_app
+    create_zip
     create_dmg
     
     echo ""
@@ -356,6 +386,7 @@ main() {
     echo ""
     echo "Output files:"
     echo "  - App Bundle: ${APP_BUNDLE}"
+    echo "  - ZIP Archive: ${APP_NAME}-${VERSION}-arm64.zip"
     echo "  - DMG: ${DMG_NAME}"
     echo ""
     
