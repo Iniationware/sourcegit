@@ -625,6 +625,9 @@ namespace SourceGit.ViewModels
             
             // Dispose of MemoryMetrics
             _memoryMetrics?.Dispose();
+            
+            // Clear cache for this repository to free memory
+            ClearGraphCacheForRepository();
             _memoryMetrics = null;
             
             // Clear all observable collections first to release references
@@ -1526,20 +1529,33 @@ namespace SourceGit.ViewModels
                 var commits = await new Commands.QueryCommits(_fullpath, builder.ToString()).GetResultAsync().ConfigureAwait(false);
                 
                 // Generate cache key based on commit list
-                var cacheKey = commits.Count > 0 ? $"{commits[0].SHA}_{commits.Count}_{_settings.HistoryShowFlags}" : null;
+                // Generate cache key based on repository state and settings
+                var cacheKey = commits.Count > 0 
+                    ? $"{_fullpath}_{commits[0].SHA}_{commits.Count}_{_settings.HistoryShowFlags}_{_currentBranch}"
+                    : null;
                 
-                Models.CommitGraph graph;
-                if (cacheKey != null && cacheKey == _cachedGraphKey && _cachedGraph != null)
+                Models.CommitGraph graph = null;
+                if (cacheKey != null)
                 {
-                    // Use cached graph if commits haven't changed
-                    graph = _cachedGraph;
+                    // Try to get from LRU cache
+                    graph = _graphCache.Get(cacheKey);
                 }
-                else
+                
+                if (graph == null)
                 {
-                    // Parse new graph and cache it
+                    // Parse new graph and add to cache
                     graph = Models.CommitGraph.Parse(commits, _settings.HistoryShowFlags.HasFlag(Models.HistoryShowFlags.FirstParentOnly));
-                    _cachedGraph = graph;
-                    _cachedGraphKey = cacheKey;
+                    
+                    if (cacheKey != null && graph != null)
+                    {
+                        _graphCache.Set(cacheKey, graph);
+                        
+                        // Periodically trim cache if under memory pressure
+                        if (_graphCache.Count > 30)
+                        {
+                            _graphCache.TrimExcess();
+                        }
+                    }
                 }
 
                 Dispatcher.UIThread.Invoke(() =>
@@ -2426,8 +2442,35 @@ namespace SourceGit.ViewModels
 
         private string _navigateToCommitDelayed = string.Empty;
         
-        // Caching for performance optimization
-        private Models.CommitGraph _cachedGraph = null;
-        private string _cachedGraphKey = null;
+        private void ClearGraphCacheForRepository()
+        {
+            // Clear cache entries specific to this repository
+            // Since we're using a static cache, we can't easily remove just this repo's entries
+            // But we can trim excess to free memory
+            _graphCache.TrimExcess();
+            
+            // If this is causing memory pressure, clear more aggressively
+            var stats = _graphCache.GetStatistics();
+            if (stats.MemoryUsagePercent > 80)
+            {
+                _graphCache.Clear();
+            }
+        }
+        
+        // LRU caching for performance optimization with memory management
+        private static readonly Models.LRUCache<string, Models.CommitGraph> _graphCache = 
+            new Models.LRUCache<string, Models.CommitGraph>(
+                maxCapacity: 50,        // Keep up to 50 graphs
+                maxMemoryMB: 200,       // Use up to 200MB for graph cache
+                sizeCalculator: graph => 
+                {
+                    // More accurate size calculation for commit graphs
+                    if (graph == null) return 0;
+                    long size = 0;
+                    size += (graph.Commits?.Count ?? 0) * 250;  // ~250 bytes per commit
+                    size += (graph.Lanes?.Count ?? 0) * 150;    // ~150 bytes per lane
+                    size += 1024; // Base overhead
+                    return size;
+                });
     }
 }
