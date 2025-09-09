@@ -3,38 +3,66 @@
 ## Overview
 This document tracks planned improvements and features for the SourceGit Iniationware Edition. Items are organized by priority and estimated effort.
 
+## 📊 Progress Summary (Last Updated: 2025-01-09)
+
+### Completed
+- ✅ **Priority 1 - Critical Fixes**: 100% Complete (5/5 items + 1 additional)
+  - All platform-specific issues resolved
+  - Authentication & security enhancements implemented
+  - Public repository credential management added
+  
+- ✅ **Priority 3 - Performance Optimizations**: 40% Complete (2/5 items)
+  - LRU Cache for Commit Graph implemented
+  - Apple Silicon Detection & Optimization completed
+
+### In Progress
+- 🟡 **Priority 2 - High Impact Features**: Not started
+- 🟡 **Priority 3 - Performance**: 3 items remaining
+- 🔵 **Priority 4 - UI/UX Enhancements**: Not started
+- 🟣 **Priority 5 - Advanced Features**: Not started
+- 🟤 **Priority 6 - Architecture & Long-term**: Not started
+
 ---
 
-## 🔴 Priority 1 - Critical Fixes (Immediate)
+## 🔴 Priority 1 - Critical Fixes (Immediate) ✅ COMPLETED
 
 ### Platform-Specific Issues
 
 #### Linux
-- [ ] **Fix Desktop File MimeType** [`build/resources/_common/applications/sourcegit.desktop`]
-  - Remove incorrect `MimeType=inode/directory` causing unwanted app launches
+- [x] **Fix Desktop File MimeType** [`build/resources/_common/applications/sourcegit.desktop`]
+  - ✅ Removed incorrect `MimeType=inode/directory` causing unwanted app launches
   - Issue: #1650
-  - Effort: 15 minutes
+  - Completed: 2025-01-09
 
 #### macOS
-- [ ] **Fix ARM64 ZIP Release Build** [`build-macos-signed.sh`]
-  - ARM64 ZIP releases potentially broken
+- [x] **Fix ARM64 ZIP Release Build** [`build-macos-signed.sh`]
+  - ✅ Enhanced build script to create both ZIP and DMG archives
+  - ✅ Added ZIP verification and proper cleanup
   - Issue: #1723
-  - Test on Apple Silicon hardware
-  - Effort: 2 hours
+  - Completed: 2025-01-09
 
 ### Authentication & Security
 
-- [ ] **GPG Signing Support Enhancement** [`src/Commands/Commit.cs`]
-  - Add GPG_TTY environment variable detection
-  - Provide clear error messages when GPG signing fails
+- [x] **GPG Signing Support Enhancement** [`src/Commands/Commit.cs`]
+  - ✅ Added GPG_TTY environment variable detection
+  - ✅ Implemented clear error messages when GPG signing fails
   - Issue: #1645
-  - Effort: 1 hour
+  - Completed: 2025-01-09
 
-- [ ] **SSH Agent Authentication Fix** [`src/Commands/Command.cs`]
-  - Linux SSH agent broken since v2025.28
-  - Review SSH_AUTH_SOCK handling
+- [x] **SSH Agent Authentication Fix** [`src/Commands/Command.cs`]
+  - ✅ Fixed SSH_AUTH_SOCK and SSH_AGENT_PID environment variable passthrough
+  - ✅ Resolved SSH agent broken since v2025.28
   - Issue: #1670
-  - Effort: 2 hours
+  - Completed: 2025-01-09
+
+### Additional Fixes Implemented
+
+- [x] **Public Repository Credential Management**
+  - ✅ Automatic detection of public repositories (GitHub, GitLab, Bitbucket, Gitee)
+  - ✅ Disabled credential prompts for read operations on public repos
+  - ✅ Proper handling of push operations (always require auth)
+  - ✅ Clear error messages explaining authentication requirements
+  - Completed: 2025-01-09
 
 ---
 
@@ -82,15 +110,16 @@ This document tracks planned improvements and features for the SourceGit Iniatio
 
 ---
 
-## 🟢 Priority 3 - Performance Optimizations
+## 🟢 Priority 3 - Performance Optimizations (Partially Completed)
 
 ### Memory Management
 
-- [ ] **LRU Cache for Commit Graph** [`src/ViewModels/Repository.cs:2429-2432`]
-  - Replace basic caching with LRU implementation
-  - Add memory pressure detection
-  - Implement size limits and eviction policies
-  - Effort: 2 days
+- [x] **LRU Cache for Commit Graph** [`src/ViewModels/Repository.cs`, `src/Models/LRUCache.cs`]
+  - ✅ Implemented thread-safe LRU cache with memory pressure detection
+  - ✅ Added automatic memory management and eviction policies
+  - ✅ Set memory limits (200MB) and capacity limits (50 graphs)
+  - ✅ Included accurate size calculation for commit graphs
+  - Completed: 2025-01-09
 
 - [ ] **Performance Logging to File** [`src/Models/PerformanceMonitor.cs:203-204`]
   - Implement optional file-based logging
@@ -106,15 +135,13 @@ This document tracks planned improvements and features for the SourceGit Iniatio
   - Create new class: `src/Native/MacOSFileWatcher.cs`
   - Effort: 1 week
 
-- [ ] **Apple Silicon Detection & Optimization**
-  ```csharp
-  // Add to src/Native/MacOS.cs
-  public bool IsAppleSilicon() => 
-      RuntimeInformation.ProcessArchitecture == Architecture.Arm64;
-  ```
-  - Optimize Git path detection for ARM64
-  - Add ARM64-specific process optimizations
-  - Effort: 2 days
+- [x] **Apple Silicon Detection & Optimization** [`src/Native/MacOS.cs`]
+  - ✅ Added `IsAppleSilicon()` method for ARM64 detection
+  - ✅ Optimized PATH setup based on processor architecture
+  - ✅ Prioritized ARM64 native paths (/opt/homebrew) on Apple Silicon
+  - ✅ Improved Git executable detection with architecture-aware search
+  - ✅ Added Git executable verification before returning path
+  - Completed: 2025-01-09
 
 ### Async Operations
 
@@ -300,4 +327,4 @@ This document tracks planned improvements and features for the SourceGit Iniatio
 
 ---
 
-Last Updated: 2025-09-09
+Last Updated: 2025-01-09 (Major Progress Update)
