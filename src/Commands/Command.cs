@@ -31,6 +31,7 @@ namespace SourceGit.Commands
         public EditorType Editor { get; set; } = EditorType.CoreEditor;
         public string SSHKey { get; set; } = string.Empty;
         public string Args { get; set; } = string.Empty;
+        public bool SkipCredentials { get; set; } = false;
 
         // Only used in `ExecAsync` mode.
         public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
@@ -180,6 +181,16 @@ namespace SourceGit.Commands
             start.Environment.Add("SOURCEGIT_LAUNCH_AS_ASKPASS", "TRUE");
             if (!OperatingSystem.IsLinux())
                 start.Environment.Add("DISPLAY", "required");
+            
+            // For public repositories, disable credential prompts via environment
+            if (SkipCredentials || (Args != null && (Args.Contains("github.com") || Args.Contains("gitlab.com"))))
+            {
+                // These environment variables tell Git not to prompt for credentials
+                start.Environment["GIT_TERMINAL_PROMPT"] = "0";
+                start.Environment["GIT_ASKPASS"] = "echo";
+                start.Environment["GCM_INTERACTIVE"] = "never";
+                start.Environment["GIT_CREDENTIAL_HELPER"] = "";
+            }
 
             // If an SSH private key was provided, sets the environment.
             if (!start.Environment.ContainsKey("GIT_SSH_COMMAND") && !string.IsNullOrEmpty(SSHKey))
@@ -197,23 +208,47 @@ namespace SourceGit.Commands
             
             // Check if we're working with a public repository (no credentials needed)
             var isPublicRepo = false;
-            if (!string.IsNullOrEmpty(WorkingDirectory))
+            var needsCredentials = true;
+            
+            // Check for operations that typically don't need credentials on public repos
+            if (Args != null)
             {
-                // Check if this appears to be a public GitHub/GitLab URL in the arguments
-                if (Args != null && (Args.Contains("github.com") || Args.Contains("gitlab.com")))
+                // Check if this is a read-only operation on GitHub/GitLab
+                var isReadOperation = Args.Contains("fetch") || Args.Contains("pull") || 
+                                     Args.Contains("ls-remote") || Args.Contains("clone") ||
+                                     Args.Contains("remote -v") || Args.Contains("remote get-url");
+                
+                // Check if URL contains public Git hosts
+                var hasPublicHost = Args.Contains("github.com") || Args.Contains("gitlab.com") || 
+                                   Args.Contains("bitbucket.org") || Args.Contains("gitee.com");
+                
+                // If it's a read operation on a public host, disable credentials
+                if (isReadOperation && hasPublicHost)
                 {
-                    // For fetch, pull, clone operations on public repos, skip credentials
-                    if (Args.Contains("fetch") || Args.Contains("pull") || Args.Contains("ls-remote") || Args.Contains("clone"))
-                    {
-                        isPublicRepo = true;
-                        // Explicitly disable credential helpers for public repos
-                        builder.Append(" -c credential.helper=");
-                    }
+                    isPublicRepo = true;
+                    needsCredentials = false;
+                }
+                
+                // Also check for HTTPS URLs which are typically public
+                if (Args.Contains("https://github.com") || Args.Contains("https://gitlab.com"))
+                {
+                    isPublicRepo = true;
+                    needsCredentials = false;
                 }
             }
             
-            // Only add credential helper if it's configured and not a public repo
-            if (!isPublicRepo && !string.IsNullOrEmpty(Native.OS.CredentialHelper))
+            // ALWAYS explicitly set credential helper to avoid system defaults
+            if (SkipCredentials || !needsCredentials || isPublicRepo)
+            {
+                // Explicitly disable ALL credential helpers including system ones
+                // Use multiple methods to ensure no credentials are requested
+                builder.Append(" -c credential.helper=");
+                builder.Append(" -c credential.helper=''");
+                builder.Append(" -c credential.helper=!");
+                builder.Append(" -c core.askpass=");
+                builder.Append(" -c core.askPass=''");
+            }
+            else if (!string.IsNullOrEmpty(Native.OS.CredentialHelper))
             {
                 // For the cache helper with timeout, we need special handling
                 if (Native.OS.CredentialHelper == "cache")

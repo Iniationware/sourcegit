@@ -20,7 +20,27 @@ namespace SourceGit.Commands
 
         public async Task<bool> RunAsync()
         {
-            SSHKey = await new Config(WorkingDirectory).GetAsync($"remote.{_remote}.sshkey").ConfigureAwait(false);
+            // Check if remote URL is a public repository
+            var remoteUrl = await new Config(WorkingDirectory).GetAsync($"remote.{_remote}.url").ConfigureAwait(false);
+            if (!string.IsNullOrEmpty(remoteUrl) && remoteUrl.StartsWith("https://"))
+            {
+                // For public HTTPS repos, we don't need SSH keys or credentials
+                if (remoteUrl.Contains("github.com") || remoteUrl.Contains("gitlab.com") || 
+                    remoteUrl.Contains("bitbucket.org") || remoteUrl.Contains("gitee.com"))
+                {
+                    SSHKey = string.Empty;
+                    SkipCredentials = true;
+                }
+                else
+                {
+                    SSHKey = await new Config(WorkingDirectory).GetAsync($"remote.{_remote}.sshkey").ConfigureAwait(false);
+                }
+            }
+            else
+            {
+                SSHKey = await new Config(WorkingDirectory).GetAsync($"remote.{_remote}.sshkey").ConfigureAwait(false);
+            }
+            
             return await ExecAsync().ConfigureAwait(false);
         }
 
