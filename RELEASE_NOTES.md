@@ -1,6 +1,19 @@
 # SourceGit Iniationware Edition - Release Notes
 
-## Version 2025.34-IW.2
+## Version 2025.34-IW.3
+
+### What's New in IW.3
+This critical patch release focuses on stability improvements, integrating important bug fixes from upstream SourceGit. These fixes address crashes, UI reliability issues, and functional improvements that significantly enhance the application's stability.
+
+### Critical Bug Fixes
+- **Fixed NRE on commit double-click** - Prevents null reference exception crashes when double-clicking commits
+- **Fixed Windows terminal crash** - Resolves crash when opening terminal from welcome page on Windows
+- **Fixed empty commit dialog** - Prevents accidental double-button presses in empty commit confirmation
+- **Fixed wrong block ending** - Corrects diff block navigation for added/deleted files
+- **Fixed large output optimization** - Better memory handling for large Git command outputs
+- **Fixed autocrlf in diffs** - Ensures consistent diff operations across platforms
+
+## Version 2025.34-IW.2 (Previous Release)
 
 ### What's New in IW.2
 This patch release integrates 11 carefully selected improvements from the upstream SourceGit repository, focusing on features that enhance usability without compromising our performance optimizations. All changes have been tested for compatibility with our fork's architecture.
