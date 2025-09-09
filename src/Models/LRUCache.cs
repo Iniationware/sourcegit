@@ -270,9 +270,11 @@ namespace SourceGit.Models
             // Basic estimation - override with sizeCalculator for more accuracy
             if (value is CommitGraph graph)
             {
-                // Estimate based on number of commits and lanes
-                return (graph.Commits?.Count ?? 0) * 200 + // ~200 bytes per commit
-                       (graph.Lanes?.Count ?? 0) * 100;      // ~100 bytes per lane
+                // Estimate based on graph components
+                return (graph.Paths?.Count ?? 0) * 200 +    // ~200 bytes per path
+                       (graph.Links?.Count ?? 0) * 100 +    // ~100 bytes per link
+                       (graph.Dots?.Count ?? 0) * 50 +      // ~50 bytes per dot
+                       1024;                                 // Base overhead
             }
             
             // Default estimate for unknown types

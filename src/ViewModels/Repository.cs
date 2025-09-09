@@ -2467,8 +2467,9 @@ namespace SourceGit.ViewModels
                     // More accurate size calculation for commit graphs
                     if (graph == null) return 0;
                     long size = 0;
-                    size += (graph.Commits?.Count ?? 0) * 250;  // ~250 bytes per commit
-                    size += (graph.Lanes?.Count ?? 0) * 150;    // ~150 bytes per lane
+                    size += (graph.Paths?.Count ?? 0) * 250;    // ~250 bytes per path
+                    size += (graph.Links?.Count ?? 0) * 150;    // ~150 bytes per link
+                    size += (graph.Dots?.Count ?? 0) * 100;     // ~100 bytes per dot
                     size += 1024; // Base overhead
                     return size;
                 });
