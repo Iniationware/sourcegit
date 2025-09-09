@@ -174,22 +174,33 @@ namespace SourceGit.Commands
                 start.StandardErrorEncoding = Encoding.UTF8;
             }
 
-            // Force using this app as SSH askpass program
+            // Get self executable file for SSH askpass
             var selfExecFile = Process.GetCurrentProcess().MainModule!.FileName;
-            start.Environment.Add("SSH_ASKPASS", selfExecFile); // Can not use parameter here, because it invoked by SSH with `exec`
-            start.Environment.Add("SSH_ASKPASS_REQUIRE", "prefer");
-            start.Environment.Add("SOURCEGIT_LAUNCH_AS_ASKPASS", "TRUE");
-            if (!OperatingSystem.IsLinux())
-                start.Environment.Add("DISPLAY", "required");
             
-            // For public repositories, disable credential prompts via environment
-            if (SkipCredentials || (Args != null && (Args.Contains("github.com") || Args.Contains("gitlab.com"))))
+            // Check if this is a public repository operation
+            var isPublicOperation = SkipCredentials || (Args != null && 
+                (Args.Contains("github.com") || Args.Contains("gitlab.com") || 
+                 Args.Contains("bitbucket.org") || Args.Contains("gitee.com")));
+            
+            if (!isPublicOperation)
             {
-                // These environment variables tell Git not to prompt for credentials
+                // Only set up SSH askpass for non-public repos
+                start.Environment.Add("SSH_ASKPASS", selfExecFile); // Can not use parameter here, because it invoked by SSH with `exec`
+                start.Environment.Add("SSH_ASKPASS_REQUIRE", "prefer");
+                start.Environment.Add("SOURCEGIT_LAUNCH_AS_ASKPASS", "TRUE");
+                if (!OperatingSystem.IsLinux())
+                    start.Environment.Add("DISPLAY", "required");
+            }
+            else
+            {
+                // For public repositories, completely disable all credential mechanisms
                 start.Environment["GIT_TERMINAL_PROMPT"] = "0";
-                start.Environment["GIT_ASKPASS"] = "echo";
+                start.Environment["GIT_ASKPASS"] = "/bin/echo";  // Return empty string
+                start.Environment["SSH_ASKPASS"] = "/bin/echo";  // Return empty string for SSH too
                 start.Environment["GCM_INTERACTIVE"] = "never";
                 start.Environment["GIT_CREDENTIAL_HELPER"] = "";
+                // Ensure no authentication is attempted
+                start.Environment["GIT_AUTH_ATTEMPTED"] = "0";
             }
 
             // If an SSH private key was provided, sets the environment.
@@ -247,6 +258,8 @@ namespace SourceGit.Commands
                 builder.Append(" -c credential.helper=!");
                 builder.Append(" -c core.askpass=");
                 builder.Append(" -c core.askPass=''");
+                // Also disable http.extraheader which might contain auth
+                builder.Append(" -c http.extraheader=");
             }
             else if (!string.IsNullOrEmpty(Native.OS.CredentialHelper))
             {
