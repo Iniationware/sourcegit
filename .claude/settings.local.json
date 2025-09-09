@@ -11,7 +11,9 @@
       "WebFetch(domain:github.com)",
       "Bash(dotnet build:*)",
       "Bash(./build-macos-signed.sh:*)",
-      "Bash(touch:*)"
+      "Bash(touch:*)",
+      "Bash(git log:*)",
+      "Bash(git cherry-pick:*)"
     ],
     "deny": [],
     "ask": [],
