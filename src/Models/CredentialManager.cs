@@ -110,8 +110,8 @@ namespace SourceGit.Models
             {
                 Type = CredentialHelperType.Cache,
                 Name = "Cache (Memory)",
-                Command = "cache --timeout=3600",
-                Description = "Temporary in-memory storage (expires after 1 hour)",
+                Command = "cache",
+                Description = "Temporary in-memory storage (expires after 15 minutes by default)",
                 IsAvailable = true, // Always available
                 RequiresConfiguration = false
             });
@@ -326,12 +326,20 @@ namespace SourceGit.Models
             }
         }
 
-        public static void ConfigureCacheHelper(int timeoutSeconds = 3600)
+        public static void ConfigureCacheHelper(int timeoutSeconds = 900)
         {
             var helper = GetHelper(CredentialHelperType.Cache);
             if (helper != null)
             {
-                helper.Command = $"cache --timeout={timeoutSeconds}";
+                // The cache helper doesn't take timeout as part of the command
+                // It needs to be configured separately via git config credential.helper 'cache --timeout=X'
+                // For now, we just use the basic 'cache' command
+                helper.Command = "cache";
+                
+                // Note: To properly set timeout, you would need to run:
+                // git config --global credential.helper 'cache --timeout=900'
+                // But since we're passing this via -c flag in each command, 
+                // we can't include the timeout parameter this way
             }
         }
 

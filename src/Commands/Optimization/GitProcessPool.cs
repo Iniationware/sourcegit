@@ -171,7 +171,28 @@ namespace SourceGit.Commands.Optimization
         private ProcessStartInfo GetOptimizedStartInfo(string workingDirectory, string args)
         {
             // Build the full git command
-            var fullCommand = $"--no-pager -c core.quotepath=off -c credential.helper={Native.OS.CredentialHelper} {args}";
+            var commandBuilder = new System.Text.StringBuilder();
+            commandBuilder.Append("--no-pager -c core.quotepath=off");
+            
+            // Only add credential helper if it's configured
+            if (!string.IsNullOrEmpty(Native.OS.CredentialHelper))
+            {
+                if (Native.OS.CredentialHelper == "cache")
+                {
+                    commandBuilder.Append(" -c credential.helper=cache");
+                }
+                else if (Native.OS.CredentialHelper.StartsWith("store"))
+                {
+                    commandBuilder.Append($" -c credential.helper=\"{Native.OS.CredentialHelper}\"");
+                }
+                else
+                {
+                    commandBuilder.Append($" -c credential.helper={Native.OS.CredentialHelper}");
+                }
+            }
+            
+            commandBuilder.Append(' ').Append(args);
+            var fullCommand = commandBuilder.ToString();
             
             var psi = new ProcessStartInfo
             {

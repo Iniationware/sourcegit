@@ -193,10 +193,30 @@ namespace SourceGit.Commands
             }
 
             var builder = new StringBuilder();
-            builder
-                .Append("--no-pager -c core.quotepath=off -c credential.helper=")
-                .Append(Native.OS.CredentialHelper)
-                .Append(' ');
+            builder.Append("--no-pager -c core.quotepath=off");
+            
+            // Only add credential helper if it's configured
+            if (!string.IsNullOrEmpty(Native.OS.CredentialHelper))
+            {
+                // For the cache helper with timeout, we need special handling
+                if (Native.OS.CredentialHelper == "cache")
+                {
+                    // Set cache with default timeout of 900 seconds (15 minutes)
+                    builder.Append(" -c credential.helper=cache -c credentialcache.ignoreSIGHUP=true");
+                }
+                else if (Native.OS.CredentialHelper.StartsWith("store"))
+                {
+                    // Store helper might have --file parameter
+                    builder.Append($" -c credential.helper=\"{Native.OS.CredentialHelper}\"");
+                }
+                else
+                {
+                    // Other helpers just use the name
+                    builder.Append($" -c credential.helper={Native.OS.CredentialHelper}");
+                }
+            }
+            
+            builder.Append(' ');
 
             switch (Editor)
             {
