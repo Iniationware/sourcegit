@@ -14,7 +14,8 @@
       "Bash(touch:*)",
       "Bash(git log:*)",
       "Bash(git cherry-pick:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(dotnet test:*)"
     ],
     "deny": [],
     "ask": [],

@@ -842,6 +842,78 @@ namespace SourceGit.ViewModels
             await CreateIssueTrackerCommand(rule.IsShared).AddAsync(rule);
         }
 
+        /// <summary>
+        /// Refreshes repository data based on the provided options.
+        /// This method reduces code duplication across Push, Pull, Fetch, and other operations.
+        /// </summary>
+        /// <param name="options">Options specifying which parts to refresh</param>
+        public async Task RefreshAfterOperation(Models.RefreshOptions options)
+        {
+            if (options == null) return;
+
+            // Run background refreshes in parallel
+            var tasks = new List<Task>();
+            
+            if (options.RefreshBranches)
+            {
+                tasks.Add(Task.Run(() => {
+                    Models.PerformanceMonitor.StartTimer("RefreshBranches");
+                    RefreshBranches();
+                    Models.PerformanceMonitor.StopTimer("RefreshBranches");
+                }));
+            }
+
+            if (options.RefreshTags)
+            {
+                tasks.Add(Task.Run(() => {
+                    Models.PerformanceMonitor.StartTimer("RefreshTags");
+                    RefreshTags();
+                    Models.PerformanceMonitor.StopTimer("RefreshTags");
+                }));
+            }
+
+            if (options.RefreshWorkingCopy)
+            {
+                tasks.Add(Task.Run(() => {
+                    Models.PerformanceMonitor.StartTimer("RefreshWorkingCopyChanges");
+                    RefreshWorkingCopyChanges();
+                    Models.PerformanceMonitor.StopTimer("RefreshWorkingCopyChanges");
+                }));
+            }
+
+            if (options.RefreshStashes)
+            {
+                tasks.Add(Task.Run(() => {
+                    Models.PerformanceMonitor.StartTimer("RefreshStashes");
+                    RefreshStashes();
+                    Models.PerformanceMonitor.StopTimer("RefreshStashes");
+                }));
+            }
+
+            if (options.RefreshSubmodules)
+            {
+                tasks.Add(Task.Run(() => {
+                    Models.PerformanceMonitor.StartTimer("RefreshSubmodules");
+                    RefreshSubmodules();
+                    Models.PerformanceMonitor.StopTimer("RefreshSubmodules");
+                }));
+            }
+
+            // Wait for all parallel tasks to complete
+            if (tasks.Count > 0)
+            {
+                await Task.WhenAll(tasks);
+            }
+
+            // RefreshCommits should run after other refreshes as it may depend on their data
+            if (options.RefreshCommits)
+            {
+                Models.PerformanceMonitor.StartTimer("RefreshCommits");
+                RefreshCommits();
+                Models.PerformanceMonitor.StopTimer("RefreshCommits");
+            }
+        }
+
         public void RefreshAll()
         {
             Models.PerformanceMonitor.StartTimer("RefreshAll");
