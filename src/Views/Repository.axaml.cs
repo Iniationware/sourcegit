@@ -1,11 +1,13 @@
 using System;
 using System.Globalization;
+using System.Threading;
 
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Threading;
 
 namespace SourceGit.Views
 {
@@ -110,6 +112,7 @@ namespace SourceGit.Views
         protected override void OnLoaded(RoutedEventArgs e)
         {
             base.OnLoaded(e);
+            _isUnloading = false; // Reset flag when view is loaded
             UpdateLeftSidebarLayout();
         }
 
@@ -117,11 +120,29 @@ namespace SourceGit.Views
         {
             base.OnUnloaded(e);
 
+            // Set flag to prevent dispatcher operations during shutdown
+            _isUnloading = true;
+
+            // Cancel any pending dispatcher operations
+            _shutdownCts?.Cancel();
+
             if (_viewModel != null)
             {
                 _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+
+                // If this is a Repository view model, ensure proper cleanup
+                if (_viewModel is ViewModels.Repository repo)
+                {
+                    // Cancel any pending operations to ensure clean shutdown
+                    repo.CancelPendingOperations();
+                }
+
                 _viewModel = null;
             }
+
+            // Dispose cancellation token source
+            _shutdownCts?.Dispose();
+            _shutdownCts = null;
         }
 
         protected override void OnDataContextChanged(EventArgs e)
@@ -143,15 +164,33 @@ namespace SourceGit.Views
 
         private void OnViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
+            // Prevent posting to dispatcher if view is being unloaded to avoid shutdown issues
+            if (_isUnloading)
+                return;
+
             if (e.PropertyName == nameof(ViewModels.Repository.ShowGitFlowInSidebar) ||
                 e.PropertyName == nameof(ViewModels.Repository.GitFlowBranchGroups) ||
                 e.PropertyName == nameof(ViewModels.Repository.IsGitFlowGroupExpanded))
             {
-                Avalonia.Threading.Dispatcher.UIThread.Post(() => UpdateLeftSidebarLayout());
+                // Check if we have a cancellation token
+                if (_shutdownCts == null)
+                    _shutdownCts = new CancellationTokenSource();
+
+                // Use InvokeAsync with cancellation token instead of Post
+                // This allows cancellation during shutdown
+                var token = _shutdownCts.Token;
+
+                Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    if (!_isUnloading && !token.IsCancellationRequested)
+                        UpdateLeftSidebarLayout();
+                }, DispatcherPriority.Normal, token);
             }
         }
 
         private ViewModels.Repository _viewModel;
+        private bool _isUnloading = false;
+        private CancellationTokenSource _shutdownCts;
 
         private void OnSearchCommitPanelPropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
         {

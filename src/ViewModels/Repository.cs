@@ -682,13 +682,25 @@ namespace SourceGit.ViewModels
             RefreshAll();
         }
 
+        /// <summary>
+        /// Cancels all pending background operations
+        /// </summary>
+        public void CancelPendingOperations()
+        {
+            // Cancel all pending background operations
+            _operationsCancellationTokenSource?.Cancel();
+        }
+
         public void Close()
         {
             SelectedView = null; // Do NOT modify. Used to remove exists widgets for GC.Collect
-            
+
+            // Cancel any pending operations before cleanup
+            CancelPendingOperations();
+
             // Dispose of MemoryMetrics
             _memoryMetrics?.Dispose();
-            
+
             // Clear cache for this repository to free memory
             ClearGraphCacheForRepository();
             _memoryMetrics = null;
@@ -714,9 +726,13 @@ namespace SourceGit.ViewModels
             // Dispose timers and watchers first
             _autoFetchTimer?.Dispose();
             _autoFetchTimer = null;
-            
+
             _watcher?.Dispose();
             _watcher = null;
+
+            // Dispose cancellation token source
+            _operationsCancellationTokenSource?.Dispose();
+            _operationsCancellationTokenSource = null;
 
             _settings = null;
             _historiesFilterMode = Models.FilterMode.None;
