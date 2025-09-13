@@ -620,9 +620,10 @@ namespace SourceGit
             {
                 try
                 {
-                    // Fetch latest release information.
+                    // Fetch latest release information from Iniationware GitHub releases
                     using var client = new HttpClient() { Timeout = TimeSpan.FromSeconds(5) };
-                    var data = await client.GetStringAsync("https://sourcegit-scm.github.io/data/version.json");
+                    client.DefaultRequestHeaders.Add("User-Agent", "SourceGit-Iniationware");
+                    var data = await client.GetStringAsync("https://api.github.com/repos/Iniationware/sourcegit/releases/latest");
 
                     // Parse JSON into Models.Version.
                     var ver = JsonSerializer.Deserialize(data, JsonCodeGen.Default.Version);

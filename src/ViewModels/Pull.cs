@@ -163,6 +163,14 @@ namespace SourceGit.ViewModels
 
             var head = await new Commands.QueryRevisionByRefName(_repo.FullPath, "HEAD").GetResultAsync();
             _repo.NavigateToCommit(head, true);
+            
+            // Force comprehensive refresh to update all UI elements after successful pull
+            if (rs)
+            {
+                var refreshOptions = Models.RefreshOptions.ForPull();
+                await _repo.RefreshAfterOperation(refreshOptions);
+            }
+            
             _repo.SetWatcherEnabled(true);
             return rs;
         }

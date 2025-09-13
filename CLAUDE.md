@@ -99,3 +99,34 @@ Popups inherit from `ViewModels.Popup` and use a consistent pattern:
 
 ### Testing Git Operations
 The application supports portable mode by creating a `data` folder next to the executable. This allows testing without affecting the system-wide installation.
+
+## Lessons Learned
+
+### Development Methodology
+**Divide and Conquer (Teile und Herrsche)**: When implementing new features, follow these principles:
+1. **Start Small**: Implement ONE small, working feature completely before expanding
+2. **Use Real Data**: Never use simulated/fake data - always work with actual Git commands
+3. **Backend First**: Build the Git command wrapper and data model before any UI
+4. **Test Early**: Verify functionality with real repositories before adding complexity
+5. **Incremental Enhancement**: Add features one at a time, testing each addition
+
+### Common Pitfalls to Avoid
+- **Script-Kiddy Approach**: Don't try to implement everything at once with simulated data
+- **Missing Validation**: Always check if methods/properties exist before using them
+- **Protection Levels**: Respect access modifiers - don't try to access internal/protected members
+- **Converter Dependencies**: Verify all converters exist before referencing them in XAML
+- **Namespace Conflicts**: Use fully qualified names when there are ambiguous references
+
+### Shutdown Performance
+When dealing with background operations and UI updates:
+- Use `CancellationTokenSource` for all long-running operations
+- Implement `_isUnloading` flag to prevent dispatcher operations during shutdown
+- Clean up event handlers properly in `OnUnloaded()`
+- Cancel pending operations before disposal to prevent 30+ second hangs
+
+### Git Command Integration
+- All Git operations must inherit from `Command` class
+- Use `Command.Exec()` for fire-and-forget, `Command.ExecAsync()` for awaitable operations
+- Parse command output in `ParseResult()` override
+- Log all commands through `ICommandLog` interface
+- Handle errors gracefully with proper exception handling

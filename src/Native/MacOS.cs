@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 
 using Avalonia;
@@ -13,6 +14,17 @@ namespace SourceGit.Native
     [SupportedOSPlatform("macOS")]
     internal class MacOS : OS.IBackend
     {
+        /// <summary>
+        /// Detects if running on Apple Silicon (ARM64) Mac
+        /// </summary>
+        public static bool IsAppleSilicon() => 
+            RuntimeInformation.ProcessArchitecture == Architecture.Arm64;
+
+        /// <summary>
+        /// Gets the current processor architecture
+        /// </summary>
+        public static Architecture ProcessorArchitecture => 
+            RuntimeInformation.ProcessArchitecture;
         public void SetupApp(AppBuilder builder)
         {
             builder.With(new MacOSPlatformOptions()
@@ -20,12 +32,24 @@ namespace SourceGit.Native
                 DisableDefaultApplicationMenuItems = true,
             });
 
-            // Fix `PATH` env on macOS.
+            // Fix `PATH` env on macOS with architecture-aware paths
             var path = Environment.GetEnvironmentVariable("PATH");
-            if (string.IsNullOrEmpty(path))
-                path = "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin";
-            else if (!path.Contains("/opt/homebrew/", StringComparison.Ordinal))
-                path = "/opt/homebrew/bin:/opt/homebrew/sbin:" + path;
+            if (IsAppleSilicon())
+            {
+                // On Apple Silicon, prioritize /opt/homebrew (ARM64 native paths)
+                if (string.IsNullOrEmpty(path))
+                    path = "/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin";
+                else if (!path.Contains("/opt/homebrew/", StringComparison.Ordinal))
+                    path = "/opt/homebrew/bin:/opt/homebrew/sbin:" + path;
+            }
+            else
+            {
+                // On Intel Macs, prioritize /usr/local (x86_64 paths)
+                if (string.IsNullOrEmpty(path))
+                    path = "/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin:/opt/homebrew/sbin";
+                else if (!path.Contains("/usr/local/bin", StringComparison.Ordinal))
+                    path = "/usr/local/bin:" + path;
+            }
 
             var customPathFile = Path.Combine(OS.DataDir, "PATH");
             if (File.Exists(customPathFile))
@@ -46,16 +70,56 @@ namespace SourceGit.Native
 
         public string FindGitExecutable()
         {
-            var gitPathVariants = new List<string>() {
-                "/usr/bin/git",
-                "/usr/local/bin/git",
-                "/opt/homebrew/bin/git",
-                "/opt/homebrew/opt/git/bin/git"
-            };
+            // Optimize path search order based on architecture
+            var gitPathVariants = IsAppleSilicon() 
+                ? new List<string>() {
+                    // Apple Silicon: Prioritize ARM64 native paths
+                    "/opt/homebrew/bin/git",           // Homebrew ARM64
+                    "/opt/homebrew/opt/git/bin/git",   // Homebrew git formula
+                    "/usr/bin/git",                    // System git (universal binary)
+                    "/usr/local/bin/git"               // Legacy Intel location
+                }
+                : new List<string>() {
+                    // Intel Mac: Prioritize x86_64 paths
+                    "/usr/local/bin/git",              // Homebrew Intel
+                    "/usr/bin/git",                    // System git
+                    "/opt/homebrew/bin/git",           // ARM64 Homebrew (Rosetta 2)
+                    "/opt/homebrew/opt/git/bin/git"   // ARM64 git formula (Rosetta 2)
+                };
 
+            // Check each path and return the first valid one
             foreach (var path in gitPathVariants)
+            {
                 if (File.Exists(path))
-                    return path;
+                {
+                    // Verify it's executable and the correct architecture if possible
+                    try
+                    {
+                        var startInfo = new ProcessStartInfo
+                        {
+                            FileName = path,
+                            Arguments = "--version",
+                            UseShellExecute = false,
+                            CreateNoWindow = true,
+                            RedirectStandardOutput = true,
+                            RedirectStandardError = true
+                        };
+                        
+                        using var process = Process.Start(startInfo);
+                        if (process != null)
+                        {
+                            process.WaitForExit(1000); // 1 second timeout
+                            if (process.ExitCode == 0)
+                                return path;
+                        }
+                    }
+                    catch
+                    {
+                        // If we can't verify, still return it as a fallback
+                        return path;
+                    }
+                }
+            }
 
             return string.Empty;
         }
