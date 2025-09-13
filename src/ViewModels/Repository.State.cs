@@ -62,6 +62,8 @@ namespace SourceGit.ViewModels
         protected internal Timer _autoFetchTimer = null;
         protected internal DateTime _lastFetchTime = DateTime.MinValue;
         protected internal MemoryMetrics _memoryMetrics = null;
+        protected internal Models.BranchCounter _branchCounter = null;
+        protected internal Models.CommitStatistics _commitStats = null;
         protected internal CancellationTokenSource _operationsCancellationTokenSource = null;
         #endregion
 

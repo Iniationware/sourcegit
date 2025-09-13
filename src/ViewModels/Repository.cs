@@ -278,6 +278,18 @@ namespace SourceGit.ViewModels
             private set => SetProperty(ref _memoryMetrics, value);
         }
 
+        public Models.BranchCounter BranchCounter
+        {
+            get => _branchCounter;
+            private set => SetProperty(ref _branchCounter, value);
+        }
+
+        public Models.CommitStatistics CommitStats
+        {
+            get => _commitStats;
+            private set => SetProperty(ref _commitStats, value);
+        }
+
         public bool IsSearching
         {
             get => _isSearching;
@@ -617,6 +629,8 @@ namespace SourceGit.ViewModels
             FullPath = path;
             GitDir = gitDir;
             MemoryMetrics = new MemoryMetrics();
+            BranchCounter = new Models.BranchCounter();
+            CommitStats = new Models.CommitStatistics();
 
             var commonDirFile = Path.Combine(_gitDir, "commondir");
             _isWorktree = _gitDir.Replace('\\', '/').IndexOf("/worktrees/", StringComparison.Ordinal) > 0 &&

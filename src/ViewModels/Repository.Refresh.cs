@@ -229,6 +229,18 @@ namespace SourceGit.ViewModels
                         }
                         LocalBranchesCount = localBranchesCount;
 
+                        // Update branch counter
+                        if (_branchCounter != null)
+                        {
+                            _branchCounter.UpdateFromRepository(_fullpath);
+                        }
+
+                        // Update commit statistics
+                        if (_commitStats != null)
+                        {
+                            _commitStats.UpdateFromRepository(_fullpath);
+                        }
+
                         // Check and auto-configure GitFlow if structure is detected
                         CheckAndAutoConfigureGitFlow(localBranches);
                     });
