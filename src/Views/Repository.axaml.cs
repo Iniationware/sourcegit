@@ -113,6 +113,46 @@ namespace SourceGit.Views
             UpdateLeftSidebarLayout();
         }
 
+        protected override void OnUnloaded(RoutedEventArgs e)
+        {
+            base.OnUnloaded(e);
+
+            if (_viewModel != null)
+            {
+                _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+                _viewModel = null;
+            }
+        }
+
+        protected override void OnDataContextChanged(EventArgs e)
+        {
+            base.OnDataContextChanged(e);
+
+            if (_viewModel != null)
+            {
+                _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            }
+
+            _viewModel = DataContext as ViewModels.Repository;
+
+            if (_viewModel != null)
+            {
+                _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+            }
+        }
+
+        private void OnViewModelPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ViewModels.Repository.ShowGitFlowInSidebar) ||
+                e.PropertyName == nameof(ViewModels.Repository.GitFlowBranchGroups) ||
+                e.PropertyName == nameof(ViewModels.Repository.IsGitFlowGroupExpanded))
+            {
+                Avalonia.Threading.Dispatcher.UIThread.Post(() => UpdateLeftSidebarLayout());
+            }
+        }
+
+        private ViewModels.Repository _viewModel;
+
         private void OnSearchCommitPanelPropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
         {
             if (e.Property == IsVisibleProperty && sender is Grid { IsVisible: true })

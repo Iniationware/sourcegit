@@ -134,7 +134,7 @@ namespace SourceGit.ViewModels
             };
             
             // Fire and forget - these will complete asynchronously
-            Task.WhenAll(parallelTasks).ContinueWith(t => 
+            Task.WhenAll(parallelTasks).ContinueWith(async t =>
             {
                 if (t.IsFaulted)
                 {
@@ -149,12 +149,25 @@ namespace SourceGit.ViewModels
                 {
                     var totalTime = Models.PerformanceMonitor.StopTimer("RefreshAll");
                     System.Diagnostics.Debug.WriteLine($"[PERF] RefreshAll completed in {totalTime}ms");
-                    
+
                     // Log summary periodically
                     if (totalTime > 0 && Models.PerformanceMonitor.GetAverageTime("RefreshAll") > 0)
                     {
                         var summary = Models.PerformanceMonitor.GetPerformanceSummary();
                         System.Diagnostics.Debug.WriteLine(summary);
+                    }
+
+                    // Load GitFlow configuration after branches are loaded
+                    await LoadGitFlowConfigAsync();
+
+                    // Update GitFlow branches if enabled
+                    if (_settings != null && _settings.ShowGitFlowInSidebar && _branches != null)
+                    {
+                        var localBranches = _branches.Where(b => b.IsLocal && !b.IsDetachedHead).ToList();
+                        ExecuteOnUIThread(() =>
+                        {
+                            UpdateGitFlowBranches(localBranches);
+                        });
                     }
                 }
             });
@@ -162,7 +175,6 @@ namespace SourceGit.ViewModels
             Task.Run(async () =>
             {
                 await LoadIssueTrackersAsync();
-                await LoadGitFlowConfigAsync();
             });
         }
 
@@ -217,7 +229,30 @@ namespace SourceGit.ViewModels
                         }
                         LocalBranchesCount = localBranchesCount;
 
-                        UpdateGitFlowBranches(localBranches);
+                        // Check and auto-configure GitFlow if structure is detected
+                        CheckAndAutoConfigureGitFlow(localBranches);
+                    });
+
+                    // Load GitFlow configuration after auto-configuration
+                    await LoadGitFlowConfigAsync().ConfigureAwait(false);
+
+                    ExecuteOnUIThread(() =>
+                    {
+                        // Get local branches again for GitFlow update
+                        var localBranches = new List<Models.Branch>();
+                        foreach (var b in branches)
+                        {
+                            if (b.IsLocal && !b.IsDetachedHead)
+                            {
+                                localBranches.Add(b);
+                            }
+                        }
+
+                        // Update GitFlow branches only if GitFlow display is enabled
+                        if (_settings != null && _settings.ShowGitFlowInSidebar)
+                        {
+                            UpdateGitFlowBranches(localBranches);
+                        }
                         UpdateWorkingCopyRemotesInfo(remotes);
                         UpdatePendingPullPushState();
                     });
@@ -475,18 +510,20 @@ namespace SourceGit.ViewModels
         {
             try
             {
-                if (IsGitFlowEnabled())
+                // Check if we should update GitFlow branches
+                // Don't require IsGitFlowEnabled() here as it checks for branch existence which might not be loaded yet
+                if (GitFlow != null && GitFlow.IsValid && _settings != null && _settings.ShowGitFlowInSidebar)
                 {
                     var groups = new List<Models.GitFlowBranchGroup>();
                     var gitFlowBranches = new List<Models.Branch>();
-                    
+
                     var featureGroup = new Models.GitFlowBranchGroup { Type = Models.GitFlowBranchType.Feature, Name = "Features" };
                     var releaseGroup = new Models.GitFlowBranchGroup { Type = Models.GitFlowBranchType.Release, Name = "Releases" };
                     var hotfixGroup = new Models.GitFlowBranchGroup { Type = Models.GitFlowBranchType.Hotfix, Name = "Hotfixes" };
-                    
+
                     foreach (var branch in localBranches)
                     {
-                        var type = GetGitFlowType(branch);
+                        var type = GetGitFlowTypeForBranch(branch);
                         switch (type)
                         {
                             case Models.GitFlowBranchType.Feature:
@@ -503,14 +540,14 @@ namespace SourceGit.ViewModels
                                 break;
                         }
                     }
-                    
+
                     if (featureGroup.Branches.Count > 0)
                         groups.Add(featureGroup);
                     if (releaseGroup.Branches.Count > 0)
                         groups.Add(releaseGroup);
                     if (hotfixGroup.Branches.Count > 0)
                         groups.Add(hotfixGroup);
-                        
+
                     GitFlowBranchGroups = groups;
                     GitFlowBranches = gitFlowBranches;
                 }
@@ -526,6 +563,24 @@ namespace SourceGit.ViewModels
                 GitFlowBranchGroups = new List<Models.GitFlowBranchGroup>();
                 GitFlowBranches = new List<Models.Branch>();
             }
+        }
+
+        private Models.GitFlowBranchType GetGitFlowTypeForBranch(Models.Branch b)
+        {
+            if (GitFlow == null || !GitFlow.IsValid)
+                return Models.GitFlowBranchType.None;
+
+            var name = b.Name;
+            if (name.StartsWith(GitFlow.FeaturePrefix, StringComparison.Ordinal))
+                return Models.GitFlowBranchType.Feature;
+            if (name.StartsWith(GitFlow.ReleasePrefix, StringComparison.Ordinal))
+                return Models.GitFlowBranchType.Release;
+            if (name.StartsWith(GitFlow.HotfixPrefix, StringComparison.Ordinal))
+                return Models.GitFlowBranchType.Hotfix;
+            if (!string.IsNullOrEmpty(GitFlow.SupportPrefix) && name.StartsWith(GitFlow.SupportPrefix, StringComparison.Ordinal))
+                return Models.GitFlowBranchType.Support;
+
+            return Models.GitFlowBranchType.None;
         }
 
         /// <summary>
@@ -601,18 +656,141 @@ namespace SourceGit.ViewModels
             var config = await new Commands.Config(_fullpath).ReadAllAsync().ConfigureAwait(false);
             _hasAllowedSignersFile = config.TryGetValue("gpg.ssh.allowedSignersFile", out var allowedSignersFile) && !string.IsNullOrEmpty(allowedSignersFile);
 
-            if (config.TryGetValue("gitflow.branch.master", out var masterName))
-                GitFlow.Master = masterName;
-            if (config.TryGetValue("gitflow.branch.develop", out var developName))
-                GitFlow.Develop = developName;
-            if (config.TryGetValue("gitflow.prefix.feature", out var featurePrefix))
-                GitFlow.FeaturePrefix = featurePrefix;
-            if (config.TryGetValue("gitflow.prefix.release", out var releasePrefix))
-                GitFlow.ReleasePrefix = releasePrefix;
-            if (config.TryGetValue("gitflow.prefix.hotfix", out var hotfixPrefix))
-                GitFlow.HotfixPrefix = hotfixPrefix;
+            // Check if GitFlow is configured explicitly
+            bool hasGitFlowConfig = config.Keys.Any(k => k.StartsWith("gitflow."));
+
+            if (hasGitFlowConfig)
+            {
+                // Load explicit GitFlow configuration
+                if (config.TryGetValue("gitflow.branch.master", out var masterName))
+                    GitFlow.Master = masterName;
+                if (config.TryGetValue("gitflow.branch.develop", out var developName))
+                    GitFlow.Develop = developName;
+                if (config.TryGetValue("gitflow.prefix.feature", out var featurePrefix))
+                    GitFlow.FeaturePrefix = featurePrefix;
+                if (config.TryGetValue("gitflow.prefix.release", out var releasePrefix))
+                    GitFlow.ReleasePrefix = releasePrefix;
+                if (config.TryGetValue("gitflow.prefix.hotfix", out var hotfixPrefix))
+                    GitFlow.HotfixPrefix = hotfixPrefix;
+                if (config.TryGetValue("gitflow.prefix.support", out var supportPrefix))
+                    GitFlow.SupportPrefix = supportPrefix;
+                if (config.TryGetValue("gitflow.prefix.versiontag", out var versionTagPrefix))
+                    GitFlow.VersionTagPrefix = versionTagPrefix;
+            }
+            else if (_branches != null && _branches.Count > 0)
+            {
+                // Auto-detect GitFlow based on branch structure when no explicit config exists
+                // Check for master or main branch
+                var masterBranch = _branches.Find(b => b.IsLocal && b.Name == "master");
+                var mainBranch = _branches.Find(b => b.IsLocal && b.Name == "main");
+
+                if (masterBranch != null || mainBranch != null)
+                {
+                    // Set master/main branch
+                    GitFlow.Master = masterBranch != null ? "master" : "main";
+
+                    // Check for develop branch
+                    var developBranch = _branches.Find(b => b.IsLocal && b.Name == "develop");
+
+                    if (developBranch != null)
+                    {
+                        GitFlow.Develop = "develop";
+
+                        // Auto-detect common GitFlow prefixes based on existing branches
+                        bool hasFeatureBranches = _branches.Any(b => b.IsLocal && b.Name.StartsWith("feature/"));
+                        bool hasReleaseBranches = _branches.Any(b => b.IsLocal && b.Name.StartsWith("release/"));
+                        bool hasHotfixBranches = _branches.Any(b => b.IsLocal && b.Name.StartsWith("hotfix/"));
+                        bool hasSupportBranches = _branches.Any(b => b.IsLocal && b.Name.StartsWith("support/"));
+
+                        // Set default GitFlow prefixes
+                        GitFlow.FeaturePrefix = "feature/";
+                        GitFlow.ReleasePrefix = "release/";
+                        GitFlow.HotfixPrefix = "hotfix/";
+
+                        if (hasSupportBranches)
+                            GitFlow.SupportPrefix = "support/";
+
+                        GitFlow.VersionTagPrefix = "";
+
+                        // Auto-initialize GitFlow configuration for the repository
+                        // This allows GitFlow commands to work without manual initialization
+                        Task.Run(async () =>
+                        {
+                            try
+                            {
+                                // Write GitFlow configuration synchronously to ensure it's set
+                                var configCmd = new Commands.Config(_fullpath);
+                                await configCmd.SetAsync("gitflow.branch.master", GitFlow.Master).ConfigureAwait(false);
+                                await configCmd.SetAsync("gitflow.branch.develop", GitFlow.Develop).ConfigureAwait(false);
+                                await configCmd.SetAsync("gitflow.prefix.feature", GitFlow.FeaturePrefix).ConfigureAwait(false);
+                                await configCmd.SetAsync("gitflow.prefix.release", GitFlow.ReleasePrefix).ConfigureAwait(false);
+                                await configCmd.SetAsync("gitflow.prefix.hotfix", GitFlow.HotfixPrefix).ConfigureAwait(false);
+                                await configCmd.SetAsync("gitflow.prefix.bugfix", "bugfix/").ConfigureAwait(false);
+                                await configCmd.SetAsync("gitflow.prefix.support", GitFlow.SupportPrefix).ConfigureAwait(false);
+                                await configCmd.SetAsync("gitflow.prefix.versiontag", GitFlow.VersionTagPrefix ?? "", true).ConfigureAwait(false);
+                            }
+                            catch (Exception ex)
+                            {
+                                // Silently fail - auto-configuration is optional
+                                App.LogException(ex);
+                            }
+                        });
+                    }
+                }
+            }
         }
 
         #endregion
+
+        /// <summary>
+        /// Checks for GitFlow structure and auto-configures if detected
+        /// </summary>
+        private void CheckAndAutoConfigureGitFlow(List<Models.Branch> localBranches)
+        {
+            // Check if GitFlow is already configured
+            Task.Run(async () =>
+            {
+                var config = await new Commands.Config(_fullpath).ReadAllAsync().ConfigureAwait(false);
+                bool hasGitFlowConfig = config.Keys.Any(k => k.StartsWith("gitflow."));
+
+                if (!hasGitFlowConfig && localBranches != null && localBranches.Count > 0)
+                {
+                    // Check for master or main branch
+                    var masterBranch = localBranches.Find(b => b.Name == "master");
+                    var mainBranch = localBranches.Find(b => b.Name == "main");
+                    var developBranch = localBranches.Find(b => b.Name == "develop");
+
+                    if ((masterBranch != null || mainBranch != null) && developBranch != null)
+                    {
+                        var primaryBranch = masterBranch != null ? "master" : "main";
+
+                        // Write GitFlow configuration
+                        var configCmd = new Commands.Config(_fullpath);
+                        await configCmd.SetAsync("gitflow.branch.master", primaryBranch).ConfigureAwait(false);
+                        await configCmd.SetAsync("gitflow.branch.develop", "develop").ConfigureAwait(false);
+                        await configCmd.SetAsync("gitflow.prefix.feature", "feature/").ConfigureAwait(false);
+                        await configCmd.SetAsync("gitflow.prefix.release", "release/").ConfigureAwait(false);
+                        await configCmd.SetAsync("gitflow.prefix.hotfix", "hotfix/").ConfigureAwait(false);
+                        await configCmd.SetAsync("gitflow.prefix.bugfix", "bugfix/").ConfigureAwait(false);
+                        await configCmd.SetAsync("gitflow.prefix.support", "support/").ConfigureAwait(false);
+                        await configCmd.SetAsync("gitflow.prefix.versiontag", "", true).ConfigureAwait(false);
+
+                        // Update the GitFlow object
+                        ExecuteOnUIThread(() =>
+                        {
+                            GitFlow.Master = primaryBranch;
+                            GitFlow.Develop = "develop";
+                            GitFlow.FeaturePrefix = "feature/";
+                            GitFlow.ReleasePrefix = "release/";
+                            GitFlow.HotfixPrefix = "hotfix/";
+                            GitFlow.SupportPrefix = "support/";
+                            GitFlow.VersionTagPrefix = "";
+                        });
+
+                        System.Diagnostics.Debug.WriteLine($"[GitFlow] Auto-configured for {primaryBranch}/develop structure");
+                    }
+                }
+            });
+        }
     }
 }

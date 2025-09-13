@@ -439,6 +439,69 @@ namespace SourceGit.ViewModels
                 {
                     _settings.ShowGitFlowInSidebar = value;
                     OnPropertyChanged();
+
+                    // When enabling GitFlow display, check configuration and update branches
+                    if (value)
+                    {
+                        Task.Run(async () =>
+                        {
+                            // Load GitFlow configuration if not already loaded
+                            await LoadGitFlowConfigAsync();
+
+                            // Ensure we have the latest branches
+                            if (_branches == null || _branches.Count == 0)
+                            {
+                                // Refresh branches if not loaded
+                                var branches = await new Commands.QueryBranches(_fullpath).GetResultAsync();
+                                if (branches != null)
+                                {
+                                    _branches = branches;
+                                }
+                            }
+
+                            // Collect local branches
+                            var localBranches = new List<Models.Branch>();
+                            if (_branches != null)
+                            {
+                                foreach (var b in _branches)
+                                {
+                                    if (b.IsLocal && !b.IsDetachedHead)
+                                        localBranches.Add(b);
+                                }
+                            }
+
+                            // Update GitFlow branches if enabled
+                            // Note: We need to update on UI thread with the correct branches
+                            Dispatcher.UIThread.Invoke(() =>
+                            {
+                                // Re-check if GitFlow is enabled after loading config
+                                if (GitFlow != null && GitFlow.IsValid)
+                                {
+                                    UpdateGitFlowBranches(localBranches);
+
+                                    // Auto-expand GitFlow section if it has content
+                                    if (GitFlowBranchGroups != null && GitFlowBranchGroups.Count > 0)
+                                    {
+                                        _settings.IsGitFlowExpandedInSideBar = true;
+                                    }
+
+                                    // Force UI to refresh GitFlow section completely
+                                    OnPropertyChanged(nameof(GitFlowBranchGroups));
+                                    OnPropertyChanged(nameof(GitFlowBranches));
+                                    OnPropertyChanged(nameof(IsGitFlowGroupExpanded));
+
+                                    // Also ensure the sidebar knows to show GitFlow
+                                    OnPropertyChanged(nameof(ShowGitFlowInSidebar));
+                                }
+                            });
+                        });
+                    }
+                    else
+                    {
+                        // Clear GitFlow branches when disabled
+                        GitFlowBranchGroups = new List<Models.GitFlowBranchGroup>();
+                        GitFlowBranches = new List<Models.Branch>();
+                    }
                 }
             }
         }
@@ -718,7 +781,7 @@ namespace SourceGit.ViewModels
 
         public bool IsGitFlowEnabled()
         {
-            return GitFlow != null && 
+            return GitFlow != null &&
                 GitFlow.IsValid &&
                 _branches != null &&
                 _branches.Find(x => x.IsLocal && x.Name.Equals(GitFlow.Master, StringComparison.Ordinal)) != null &&
