@@ -12,7 +12,6 @@ using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using Avalonia.Reactive;
 
 namespace SourceGit.Views
 {

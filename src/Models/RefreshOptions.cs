@@ -1,4 +1,3 @@
-using System;
 
 namespace SourceGit.Models
 {
