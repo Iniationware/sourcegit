@@ -134,14 +134,15 @@ When dealing with background operations and UI updates:
 ## Versioning and Release Strategy
 
 ### Iniationware Version Pattern
-**Format**: `v{YEAR}.{WEEK}-IW.{INCREMENT}`
-- **Base Version**: Always use the latest official SourceGit release tag (e.g., v2025.34)
-- **IW Suffix**: Add `-IW.X` to indicate Iniationware custom features
-- **Increment**: Increase the number after IW for each new Iniationware release
+**Format**: `v{YEAR}.{WEEK}.{IW_INCREMENT}`
+- **Base Version**: Always use the latest official SourceGit release tag (e.g., 2025.34)
+- **IW Increment**: Add a third number for Iniationware releases (e.g., .10, .11, .12)
+- **No Hyphens**: Linux packaging requires version numbers without hyphens
 
 **Examples**:
-- `v2025.34-IW.1` - First Iniationware release based on SourceGit v2025.34
-- `v2025.34-IW.5` - Fifth Iniationware release based on same base version
+- `v2025.34.10` - Tenth Iniationware release based on SourceGit v2025.34
+- `v2025.34.11` - Eleventh Iniationware release based on same base version
+- `v2025.35.1` - First Iniationware release based on SourceGit v2025.35
 
 ### Creating a New Release
 
@@ -160,20 +161,28 @@ This script verifies:
 
 #### Creating the Tag
 ```bash
-# 1. Find the latest official SourceGit version (without IW)
-git tag --list | grep -v "IW" | grep "v2025" | sort -V | tail -1
+# 1. Check current version in VERSION file
+cat VERSION
 
-# 2. Find the latest IW version for that base
-git tag --list | grep "v2025.34-IW" | sort -V | tail -1
+# 2. Find the latest tag (new format without IW)
+git tag --list "v2025.34.*" | sort -V | tail -1
 
 # 3. Run pre-tag checks (REQUIRED)
 ./check_before_tag.sh
 
-# 4. Create new tag with incremented IW number
-git tag -a v2025.34-IW.6 -m "Release description..."
+# 4. Update VERSION file with new version
+echo "2025.34.11" > VERSION
 
-# 5. Push tag to trigger GitHub Actions workflow
-git push origin v2025.34-IW.6
+# 5. Commit version update
+git add VERSION
+git commit -m "chore: bump version to 2025.34.11"
+
+# 6. Create new tag (note: no -IW anymore)
+git tag -a v2025.34.11 -m "Release description..."
+
+# 7. Push changes and tag to trigger GitHub Actions workflow
+git push origin develop
+git push origin v2025.34.11
 ```
 
 ### GitHub Actions Workflow
@@ -185,6 +194,6 @@ The `.github/workflows/release.yml` automatically:
 
 ### Important Notes
 - **Stay on base version**: Don't change the base version (e.g., v2025.34) unless updating to newer SourceGit
-- **Only increment IW number**: For Iniationware features, only increase the number after -IW
+- **Only increment IW number**: For Iniationware features, only increase the number after Basis-Version
 - **Tag triggers workflow**: Pushing a tag automatically starts the release build process
 - **Semantic messages**: Use clear, descriptive release notes focusing on added features

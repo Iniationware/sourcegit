@@ -10,8 +10,8 @@ namespace SourceGit.Views
             CloseOnESC = true;
             InitializeComponent();
 
-            // Use hardcoded Iniationware version for now
-            TxtVersion.Text = "2025.34-IW.4";
+            // Use Iniationware version format (Year.Week.IWIncrement)
+            TxtVersion.Text = "v2025.34.10";
 
             var assembly = Assembly.GetExecutingAssembly();
             var copyright = assembly.GetCustomAttribute<AssemblyCopyrightAttribute>();
