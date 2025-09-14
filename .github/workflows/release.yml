@@ -38,7 +38,12 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG: ${{ github.ref_name }}
           VERSION: ${{ needs.version.outputs.version }}
-        run: gh release create "$TAG" -t "$VERSION" --notes-from-tag
+        run: |
+          if gh release view "$TAG" > /dev/null 2>&1; then
+            echo "Release $TAG already exists, skipping creation"
+          else
+            gh release create "$TAG" -t "$VERSION" --notes-from-tag
+          fi
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
