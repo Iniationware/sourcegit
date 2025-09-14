@@ -40,6 +40,9 @@ jobs:
           sudo apt-get install -y curl wget git unzip zip libicu74 tzdata clang
       - name: Checkout sources
         uses: actions/checkout@v4
+      - name: Configure Git safe directory
+        if: startsWith(matrix.runtime, 'linux-')
+        run: git config --global --add safe.directory $GITHUB_WORKSPACE
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
