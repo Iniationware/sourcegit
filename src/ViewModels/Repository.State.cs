@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using Avalonia.Collections;
 using Avalonia.Threading;
 
 namespace SourceGit.ViewModels
