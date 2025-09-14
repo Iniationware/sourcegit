@@ -56,7 +56,7 @@ jobs:
           RUNTIME: ${{ matrix.runtime }}
         run: |
           mkdir build/SourceGit
-          tar -xf "build/sourcegit.${{ matrix.runtime }}.tar" -C build/SourceGit
+          tar -xzf "build/sourcegit.${{ matrix.runtime }}.tar.gz" -C build/SourceGit
           ./build/scripts/package.osx-app.sh
       - name: Upload package artifact
         uses: actions/upload-artifact@v4
@@ -70,13 +70,15 @@ jobs:
   linux:
     name: Package Linux
     runs-on: ubuntu-latest
-    container: ubuntu:20.04
+    container: ubuntu:24.04
     strategy:
       matrix:
         runtime: [linux-x64, linux-arm64]
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
+      - name: Configure Git safe directory
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
       - name: Download package dependencies
         run: |
           export DEBIAN_FRONTEND=noninteractive
@@ -95,7 +97,7 @@ jobs:
           APPIMAGE_EXTRACT_AND_RUN: 1
         run: |
           mkdir build/SourceGit
-          tar -xf "build/sourcegit.${{ matrix.runtime }}.tar" -C build/SourceGit
+          tar -xzf "build/sourcegit.${{ matrix.runtime }}.tar.gz" -C build/SourceGit
           ./build/scripts/package.linux.sh
       - name: Upload package artifacts
         uses: actions/upload-artifact@v4

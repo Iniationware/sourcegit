@@ -21,60 +21,58 @@ jobs:
           - name: Linux
             os: ubuntu-latest
             runtime: linux-x64
-            container: ubuntu:24.04
           - name: Linux (arm64)
             os: ubuntu-latest
             runtime: linux-arm64
-            container: ubuntu:24.04
     name: Build ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
-    container: ${{ matrix.container || '' }}
     steps:
-      - name: Install common CLI tools
+      # For Linux builds, we don't use containers anymore - simpler and more reliable
+      - name: Setup Linux environment
         if: startsWith(matrix.runtime, 'linux-')
         run: |
-          export DEBIAN_FRONTEND=noninteractive
-          ln -fs /usr/share/zoneinfo/Etc/UTC /etc/localtime
-          apt-get update
-          apt-get install -y sudo
-          sudo apt-get install -y curl wget git unzip zip libicu74 tzdata clang
+          sudo apt-get update
+          sudo apt-get install -y curl wget git unzip zip tzdata clang
+
+      - name: Configure arm64 cross-compilation
+        if: matrix.runtime == 'linux-arm64'
+        run: |
+          sudo dpkg --add-architecture arm64
+          sudo bash -c 'cat > /etc/apt/sources.list.d/arm64-cross-compile.list << EOF
+          deb [arch=arm64] http://ports.ubuntu.com/ $(lsb_release -cs) main restricted universe multiverse
+          deb [arch=arm64] http://ports.ubuntu.com/ $(lsb_release -cs)-updates main restricted universe multiverse
+          deb [arch=arm64] http://ports.ubuntu.com/ $(lsb_release -cs)-security main restricted universe multiverse
+          EOF'
+          sudo sed -i 's/deb http/deb [arch=amd64,i386] http/' /etc/apt/sources.list
+          sudo sed -i 's/deb mirror/deb [arch=amd64,i386] mirror/' /etc/apt/sources.list
+          sudo apt-get update
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
       - name: Checkout sources
         uses: actions/checkout@v4
-      - name: Configure Git safe directory
-        if: startsWith(matrix.runtime, 'linux-')
-        run: git config --global --add safe.directory /__w/sourcegit/sourcegit
+
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
-      - name: Configure arm64 packages
-        if: matrix.runtime == 'linux-arm64'
-        run: |
-          sudo dpkg --add-architecture arm64
-          echo 'deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ noble main restricted
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ noble-updates main restricted
-          deb [arch=arm64] http://ports.ubuntu.com/ubuntu-ports/ noble-backports main restricted' \
-          | sudo tee /etc/apt/sources.list.d/arm64.list
-          sudo sed -i -e 's/^deb http/deb [arch=amd64] http/g' /etc/apt/sources.list
-          sudo sed -i -e 's/^deb mirror/deb [arch=amd64] mirror/g' /etc/apt/sources.list
-      - name: Install cross-compiling dependencies
-        if: matrix.runtime == 'linux-arm64'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y llvm gcc-aarch64-linux-gnu
+
       - name: Build
         run: dotnet build -c Release
+
       - name: Publish
-        run: dotnet publish src/SourceGit.csproj -c Release -o publish -r ${{ matrix.runtime }}
-      - name: Rename executable file
+        run: dotnet publish src/SourceGit.csproj -c Release -o publish -r ${{ matrix.runtime }} --self-contained
+
+      - name: Rename Linux executable
         if: startsWith(matrix.runtime, 'linux-')
         run: mv publish/SourceGit publish/sourcegit
-      - name: Tar artifact
+
+      - name: Create tar archive
         if: startsWith(matrix.runtime, 'linux-') || startsWith(matrix.runtime, 'osx-')
         run: |
-          tar -cvf "sourcegit.${{ matrix.runtime }}.tar" -C publish .
+          tar -czf "sourcegit.${{ matrix.runtime }}.tar.gz" -C publish .
           rm -r publish/*
-          mv "sourcegit.${{ matrix.runtime }}.tar" publish
+          mv "sourcegit.${{ matrix.runtime }}.tar.gz" publish/
+
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
