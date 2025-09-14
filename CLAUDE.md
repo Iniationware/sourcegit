@@ -144,6 +144,21 @@ When dealing with background operations and UI updates:
 - `v2025.34-IW.5` - Fifth Iniationware release based on same base version
 
 ### Creating a New Release
+
+#### Pre-Release Checks
+Before creating a tag, always run the pre-tag validation script:
+```bash
+./check_before_tag.sh
+```
+
+This script verifies:
+- No uncommitted changes
+- Code formatting is correct (`dotnet format`)
+- Project builds successfully
+- Tests pass (if present)
+- Branch is up to date with remote
+
+#### Creating the Tag
 ```bash
 # 1. Find the latest official SourceGit version (without IW)
 git tag --list | grep -v "IW" | grep "v2025" | sort -V | tail -1
@@ -151,10 +166,13 @@ git tag --list | grep -v "IW" | grep "v2025" | sort -V | tail -1
 # 2. Find the latest IW version for that base
 git tag --list | grep "v2025.34-IW" | sort -V | tail -1
 
-# 3. Create new tag with incremented IW number
+# 3. Run pre-tag checks (REQUIRED)
+./check_before_tag.sh
+
+# 4. Create new tag with incremented IW number
 git tag -a v2025.34-IW.6 -m "Release description..."
 
-# 4. Push tag to trigger GitHub Actions workflow
+# 5. Push tag to trigger GitHub Actions workflow
 git push origin v2025.34-IW.6
 ```
 
