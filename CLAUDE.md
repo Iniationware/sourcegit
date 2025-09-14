@@ -130,3 +130,43 @@ When dealing with background operations and UI updates:
 - Parse command output in `ParseResult()` override
 - Log all commands through `ICommandLog` interface
 - Handle errors gracefully with proper exception handling
+
+## Versioning and Release Strategy
+
+### Iniationware Version Pattern
+**Format**: `v{YEAR}.{WEEK}-IW.{INCREMENT}`
+- **Base Version**: Always use the latest official SourceGit release tag (e.g., v2025.34)
+- **IW Suffix**: Add `-IW.X` to indicate Iniationware custom features
+- **Increment**: Increase the number after IW for each new Iniationware release
+
+**Examples**:
+- `v2025.34-IW.1` - First Iniationware release based on SourceGit v2025.34
+- `v2025.34-IW.5` - Fifth Iniationware release based on same base version
+
+### Creating a New Release
+```bash
+# 1. Find the latest official SourceGit version (without IW)
+git tag --list | grep -v "IW" | grep "v2025" | sort -V | tail -1
+
+# 2. Find the latest IW version for that base
+git tag --list | grep "v2025.34-IW" | sort -V | tail -1
+
+# 3. Create new tag with incremented IW number
+git tag -a v2025.34-IW.6 -m "Release description..."
+
+# 4. Push tag to trigger GitHub Actions workflow
+git push origin v2025.34-IW.6
+```
+
+### GitHub Actions Workflow
+The `.github/workflows/release.yml` automatically:
+1. Triggers on new version tags (v*)
+2. Builds the application for all platforms
+3. Creates packages (Windows, macOS, Linux)
+4. Publishes GitHub release with assets
+
+### Important Notes
+- **Stay on base version**: Don't change the base version (e.g., v2025.34) unless updating to newer SourceGit
+- **Only increment IW number**: For Iniationware features, only increase the number after -IW
+- **Tag triggers workflow**: Pushing a tag automatically starts the release build process
+- **Semantic messages**: Use clear, descriptive release notes focusing on added features
