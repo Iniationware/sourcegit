@@ -1,219 +1,125 @@
 <div align="center">
   <img src="./build/resources/_common/icons/sourcegit.png" width="92" height="92" alt="SourceGit Logo"/>
-  
-  # SourceGit
 
-  **🚀 Fast, Free & Opensource Git GUI Client**
+  # SourceGit - Iniationware Edition
 
-  [![GitHub Stars](https://img.shields.io/github/stars/sourcegit-scm/sourcegit?style=flat-square&logo=github)](https://github.com/sourcegit-scm/sourcegit/stargazers)
-  [![Latest Release](https://img.shields.io/github/v/release/sourcegit-scm/sourcegit?style=flat-square&logo=github)](https://github.com/sourcegit-scm/sourcegit/releases/latest)
-  [![License](https://img.shields.io/github/license/sourcegit-scm/sourcegit?style=flat-square)](LICENSE)
-  [![Downloads](https://img.shields.io/github/downloads/sourcegit-scm/sourcegit/total?style=flat-square)](https://github.com/sourcegit-scm/sourcegit/releases)
-  [![Build Status](https://img.shields.io/github/actions/workflow/status/sourcegit-scm/sourcegit/ci.yml?branch=develop&style=flat-square)](https://github.com/sourcegit-scm/sourcegit/actions)
+  **🚀 Enterprise-Ready Git GUI Client with Advanced Features**
 
-  [**Download**](https://github.com/sourcegit-scm/sourcegit/releases/latest) • 
-  [**Documentation**](./docs/README.md) • 
-  [**Contributing**](#-contributing) • 
-  [**Screenshots**](#-screenshots)
+  [![GitHub Stars](https://img.shields.io/github/stars/Iniationware/sourcegit?style=flat-square&logo=github)](https://github.com/Iniationware/sourcegit/stargazers)
+  [![Latest Release](https://img.shields.io/github/v/release/Iniationware/sourcegit?style=flat-square&logo=github)](https://github.com/Iniationware/sourcegit/releases/latest)
+  [![License](https://img.shields.io/github/license/Iniationware/sourcegit?style=flat-square)](LICENSE)
+  [![Downloads](https://img.shields.io/github/downloads/Iniationware/sourcegit/total?style=flat-square)](https://github.com/Iniationware/sourcegit/releases)
+  [![Build Status](https://img.shields.io/github/actions/workflow/status/Iniationware/sourcegit/ci.yml?branch=develop&style=flat-square)](https://github.com/Iniationware/sourcegit/actions)
+
+  [**Download**](https://github.com/Iniationware/sourcegit/releases/latest) •
+  [**Documentation**](./docs/README.md) •
+  [**Changelog**](./CHANGELOG.md) •
+  [**Contributing**](#-contributing)
 
 </div>
 
 ---
 
-## ✨ Why SourceGit?
+## 🎯 About Iniationware Edition
 
-SourceGit is a powerful Git GUI client designed to make version control intuitive and efficient. Built with modern .NET and Avalonia UI, it delivers native performance across all major platforms while remaining completely free and open source.
+The **Iniationware Edition** is an enterprise-enhanced fork of SourceGit, featuring advanced performance optimizations, comprehensive monitoring capabilities, and professional-grade tools for development teams.
 
-### 🎯 Key Features
+### 🆕 What's Enhanced in v2025.34.10
 
-<table>
-<tr>
-<td width="50%">
+- **⚡ 60-70% Performance Boost**: Intelligent caching and process pooling
+- **📊 Repository Metrics Dashboard**: Real-time statistics and monitoring
+- **🔧 Advanced Git Operations**: Optimized Git-Flow, batch operations
+- **🛡️ Enterprise Security**: Secure credential management
+- **📦 Professional Packaging**: Signed macOS DMGs, Linux AppImage/DEB/RPM
+- **🌍 Full Localization**: Support for 11+ languages
 
-**🖥️ Cross-Platform**
-- Native support for Windows, macOS, and Linux
-- Consistent experience across all platforms
-- Portable mode available
+## ✨ Key Features
 
-</td>
-<td width="50%">
+### Core Capabilities
+- ✅ **Cross-Platform**: Native support for Windows, macOS (Intel/ARM), Linux (x64/ARM64)
+- ✅ **Beautiful UI**: Modern design with light/dark themes
+- ✅ **Fast Performance**: Built with .NET 9 and Avalonia UI
+- ✅ **Git-Flow Support**: Full Git-Flow workflow integration
+- ✅ **SSH & GPG**: Built-in SSH and GPG key management
+- ✅ **Diff Tools**: Advanced diff viewer with syntax highlighting
 
-**🎨 Beautiful Interface**
-- Built-in light/dark themes
-- Customizable themes
-- Clean, modern design
+### Iniationware Enhancements
+- ⚡ **Performance Monitor**: Real-time memory and CPU tracking
+- ⚡ **Smart Caching**: Intelligent command result caching
+- ⚡ **Batch Operations**: Parallel Git command execution
+- ⚡ **Repository Metrics**: Branch counter, commit statistics
+- ⚡ **Memory Manager**: Automatic resource optimization
 
-</td>
-</tr>
-<tr>
-<td width="50%">
+## 📥 Installation
 
-**⚡ Lightning Fast**
-- Optimized Git operations with intelligent caching
-- Parallel command execution
-- Native performance with .NET 9
+### Quick Install
 
-</td>
-<td width="50%">
+#### Windows
+Download the latest `.zip` from [Releases](https://github.com/Iniationware/sourcegit/releases/latest) and extract.
 
-**🌍 International**
-- 12 languages supported
-- Active translation community
-- RTL language support
+#### macOS
+Download the `.dmg` (signed) or `.zip` from [Releases](https://github.com/Iniationware/sourcegit/releases/latest).
+- **DMG**: Double-click to mount and drag to Applications
+- **ZIP**: Extract and move to Applications, then right-click → Open
 
-</td>
-</tr>
-<tr>
-<td width="50%">
+#### Linux
+Available as AppImage, DEB, or RPM:
+```bash
+# AppImage
+chmod +x sourcegit-*.AppImage
+./sourcegit-*.AppImage
 
-**🔧 Comprehensive Git Support**
-- Full Git and Git-Flow workflows
-- Interactive rebase & cherry-pick
-- Submodules, worktrees, and stashes
-- SSH key management per remote
+# Debian/Ubuntu
+sudo dpkg -i sourcegit_*.deb
 
-</td>
-<td width="50%">
+# Fedora/RHEL
+sudo rpm -i sourcegit-*.rpm
+```
 
-**🤖 Smart Features**
-- AI-powered commit messages
-- Visual commit graph
-- Advanced diff viewer with image support
-- Issue tracker integration
-
-</td>
-</tr>
-</table>
-
-## 🚀 Quick Start
+## 🏗️ Building from Source
 
 ### Prerequisites
-- **Git** ≥ 2.25.1 must be installed ([Download Git](https://git-scm.com/downloads))
-- **Git Credential Manager** recommended for authentication
+- [.NET 9 SDK](https://dotnet.microsoft.com/download/dotnet/9.0)
+- Git 2.25+ with Git-LFS
 
-### Installation
-
-<details>
-<summary><b>🪟 Windows</b></summary>
-
-#### Option 1: Winget (Recommended)
-```powershell
-winget install SourceGit
-```
-
-#### Option 2: Scoop
-```powershell
-scoop bucket add extras
-scoop install sourcegit
-```
-
-#### Option 3: Direct Download
-Download the latest `.msi` or `.zip` from [Releases](https://github.com/sourcegit-scm/sourcegit/releases/latest)
-
-> **Note**: MSYS Git is not supported. Use official Git for Windows.
-
-</details>
-
-<details>
-<summary><b>🍎 macOS</b></summary>
-
-#### Option 1: Homebrew (Recommended)
+### Build Commands
 ```bash
-brew tap ybeapps/homebrew-sourcegit
-brew install --cask --no-quarantine sourcegit
+# Clone repository
+git clone https://github.com/Iniationware/sourcegit.git
+cd sourcegit
+
+# Build
+dotnet build -c Release
+
+# Run
+dotnet run --project src/SourceGit.csproj
+
+# Publish for your platform
+dotnet publish src/SourceGit.csproj -c Release -r win-x64
+dotnet publish src/SourceGit.csproj -c Release -r osx-arm64
+dotnet publish src/SourceGit.csproj -c Release -r linux-x64
 ```
 
-#### Option 2: Direct Download
-1. Download from [Releases](https://github.com/sourcegit-scm/sourcegit/releases/latest)
-2. Run: `sudo xattr -cr /Applications/SourceGit.app`
+## 📊 System Requirements
 
-</details>
-
-<details>
-<summary><b>🐧 Linux</b></summary>
-
-#### Debian/Ubuntu
-```bash
-curl https://codeberg.org/api/packages/yataro/debian/repository.key | sudo tee /etc/apt/keyrings/sourcegit.asc
-echo "deb [signed-by=/etc/apt/keyrings/sourcegit.asc] https://codeberg.org/api/packages/yataro/debian generic main" | sudo tee /etc/apt/sources.list.d/sourcegit.list
-sudo apt update && sudo apt install sourcegit
-```
-
-#### Fedora/RHEL
-```bash
-sudo dnf config-manager --add-repo https://codeberg.org/api/packages/yataro/rpm.repo
-sudo dnf install sourcegit
-```
-
-#### AppImage
-Available on [AppImage Hub](https://appimage.github.io/SourceGit/)
-
-</details>
-
-> 📖 For detailed installation instructions, see [Installation Guide](./docs/installation.md)
-
-## 🎨 Screenshots
-
-<div align="center">
-  <img src="./screenshots/theme_dark.png" alt="Dark Theme" width="49%"/>
-  <img src="./screenshots/theme_light.png" alt="Light Theme" width="49%"/>
-</div>
-
-> 🎨 Custom themes available at [sourcegit-theme](https://github.com/sourcegit-scm/sourcegit-theme)
-
-## 🛠️ Advanced Features
-
-### Git Operations
-- **Comprehensive Git support**: Clone, fetch, pull, push, merge, rebase, cherry-pick
-- **Git-Flow workflows**: Full support with optimized performance
-- **Visual tools**: Commit graph, blame view, file history
-- **Advanced diff**: Side-by-side, inline, and image diff modes
-
-### Productivity Tools
-- **AI Commit Messages**: OpenAI-compatible API support
-- **External IDE Integration**: VS Code, JetBrains, Sublime Text, and more
-- **Custom Actions**: Define your own Git workflows
-- **Issue Tracking**: Link commits to issues automatically
-
-### Performance Optimizations
-- **Intelligent Caching**: 60-80% faster repeated operations
-- **Batch Processing**: Parallel execution for multiple queries
-- **Resource Management**: Automatic process pooling and cleanup
-- **Git-Flow Optimization**: 40-60% faster workflow operations
+| Platform | Minimum | Recommended |
+|----------|---------|-------------|
+| **Windows** | Windows 10 1903+ | Windows 11 |
+| **macOS** | macOS 11 Big Sur | macOS 14 Sonoma |
+| **Linux** | Ubuntu 20.04 / Debian 11 | Ubuntu 22.04+ |
+| **Memory** | 4GB RAM | 8GB+ RAM |
+| **.NET** | .NET 9 Runtime | .NET 9 SDK |
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guide](./docs/contributing.md) for details.
+We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
 
-### Development Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/sourcegit-scm/sourcegit.git
-cd sourcegit
-
-# Restore dependencies
-dotnet restore
-
-# Build and run
-dotnet build
-dotnet run --project src/SourceGit.csproj
-```
-
-### Contributors
-
-<a href="https://github.com/sourcegit-scm/sourcegit/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=sourcegit-scm/sourcegit&columns=12" />
-</a>
-
-## 📚 Documentation
-
-- [**Installation Guide**](./docs/installation.md) - Detailed platform-specific instructions
-- [**User Manual**](./docs/user-manual.md) - Complete feature documentation
-- [**Configuration**](./docs/configuration.md) - Settings and customization
-- [**External Tools**](./docs/external-tools.md) - IDE integration setup
-- [**Troubleshooting**](./docs/troubleshooting.md) - Common issues and solutions
-- [**Translation Status**](./TRANSLATION.md) - Help translate SourceGit
+### Development Workflow
+1. Fork the repository
+2. Create a feature branch (`feature/amazing-feature`)
+3. Commit your changes
+4. Push to your branch
+5. Open a Pull Request
 
 ## 📄 License
 
@@ -221,16 +127,18 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Built with [AvaloniaUI](https://avaloniaui.net/) for cross-platform UI
-- AI commit messages inspired by [commitollama](https://github.com/anjerodev/commitollama)
-- See [Third-Party Licenses](THIRD-PARTY-LICENSES.md) for all dependencies
+- Original [SourceGit](https://github.com/sourcegit-scm/sourcegit) by love-hacker
+- [Avalonia UI](https://avaloniaui.net/) for the cross-platform framework
+- All contributors and community members
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/Iniationware/sourcegit/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Iniationware/sourcegit/discussions)
+- **Website**: [Iniationware](https://iniationware.com)
 
 ---
 
 <div align="center">
-  <b>⭐ Star us on GitHub if you find SourceGit helpful!</b>
-  
-  [Report Bug](https://github.com/sourcegit-scm/sourcegit/issues) • 
-  [Request Feature](https://github.com/sourcegit-scm/sourcegit/issues) • 
-  [Discussions](https://github.com/sourcegit-scm/sourcegit/discussions)
+  <sub>Built with ❤️ by <a href="https://github.com/Iniationware">Iniationware</a></sub>
 </div>

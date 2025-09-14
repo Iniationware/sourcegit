@@ -1,142 +1,145 @@
-# SourceGit Documentation
+# SourceGit Documentation - Iniationware Edition
 
-Welcome to the SourceGit documentation! This guide will help you get the most out of SourceGit, the fast and free Git GUI client.
+Welcome to the comprehensive documentation for SourceGit Iniationware Edition.
 
 ## 📚 Documentation Structure
 
 ### Getting Started
-- [**Installation Guide**](./installation.md) - Platform-specific installation instructions
-- [**Configuration**](./configuration.md) - Settings and customization options
-- [**External Tools**](./external-tools.md) - IDE and editor integration
+- [Installation Guide](../README.md#-installation) - Platform-specific installation instructions
+- [Building from Source](../README.md#-building-from-source) - Developer build instructions
+- [System Requirements](../README.md#-system-requirements) - Minimum and recommended specifications
 
-### Development
-- [**Contributing Guide**](./contributing.md) - How to contribute to SourceGit
-- [**Architecture Overview**](../CLAUDE.md) - Technical architecture and development notes
-- [**Bug & Performance Tracking**](./BUGS_AND_PERFORMANCE_TODO.md) - Current issues and improvements
+### Release Information
+- [Release Notes](../RELEASE_NOTES.md) - Latest release features and improvements
+- [Changelog](../CHANGELOG.md) - Complete version history
+- [Versioning Strategy](../CLAUDE.md#versioning-and-release-strategy) - Version numbering system
 
-### Reference
-- [**Translation Status**](../TRANSLATION.md) - Localization progress
-- [**Third-Party Licenses**](../THIRD-PARTY-LICENSES.md) - Dependencies and licenses
+### Developer Guides
+- [macOS Code Signing](./MACOS_SIGNING.md) - Setting up signed DMG releases
+- [Contributing Guide](../CLAUDE.md) - Development workflow and guidelines
+- [Architecture Overview](../CLAUDE.md#architecture-overview) - Technical architecture details
 
-## 🎯 Quick Links
+### Features Documentation
 
-### For Users
-- [Download Latest Release](https://github.com/sourcegit-scm/sourcegit/releases/latest)
-- [Report a Bug](https://github.com/sourcegit-scm/sourcegit/issues/new)
-- [Request a Feature](https://github.com/sourcegit-scm/sourcegit/issues/new)
-- [Join Discussions](https://github.com/sourcegit-scm/sourcegit/discussions)
+#### Performance Enhancements
+- **GitCommandCache**: 60-70% performance improvement through intelligent caching
+- **GitProcessPool**: Efficient process management and resource pooling
+- **BatchQueryExecutor**: Parallel Git operations for faster workflows
+- **Memory Manager**: Automatic resource optimization and cleanup
 
-### For Developers
-- [GitHub Repository](https://github.com/sourcegit-scm/sourcegit)
-- [Build Instructions](./contributing.md#building-from-source)
-- [API Documentation](./api/index.md) *(coming soon)*
+#### Repository Management
+- **Metrics Dashboard**: Real-time branch and commit statistics
+- **Refresh Options**: Granular control over repository updates
+- **Git-Flow Support**: Optimized branch operations and workflows
+- **Credential Manager**: Secure storage and management
 
-## 🌟 Key Features
+#### UI/UX Features
+- **Memory Indicators**: Real-time resource usage display
+- **Performance Metrics**: Operation timing and efficiency tracking
+- **Theme Support**: Light/dark themes with customization
+- **Localization**: Support for 11+ languages
 
-### Git Operations
-- **Core Git Commands**: Clone, fetch, pull, push, merge, rebase
-- **Advanced Features**: Interactive rebase, cherry-pick, bisect
-- **Git-Flow Support**: Full workflow automation with performance optimization
-- **Visual Tools**: Commit graph, blame view, file history
+## 🔧 Configuration
 
-### User Interface
-- **Themes**: Built-in light/dark themes with custom theme support
-- **Languages**: 12+ languages with active translation community
-- **Diff Viewer**: Side-by-side, inline, and image diff support
-- **Search**: Fast commit and file searching
+### Application Settings
+- Settings stored in `%APPDATA%/SourceGit/` (Windows) or `~/.sourcegit/` (macOS/Linux)
+- Portable mode: Create `data` folder next to executable
+- Repository-specific settings in `.git/sourcegit.json`
 
-### Productivity
-- **AI Integration**: Generate commit messages with OpenAI
-- **External Tools**: Launch repositories in VS Code, JetBrains IDEs, and more
-- **Performance**: 60-80% faster operations with intelligent caching
-- **Workspaces**: Manage multiple repositories efficiently
+### Environment Variables
+```bash
+# SSH Key Path
+export GIT_SSH_COMMAND="ssh -i ~/.ssh/your_key"
 
-## 📊 Performance Highlights
+# GPG Signing
+export GPG_TTY=$(tty)
 
-Recent optimizations have achieved:
-- **60-80%** reduction in repeated Git queries
-- **40-60%** faster Git-Flow operations
-- **Up to 4x** speedup for batch operations
-- **Intelligent caching** with automatic invalidation
-- **Resource management** preventing exhaustion
+# Custom Git Path
+export GIT_EXECUTABLE="/usr/local/bin/git"
+```
 
-## 🔍 Common Tasks
+## 🎯 Quick Reference
 
-### Basic Workflow
-1. **Clone a Repository**: File → Clone Repository
-2. **Make Changes**: Edit files in your preferred editor
-3. **Stage Changes**: Select files and stage them
-4. **Commit**: Write message and commit
-5. **Push**: Push changes to remote
+### Keyboard Shortcuts
+| Action | Windows/Linux | macOS |
+|--------|--------------|-------|
+| New Tab | `Ctrl+T` | `Cmd+T` |
+| Close Tab | `Ctrl+W` | `Cmd+W` |
+| Search | `Ctrl+F` | `Cmd+F` |
+| Refresh | `F5` | `Cmd+R` |
+| Commit | `Ctrl+Enter` | `Cmd+Enter` |
+| Push | `Ctrl+P` | `Cmd+P` |
+| Pull | `Ctrl+Shift+P` | `Cmd+Shift+P` |
+| Stash | `Ctrl+S` | `Cmd+S` |
 
-### Git-Flow Workflow
-1. **Initialize Git-Flow**: Repository → Git-Flow → Initialize
-2. **Start Feature**: Git-Flow → Start Feature
-3. **Develop Feature**: Make commits as needed
-4. **Finish Feature**: Git-Flow → Finish Feature
-5. **Create Release**: Git-Flow → Start Release
+### Command Line Arguments
+```bash
+# Open specific repository
+sourcegit /path/to/repo
 
-### Resolving Conflicts
-1. **Identify Conflicts**: Look for conflict markers
-2. **Open Merge Tool**: Right-click → Resolve Conflicts
-3. **Choose Resolution**: Select changes to keep
-4. **Mark Resolved**: Stage the resolved file
-5. **Complete Merge**: Commit the resolution
+# Portable mode
+sourcegit --portable
 
-## 🛠️ Troubleshooting
+# Debug mode
+sourcegit --debug
+
+# Reset settings
+sourcegit --reset
+```
+
+## 🐛 Troubleshooting
 
 ### Common Issues
 
-**Git not detected**
-- Ensure Git ≥ 2.25.1 is installed
-- Check PATH environment variable
-- Restart SourceGit after installing Git
+#### macOS: "Application cannot be opened"
+```bash
+# Remove quarantine flag
+xattr -cr /Applications/SourceGit.app
 
-**Cannot authenticate**
-- Install Git Credential Manager
-- Configure SSH keys if using SSH
-- Check repository remote URLs
+# Or right-click → Open on first launch
+```
 
-**Performance issues**
-- Enable caching in preferences
-- Adjust process pool size
-- Check available system resources
+#### Linux: Missing dependencies
+```bash
+# Ubuntu/Debian
+sudo apt-get install libicu66 libssl1.1
 
-**Display problems (Linux)**
-- Set `AVALONIA_SCREEN_SCALE_FACTORS`
-- Configure `AVALONIA_IM_MODULE=none` for input issues
+# Fedora/RHEL
+sudo dnf install libicu openssl-libs
+```
 
-## 💬 Getting Help
+#### Windows: Git not found
+1. Install Git for Windows from https://git-scm.com
+2. Add Git to PATH or configure in SourceGit settings
 
-### Support Channels
-- **GitHub Issues**: [Bug reports and feature requests](https://github.com/sourcegit-scm/sourcegit/issues)
-- **Discussions**: [Community forum](https://github.com/sourcegit-scm/sourcegit/discussions)
-- **Wiki**: [Additional guides and tips](https://github.com/sourcegit-scm/sourcegit/wiki)
+### Performance Optimization
 
-### Reporting Issues
-When reporting issues, please include:
-- SourceGit version
-- Operating system and version
-- Git version (`git --version`)
-- Steps to reproduce
-- Error messages or logs
+#### Large Repositories
+- Enable lazy loading in settings
+- Use refresh options to limit scope
+- Configure cache size limits
+- Disable automatic refresh for specific repos
 
-## 🤝 Contributing
+#### Memory Usage
+- Monitor with built-in performance metrics
+- Adjust cache sizes in settings
+- Enable automatic cleanup
+- Use portable mode for isolated instances
 
-We welcome contributions! See our [Contributing Guide](./contributing.md) for:
-- Code contribution guidelines
-- Translation help
-- Documentation improvements
-- Bug reporting best practices
+## 📞 Support Channels
 
-## 📜 License
+- **Bug Reports**: [GitHub Issues](https://github.com/Iniationware/sourcegit/issues)
+- **Feature Requests**: [GitHub Discussions](https://github.com/Iniationware/sourcegit/discussions)
+- **Security Issues**: Email security@iniationware.com
+- **Community Chat**: [Discord Server](https://discord.gg/sourcegit)
 
-SourceGit is open source software licensed under the [MIT License](../LICENSE).
+## 🔗 Additional Resources
+
+- [Original SourceGit Documentation](https://github.com/sourcegit-scm/sourcegit/docs)
+- [Avalonia UI Documentation](https://docs.avaloniaui.net/)
+- [Git Documentation](https://git-scm.com/doc)
+- [.NET Documentation](https://docs.microsoft.com/dotnet/)
 
 ---
 
-<div align="center">
-  <b>Thank you for using SourceGit!</b>
-  
-  ⭐ Star us on [GitHub](https://github.com/sourcegit-scm/sourcegit) if you find it helpful!
-</div>
+*Last updated: September 2025 - Version 2025.34.10*
