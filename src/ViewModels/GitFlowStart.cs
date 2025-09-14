@@ -59,7 +59,7 @@ namespace SourceGit.ViewModels
 
             var succ = await Commands.GitFlow.StartAsync(_repo.FullPath, Type, _name, log);
             log.Complete();
-            
+
             // Refresh branches to show the new Git-Flow branch
             _repo.MarkBranchesDirtyManually();
             _repo.SetWatcherEnabled(true);

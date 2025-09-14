@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Threading;
 
 namespace SourceGit.Models
 {
@@ -26,7 +25,8 @@ namespace SourceGit.Models
         /// </summary>
         public static void StartTimer(string operation)
         {
-            if (!_enabled) return;
+            if (!_enabled)
+                return;
 
             lock (_lock)
             {
@@ -48,7 +48,8 @@ namespace SourceGit.Models
         /// </summary>
         public static long StopTimer(string operation)
         {
-            if (!_enabled) return 0;
+            if (!_enabled)
+                return 0;
 
             lock (_lock)
             {
@@ -56,19 +57,19 @@ namespace SourceGit.Models
                 {
                     stopwatch.Stop();
                     var elapsed = stopwatch.ElapsedMilliseconds;
-                    
+
                     // Record measurement
                     if (!_measurements.ContainsKey(operation))
                         _measurements[operation] = new List<long>();
-                    
+
                     _measurements[operation].Add(elapsed);
-                    
+
                     // Keep only last 100 measurements per operation
                     if (_measurements[operation].Count > 100)
                         _measurements[operation].RemoveAt(0);
-                    
+
                     _activeTimers.Remove(operation);
-                    
+
                     // Log if operation took too long
                     if (elapsed > 1000)
                     {
@@ -78,11 +79,11 @@ namespace SourceGit.Models
                     {
                         LogPerformance($"[WARN] {operation} took {elapsed}ms");
                     }
-                    
+
                     return elapsed;
                 }
             }
-            
+
             return 0;
         }
 
@@ -111,7 +112,7 @@ namespace SourceGit.Models
         {
             var summary = new System.Text.StringBuilder();
             summary.AppendLine("=== Performance Summary ===");
-            
+
             lock (_lock)
             {
                 foreach (var kvp in _measurements)
@@ -121,18 +122,20 @@ namespace SourceGit.Models
                         var avg = GetAverageTime(kvp.Key);
                         var min = long.MaxValue;
                         var max = long.MinValue;
-                        
+
                         foreach (var time in kvp.Value)
                         {
-                            if (time < min) min = time;
-                            if (time > max) max = time;
+                            if (time < min)
+                                min = time;
+                            if (time > max)
+                                max = time;
                         }
-                        
+
                         summary.AppendLine($"{kvp.Key}: Avg={avg:F0}ms, Min={min}ms, Max={max}ms, Count={kvp.Value.Count}");
                     }
                 }
             }
-            
+
             return summary.ToString();
         }
 
@@ -147,7 +150,7 @@ namespace SourceGit.Models
                 _measurements.Clear();
             }
         }
-        
+
         /// <summary>
         /// Trim old measurements to prevent unbounded growth
         /// </summary>
@@ -163,7 +166,7 @@ namespace SourceGit.Models
                         kvp.Value.RemoveAt(0);
                     }
                 }
-                
+
                 // Remove operations that haven't been used recently
                 var toRemove = new List<string>();
                 foreach (var kvp in _measurements)
@@ -171,14 +174,14 @@ namespace SourceGit.Models
                     if (kvp.Value.Count == 0)
                         toRemove.Add(kvp.Key);
                 }
-                
+
                 foreach (var key in toRemove)
                 {
                     _measurements.Remove(key);
                 }
             }
         }
-        
+
         /// <summary>
         /// Get total measurement count for monitoring
         /// </summary>
@@ -199,7 +202,7 @@ namespace SourceGit.Models
         {
             // Log to debug output and potentially to a file
             Debug.WriteLine($"[PERF] {DateTime.Now:HH:mm:ss.fff} {message}");
-            
+
             // TODO: Could also log to a file for analysis
             // File.AppendAllText("performance.log", $"{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff} {message}\n");
         }

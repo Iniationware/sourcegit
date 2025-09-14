@@ -13,7 +13,7 @@ namespace SourceGit.Commands.Optimization
     {
         private readonly GitCommandCache _cache;
         private readonly GitProcessPool _processPool;
-        
+
         // Git-Flow branch patterns
         private static readonly Dictionary<string, string> _branchPrefixes = new()
         {
@@ -45,7 +45,7 @@ namespace SourceGit.Commands.Optimization
                     var result = await _processPool.ExecuteAsync(repository, "config --get-regexp \"^gitflow\\.\"");
                     return result.IsSuccess ? result.StdOut : string.Empty;
                 });
-            
+
             return !string.IsNullOrEmpty(configData) && configData.Contains("gitflow.branch");
         }
 
@@ -55,16 +55,16 @@ namespace SourceGit.Commands.Optimization
         public async Task<GitFlowStartResult> OptimizeGitFlowStart(string repository, string branchType, string branchName, string baseBranch = null)
         {
             var result = new GitFlowStartResult();
-            
+
             // Prefetch related data in parallel
             var tasks = new List<Task>();
-            
+
             // Get current branches to check for conflicts
             tasks.Add(Task.Run(async () =>
             {
                 result.ExistingBranches = await GetBranchesOfType(repository, branchType);
             }));
-            
+
             // Get base branch info if not specified
             if (string.IsNullOrEmpty(baseBranch))
             {
@@ -74,15 +74,15 @@ namespace SourceGit.Commands.Optimization
                     result.BaseBranch = baseBranch;
                 }));
             }
-            
+
             // Get Git-Flow configuration
             tasks.Add(Task.Run(async () =>
             {
                 result.GitFlowConfig = await GetGitFlowConfig(repository);
             }));
-            
+
             await Task.WhenAll(tasks);
-            
+
             // Check if branch already exists
             var fullBranchName = _branchPrefixes.GetValueOrDefault(branchType, branchType + "/") + branchName;
             if (result.ExistingBranches?.Contains(fullBranchName) == true)
@@ -91,10 +91,10 @@ namespace SourceGit.Commands.Optimization
                 result.ErrorMessage = $"Branch '{fullBranchName}' already exists";
                 return result;
             }
-            
+
             // Invalidate caches that will be affected
             _cache.InvalidateByOperation(repository, GitOperation.GitFlowStart);
-            
+
             result.Success = true;
             result.FullBranchName = fullBranchName;
             return result;
@@ -107,45 +107,45 @@ namespace SourceGit.Commands.Optimization
         {
             var result = new GitFlowFinishResult();
             var fullBranchName = _branchPrefixes.GetValueOrDefault(branchType, branchType + "/") + branchName;
-            
+
             // Prefetch all necessary data
             var tasks = new List<Task>();
-            
+
             // Get merge target branch
             tasks.Add(Task.Run(async () =>
             {
                 result.TargetBranch = await GetMergeTargetBranch(repository, branchType);
             }));
-            
+
             // Check for uncommitted changes
             tasks.Add(Task.Run(async () =>
             {
                 result.HasUncommittedChanges = await HasUncommittedChanges(repository);
             }));
-            
+
             // Get branch tracking info
             tasks.Add(Task.Run(async () =>
             {
                 result.TrackingInfo = await GetBranchTrackingInfo(repository, fullBranchName);
             }));
-            
+
             await Task.WhenAll(tasks);
-            
+
             if (result.HasUncommittedChanges)
             {
                 result.Success = false;
                 result.ErrorMessage = "Cannot finish with uncommitted changes";
                 return result;
             }
-            
+
             // Prepare batch commands for cleanup with proper escaping
             var cleanupCommands = new List<string>();
-            
+
             if (deleteLocal)
             {
                 cleanupCommands.Add($"branch -d {EscapeGitArgument(fullBranchName)}");
             }
-            
+
             if (deleteRemote && !string.IsNullOrEmpty(result.TrackingInfo))
             {
                 var remoteBranch = ExtractRemoteBranch(result.TrackingInfo);
@@ -154,12 +154,12 @@ namespace SourceGit.Commands.Optimization
                     cleanupCommands.Add($"push origin --delete {EscapeGitArgument(remoteBranch)}");
                 }
             }
-            
+
             result.CleanupCommands = cleanupCommands;
-            
+
             // Invalidate affected caches
             _cache.InvalidateByOperation(repository, GitOperation.GitFlowFinish);
-            
+
             result.Success = true;
             return result;
         }
@@ -170,7 +170,7 @@ namespace SourceGit.Commands.Optimization
         private async Task<List<string>> GetBranchesOfType(string repository, string branchType)
         {
             var prefix = _branchPrefixes.GetValueOrDefault(branchType, branchType + "/");
-            
+
             var branchData = await _cache.GetOrExecuteAsync(
                 repository,
                 "branch -a",
@@ -180,13 +180,13 @@ namespace SourceGit.Commands.Optimization
                     var result = await _processPool.ExecuteAsync(repository, "branch -a");
                     return result.IsSuccess ? result.StdOut : string.Empty;
                 });
-            
+
             if (string.IsNullOrEmpty(branchData))
                 return new List<string>();
-            
+
             var branches = new List<string>();
             var lines = branchData.Split('\n', StringSplitOptions.RemoveEmptyEntries);
-            
+
             foreach (var line in lines)
             {
                 var branch = line.Trim().TrimStart('*').Trim();
@@ -201,7 +201,7 @@ namespace SourceGit.Commands.Optimization
                     branches.Add(branch);
                 }
             }
-            
+
             return branches.Distinct().ToList();
         }
 
@@ -211,7 +211,7 @@ namespace SourceGit.Commands.Optimization
         private async Task<string> GetDefaultBaseBranch(string repository, string branchType)
         {
             var config = await GetGitFlowConfig(repository);
-            
+
             return branchType switch
             {
                 "feature" => config.GetValueOrDefault("gitflow.branch.develop", "develop"),
@@ -229,7 +229,7 @@ namespace SourceGit.Commands.Optimization
         private async Task<string> GetMergeTargetBranch(string repository, string branchType)
         {
             var config = await GetGitFlowConfig(repository);
-            
+
             return branchType switch
             {
                 "feature" => config.GetValueOrDefault("gitflow.branch.develop", "develop"),
@@ -255,9 +255,9 @@ namespace SourceGit.Commands.Optimization
                     var result = await _processPool.ExecuteAsync(repository, "config --get-regexp \"^gitflow\\.\"");
                     return result.IsSuccess ? result.StdOut : string.Empty;
                 });
-            
+
             var config = new Dictionary<string, string>();
-            
+
             if (!string.IsNullOrEmpty(configData))
             {
                 var lines = configData.Split('\n', StringSplitOptions.RemoveEmptyEntries);
@@ -270,7 +270,7 @@ namespace SourceGit.Commands.Optimization
                     }
                 }
             }
-            
+
             return config;
         }
 
@@ -288,7 +288,7 @@ namespace SourceGit.Commands.Optimization
                     var result = await _processPool.ExecuteAsync(repository, "status --porcelain");
                     return result.IsSuccess ? result.StdOut : string.Empty;
                 });
-            
+
             return !string.IsNullOrWhiteSpace(statusData);
         }
 
@@ -318,9 +318,9 @@ namespace SourceGit.Commands.Optimization
         {
             if (string.IsNullOrEmpty(arg))
                 return arg;
-            
+
             // Escape special characters that could be interpreted by shell
-            if (arg.Contains(' ') || arg.Contains('"') || arg.Contains('\'') || 
+            if (arg.Contains(' ') || arg.Contains('"') || arg.Contains('\'') ||
                 arg.Contains('$') || arg.Contains('`') || arg.Contains('\\') ||
                 arg.Contains('!') || arg.Contains('&') || arg.Contains('|') ||
                 arg.Contains(';') || arg.Contains('<') || arg.Contains('>'))
@@ -328,7 +328,7 @@ namespace SourceGit.Commands.Optimization
                 // Use double quotes and escape internal quotes
                 return $"\"{arg.Replace("\\", "\\\\").Replace("\"", "\\\"")}\"";
             }
-            
+
             return arg;
         }
 

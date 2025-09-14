@@ -1,178 +1,81 @@
-# SourceGit Iniationware Edition - Release Notes
+# Release Notes - v2025.34.10
 
-## Version 2025.34-IW.4
+## 🎉 Highlights
 
-### What's New in IW.4
-This release introduces comprehensive Git credential management to solve the common problem on Linux where users have to repeatedly enter credentials. The new system auto-detects and configures the best available credential helper for your platform.
+This release brings **professional macOS packaging** with code signing and notarization support, along with comprehensive documentation updates for the Iniationware Edition.
 
-### Major New Feature: Git Credential Manager
-- **Automatic Detection**: Discovers all available credential helpers on your system
-- **Smart Selection**: Automatically chooses the most secure option available
-- **Platform-Specific Support**: 
-  - Linux: Libsecret (GNOME Keyring/KWallet) support
-  - macOS: Native Keychain integration
-  - Windows: Credential Store integration
-- **Multiple Options**: Support for Cache (memory), Store (file), and Git Credential Manager
-- **Custom Helpers**: Configure any custom credential helper command
-- **User-Friendly UI**: New credential manager dropdown in Preferences → Git tab
-- **Security-First**: Prioritizes secure storage methods over convenience
+## ✨ New Features
 
-This feature is especially beneficial for Linux users who previously had to enter credentials repeatedly for each Git operation.
+### macOS DMG Packaging
+- **Signed DMG Creation**: Automatic code signing when certificates are configured
+- **Notarization Support**: Full Gatekeeper approval workflow
+- **Dual Format**: Both ZIP and DMG formats available in releases
+- **Fallback Mode**: Creates unsigned DMG when certificates not available
 
-## Version 2025.34-IW.3 (Previous Release)
+### Documentation Overhaul
+- **Updated README**: Complete rewrite with Iniationware Edition features
+- **CHANGELOG**: Full release history documentation
+- **Signing Guide**: Step-by-step macOS signing setup instructions
+- **Version Strategy**: Clear documentation of versioning approach
 
-### What's New in IW.3
-This critical patch release focuses on stability improvements, integrating important bug fixes from upstream SourceGit. These fixes address crashes, UI reliability issues, and functional improvements that significantly enhance the application's stability.
+## 🔧 Technical Improvements
 
-### Critical Bug Fixes
-- **Fixed NRE on commit double-click** - Prevents null reference exception crashes when double-clicking commits
-- **Fixed Windows terminal crash** - Resolves crash when opening terminal from welcome page on Windows
-- **Fixed empty commit dialog** - Prevents accidental double-button presses in empty commit confirmation
-- **Fixed wrong block ending** - Corrects diff block navigation for added/deleted files
-- **Fixed large output optimization** - Better memory handling for large Git command outputs
-- **Fixed autocrlf in diffs** - Ensures consistent diff operations across platforms
+### Build System
+- Added `package.osx-dmg.sh` script for DMG creation
+- Integrated signing workflow into GitHub Actions
+- Created entitlements.plist for proper app permissions
+- Support for both signed and unsigned distribution
 
-## Version 2025.34-IW.2 (Previous Release)
+### Project Organization
+- Consistent version format across all components
+- Structured documentation in `/docs` directory
+- Clear separation of Iniationware enhancements
+- Professional release management
 
-### What's New in IW.2
-This patch release integrates 11 carefully selected improvements from the upstream SourceGit repository, focusing on features that enhance usability without compromising our performance optimizations. All changes have been tested for compatibility with our fork's architecture.
+## 📦 Installation
 
-## Version 2025.34-IW.1 (Previous Release)
+### macOS Users
+You now have two options:
+1. **DMG (Recommended)**: Download, mount, drag to Applications
+2. **ZIP**: Extract and right-click → Open on first launch
 
-### About This Fork
-This is the Iniationware edition of SourceGit, featuring significant performance improvements, enhanced stability, and additional features not yet available in the upstream version.
+### Signing Status
+- With configured secrets: Fully signed and notarized DMG
+- Without secrets: Unsigned DMG (requires right-click → Open)
 
-### Versioning Scheme
-- Format: `YYYY.WW-IW.PATCH`
-- Example: `2025.34-IW.1` (Based on upstream week 34 of 2025, Iniationware fork, patch 1)
+## 🔐 For Developers
 
----
+### Setting Up Code Signing
+See [docs/MACOS_SIGNING.md](docs/MACOS_SIGNING.md) for:
+- Apple Developer account setup
+- Certificate generation and export
+- GitHub Secrets configuration
+- Local testing instructions
 
-## Major Improvements
+### Required Secrets
+```yaml
+MACOS_CERTIFICATE      # Base64 .p12 certificate
+MACOS_CERTIFICATE_PWD  # Certificate password
+APPLE_ID              # For notarization
+NOTARIZE_PASSWORD     # App-specific password
+TEAM_ID               # Developer Team ID
+```
 
-### 🚀 Performance Optimizations
+## 📊 Statistics
 
-#### Git Command Optimization System
-- **Intelligent Caching**: Reduces redundant Git operations by up to 70%
-- **Batch Query Executor**: Combines multiple Git queries for improved efficiency
-- **Process Pooling**: Reuses Git processes to reduce overhead
-- **Parallel Execution**: Leverages multi-core processors for faster operations
-- **Smart Cache Invalidation**: Automatically refreshes cache when needed
+- **Files Changed**: 8
+- **Additions**: 500+ lines
+- **Documentation**: 3 new guides
+- **Platforms**: Full support for Windows, macOS, Linux (x64/ARM64)
 
-#### Memory Management
-- **Bounded Caches**: Prevents memory leaks with size-limited caches
-- **Automatic Cleanup**: Proper disposal of resources when repositories close
-- **Memory Metrics Display**: Real-time memory usage monitoring in bottom-left corner
-- **Optimized Data Structures**: Reduced memory footprint for large repositories
+## 🙏 Acknowledgments
 
-### 🛡️ Stability Improvements
+Thanks to all contributors and users of the Iniationware Edition. Your feedback drives our continuous improvement.
 
-#### Thread Safety Fixes
-- **File Watcher Improvements**: Complete rewrite with thread-safe operations
-- **Event Channel Architecture**: Prevents crashes from rapid file system events
-- **Lock-Free Operations**: Using Interlocked operations for thread safety
-- **Proper Resource Disposal**: Ensures clean shutdown and resource cleanup
+## 📥 Download
 
-#### Error Handling
-- **Retry Logic**: Automatic retry for Git operations blocked by lock files
-- **Graceful Degradation**: Continues operation even when some features fail
-- **Comprehensive Logging**: Better error tracking for debugging
-
-### ✨ New Features
-
-#### Recently Integrated from Upstream (2025.34-IW.2)
-- **Vue.js Syntax Highlighting**: Added syntax highlighting support for Vue.js files
-- **Enhanced Menu Icons**: Improved visual clarity with new menu icons
-- **No-Verify Commit Option**: Support for `--no-verify` flag when committing
-- **OpenAI Environment Variable**: Read OpenAI API key from environment variables
-- **Auto-Sanitize Branch Names**: Automatically clean invalid characters from branch/tag names
-- **Custom Directory Scanning**: Support for scanning repositories in custom directories
-- **LFS Local Cache**: Load LFS images from local cache before using `git lfs smudge`
-- **Window Dragging by Toolbar**: Move window by dragging the toolbar area
-- **Preserve History Filters**: Keep history filters when checking out branches
-- **Large Output Optimization**: Better memory handling for large Git command outputs
-- **Auto-CRLF Fix**: Set `core.autocrlf=false` for consistent diff operations
-
-#### GitFlow Integration
-- **Optimized GitFlow Operations**: Faster branch creation and management
-- **Smart Branch Detection**: Automatic GitFlow pattern recognition
-- **Batch GitFlow Commands**: Execute multiple GitFlow operations efficiently
-
-#### UI Enhancements
-- **Resizable History Columns**: Customizable column widths in commit history
-- **Branch/Tag Tooltips**: Improved tooltips with more information
-- **Memory Usage Display**: Real-time metrics in the interface
-- **F5 Refresh Support**: Quick refresh with keyboard shortcut
-
-#### From Upstream (Cherry-picked)
-- **Vue.js Syntax Highlighting**: Support for Vue.js files
-- **Menu Icons**: Enhanced visual navigation with new icons
-
-### 🐛 Bug Fixes
-
-#### Critical Fixes
-- **Repository Scanning Crash** (#1718): Fixed folder creation crashes
-- **Branch Refresh Failures** (#1715): Comprehensive error handling
-- **Memory Leaks**: Prevented with bounded caches and disposal
-- **macOS Fullscreen**: Fixed graph resize issues
-- **Thread Safety**: Resolved race conditions in file watching
-
-#### Additional Fixes
-- Missing locale keys resolved
-- README logo display corrected
-- Graph column overlap prevention
-- Proper error recovery mechanisms
+Get the latest release from: [GitHub Releases](https://github.com/Iniationware/sourcegit/releases/latest)
 
 ---
 
-## Technical Details
-
-### Architecture Improvements
-- **Command Pattern**: Retry wrapper for all Git commands
-- **Cache Layer**: Three-tier caching system (L1: Hot, L2: Warm, L3: Cold)
-- **Event-Driven Updates**: Channel-based file system monitoring
-- **Performance Monitoring**: Built-in metrics collection and reporting
-
-### Dependencies
-- Based on SourceGit upstream (up to v2025.31)
-- .NET 9.0 runtime
-- AvaloniaUI 11.2.x framework
-
----
-
-## Migration from Upstream
-
-If you're switching from the upstream SourceGit:
-1. Your repositories and settings will be preserved
-2. Performance improvements will be immediately noticeable
-3. No configuration changes required
-
----
-
-## Known Issues
-- Some upstream v2025.32-34 features not yet integrated (will be added in future releases)
-- Package upgrades (AvaloniaUI 11.3.5) pending compatibility testing
-
----
-
-## Contributors
-- Iniationware team for performance optimizations and stability improvements
-- Original SourceGit developers for the excellent foundation
-- Community contributors for bug reports and testing
-
----
-
-## Future Roadmap
-- [ ] Integration of remaining upstream v2025.34 features
-- [ ] Further performance optimizations for repositories with 100k+ commits
-- [ ] Advanced caching strategies for remote operations
-- [ ] Enhanced GitFlow visualizations
-
----
-
-## Support
-For issues specific to the Iniationware edition, please report to:
-https://github.com/Iniationware/sourcegit/issues
-
-For upstream issues, please report to:
-https://github.com/sourcegit-scm/sourcegit/issues
+*For the complete changelog, see [CHANGELOG.md](CHANGELOG.md)*

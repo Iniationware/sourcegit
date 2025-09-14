@@ -14,7 +14,7 @@ namespace SourceGit.Commands.Optimization
     {
         private static GitCommandCache _instance;
         private static readonly object _lock = new object();
-        
+
         private readonly ConcurrentDictionary<string, CacheEntry> _cache;
         private readonly Timer _cleanupTimer;
         private bool _disposed;
@@ -22,17 +22,17 @@ namespace SourceGit.Commands.Optimization
         public class CacheEntry
         {
             private int _hitCount;
-            
+
             public string Data { get; set; }
             public DateTime ExpiresAt { get; set; }
             public CacheType Type { get; set; }
-            
-            public int HitCount 
-            { 
+
+            public int HitCount
+            {
                 get => _hitCount;
                 set => _hitCount = value;
             }
-            
+
             public void IncrementHitCount()
             {
                 Interlocked.Increment(ref _hitCount);
@@ -68,7 +68,7 @@ namespace SourceGit.Commands.Optimization
         private GitCommandCache()
         {
             _cache = new ConcurrentDictionary<string, CacheEntry>();
-            
+
             // Cleanup expired entries every minute
             _cleanupTimer = new Timer(CleanupExpiredEntries, null, TimeSpan.FromMinutes(1), TimeSpan.FromMinutes(1));
         }
@@ -79,7 +79,7 @@ namespace SourceGit.Commands.Optimization
         public async Task<string> GetOrExecuteAsync(string repository, string command, CacheType type, Func<Task<string>> executor)
         {
             var cacheKey = GetCacheKey(repository, command);
-            
+
             // Check if we have a valid cached entry
             if (_cache.TryGetValue(cacheKey, out var entry) && entry.ExpiresAt > DateTime.UtcNow)
             {
@@ -88,12 +88,12 @@ namespace SourceGit.Commands.Optimization
                 Models.PerformanceMonitor.StopTimer($"CacheHit_{type}");
                 return entry.Data;
             }
-            
+
             // Execute the command
             Models.PerformanceMonitor.StartTimer($"CacheMiss_{type}");
             var result = await executor();
             Models.PerformanceMonitor.StopTimer($"CacheMiss_{type}");
-            
+
             // Cache the result
             if (!string.IsNullOrEmpty(result))
             {
@@ -106,7 +106,7 @@ namespace SourceGit.Commands.Optimization
                     HitCount = 0
                 };
             }
-            
+
             return result;
         }
 
@@ -120,7 +120,7 @@ namespace SourceGit.Commands.Optimization
                 .Where(kvp => kvp.Key.StartsWith(repository) && ShouldInvalidate(kvp.Value.Type, operation))
                 .Select(kvp => kvp.Key)
                 .ToList();
-            
+
             foreach (var key in keysToRemove)
             {
                 _cache.TryRemove(key, out _);
@@ -136,7 +136,7 @@ namespace SourceGit.Commands.Optimization
             var keysToRemove = _cache.Keys
                 .Where(key => key.StartsWith(repository))
                 .ToList();
-            
+
             foreach (var key in keysToRemove)
             {
                 _cache.TryRemove(key, out _);
@@ -153,7 +153,7 @@ namespace SourceGit.Commands.Optimization
                 .Where(kvp => kvp.Key.StartsWith(repository) && kvp.Value.Type == type)
                 .Select(kvp => kvp.Key)
                 .ToList();
-            
+
             foreach (var key in keysToRemove)
             {
                 _cache.TryRemove(key, out _);
@@ -172,24 +172,24 @@ namespace SourceGit.Commands.Optimization
                 TotalHits = 0,
                 EstimatedMemoryMB = 0
             };
-            
+
             // Create snapshot to avoid enumeration during modification
             var snapshot = _cache.ToArray();
-            
+
             foreach (var kvp in snapshot)
             {
                 var entry = kvp.Value;
-                
+
                 if (!stats.EntriesByType.ContainsKey(entry.Type))
                     stats.EntriesByType[entry.Type] = 0;
-                    
+
                 stats.EntriesByType[entry.Type]++;
                 stats.TotalHits += entry.HitCount;
-                
+
                 // Rough memory estimation (2 bytes per char)
                 stats.EstimatedMemoryMB += (entry.Data?.Length ?? 0) * 2.0 / (1024 * 1024);
             }
-            
+
             return stats;
         }
 
@@ -240,10 +240,10 @@ namespace SourceGit.Commands.Optimization
         {
             var now = DateTime.UtcNow;
             var keysToRemove = new List<string>();
-            
+
             // Create snapshot to avoid enumeration during modification
             var snapshot = _cache.ToArray();
-            
+
             foreach (var kvp in snapshot)
             {
                 if (kvp.Value.ExpiresAt <= now)
@@ -251,12 +251,12 @@ namespace SourceGit.Commands.Optimization
                     keysToRemove.Add(kvp.Key);
                 }
             }
-            
+
             foreach (var key in keysToRemove)
             {
                 _cache.TryRemove(key, out _);
             }
-            
+
             // Also cleanup if cache is too large (>100MB estimated)
             var stats = GetStatistics();
             if (stats.EstimatedMemoryMB > 100)
@@ -264,7 +264,7 @@ namespace SourceGit.Commands.Optimization
                 // Remove least recently used entries using snapshot
                 var sortedEntries = snapshot.ToList();
                 sortedEntries.Sort((a, b) => a.Value.HitCount.CompareTo(b.Value.HitCount));
-                
+
                 // Remove bottom 25% by hit count
                 var removeCount = sortedEntries.Count / 4;
                 for (int i = 0; i < removeCount; i++)
@@ -278,11 +278,11 @@ namespace SourceGit.Commands.Optimization
         {
             if (_disposed)
                 return;
-                
+
             _disposed = true;
             _cleanupTimer?.Dispose();
             _cache.Clear();
-            
+
             lock (_lock)
             {
                 if (_instance == this)

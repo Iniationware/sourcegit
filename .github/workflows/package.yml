@@ -50,7 +50,7 @@ jobs:
         with:
           name: sourcegit.${{ matrix.runtime }}
           path: build
-      - name: Package
+      - name: Package as ZIP (unsigned)
         env:
           VERSION: ${{ inputs.version }}
           RUNTIME: ${{ matrix.runtime }}
@@ -58,11 +58,28 @@ jobs:
           mkdir build/SourceGit
           tar -xf "build/sourcegit.${{ matrix.runtime }}.tar" -C build/SourceGit
           ./build/scripts/package.osx-app.sh
-      - name: Upload package artifact
+      - name: Package as DMG (signed if certificates available)
+        env:
+          VERSION: ${{ inputs.version }}
+          RUNTIME: ${{ matrix.runtime }}
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          NOTARIZE_PASSWORD: ${{ secrets.NOTARIZE_PASSWORD }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+        run: |
+          # Re-extract for DMG (clean state)
+          rm -rf build/SourceGit
+          mkdir build/SourceGit
+          tar -xf "build/sourcegit.${{ matrix.runtime }}.tar" -C build/SourceGit
+          ./build/scripts/package.osx-dmg.sh
+      - name: Upload package artifacts
         uses: actions/upload-artifact@v4
         with:
           name: package.${{ matrix.runtime }}
-          path: build/sourcegit_*.zip
+          path: |
+            build/sourcegit_*.zip
+            build/sourcegit_*.dmg
       - name: Delete temp artifacts
         uses: geekyeggo/delete-artifact@v5
         with:

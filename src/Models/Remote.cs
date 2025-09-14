@@ -30,6 +30,7 @@ namespace SourceGit.Models
 
         public string Name { get; set; }
         public string URL { get; set; }
+        public bool IsPublic { get; set; } = false;
 
         public static bool IsSSH(string url)
         {

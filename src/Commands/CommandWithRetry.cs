@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SourceGit.Commands
@@ -13,9 +12,9 @@ namespace SourceGit.Commands
         private const int MAX_RETRIES = 5;
         private const int INITIAL_DELAY_MS = 100;
         private const int MAX_DELAY_MS = 5000;
-        
+
         private readonly Command _innerCommand;
-        
+
         public CommandWithRetry(Command command)
         {
             _innerCommand = command;
@@ -29,7 +28,7 @@ namespace SourceGit.Commands
             this.RaiseError = command.RaiseError;
             this.Log = command.Log;
         }
-        
+
         /// <summary>
         /// Executes the command with retry logic for lock file conflicts
         /// </summary>
@@ -37,7 +36,7 @@ namespace SourceGit.Commands
         {
             int retryCount = 0;
             int delayMs = INITIAL_DELAY_MS;
-            
+
             while (retryCount < MAX_RETRIES)
             {
                 // Check for lock files before attempting operation
@@ -48,24 +47,24 @@ namespace SourceGit.Commands
                     retryCount++;
                     continue;
                 }
-                
+
                 try
                 {
                     // Store original RaiseError setting
                     var originalRaiseError = this.RaiseError;
-                    
+
                     // Suppress error for retry attempts
                     if (retryCount > 0)
                         this.RaiseError = false;
-                    
+
                     var result = await base.ExecAsync();
-                    
+
                     // Restore original setting
                     this.RaiseError = originalRaiseError;
-                    
+
                     if (result)
                         return true;
-                    
+
                     // Check if failure was due to lock file
                     if (IsLockFileError())
                     {
@@ -74,7 +73,7 @@ namespace SourceGit.Commands
                         retryCount++;
                         continue;
                     }
-                    
+
                     // If not a lock file error, return the failure
                     return false;
                 }
@@ -86,9 +85,9 @@ namespace SourceGit.Commands
                 {
                     if (retryCount >= MAX_RETRIES - 1)
                         throw; // Rethrow on final attempt
-                    
+
                     // Check if exception is lock-related
-                    if (ex.Message.Contains("index.lock") || 
+                    if (ex.Message.Contains("index.lock") ||
                         ex.Message.Contains("Another git process") ||
                         ex.Message.Contains("Unable to create") ||
                         ex.Message.Contains("locked"))
@@ -98,16 +97,16 @@ namespace SourceGit.Commands
                         retryCount++;
                         continue;
                     }
-                    
+
                     throw; // Rethrow non-lock exceptions
                 }
             }
-            
+
             // Final attempt with error reporting enabled
             this.RaiseError = true;
             return await base.ExecAsync();
         }
-        
+
         /// <summary>
         /// Executes the command with retry logic and returns the result
         /// </summary>
@@ -115,7 +114,7 @@ namespace SourceGit.Commands
         {
             int retryCount = 0;
             int delayMs = INITIAL_DELAY_MS;
-            
+
             while (retryCount < MAX_RETRIES)
             {
                 // Check for lock files before attempting operation
@@ -126,14 +125,14 @@ namespace SourceGit.Commands
                     retryCount++;
                     continue;
                 }
-                
+
                 try
                 {
                     var result = await base.ReadToEndAsync();
-                    
+
                     if (result.IsSuccess)
                         return result;
-                    
+
                     // Check if failure was due to lock file
                     if (IsLockFileError(result.StdErr))
                     {
@@ -142,16 +141,16 @@ namespace SourceGit.Commands
                         retryCount++;
                         continue;
                     }
-                    
+
                     return result;
                 }
                 catch (Exception ex)
                 {
                     if (retryCount >= MAX_RETRIES - 1)
                         return Command.Result.Failed(ex.Message);
-                    
+
                     // Check if exception is lock-related
-                    if (ex.Message.Contains("index.lock") || 
+                    if (ex.Message.Contains("index.lock") ||
                         ex.Message.Contains("Another git process") ||
                         ex.Message.Contains("Unable to create") ||
                         ex.Message.Contains("locked"))
@@ -161,15 +160,15 @@ namespace SourceGit.Commands
                         retryCount++;
                         continue;
                     }
-                    
+
                     return Command.Result.Failed(ex.Message);
                 }
             }
-            
+
             // Final attempt
             return await base.ReadToEndAsync();
         }
-        
+
         /// <summary>
         /// Checks if common Git lock files exist
         /// </summary>
@@ -177,13 +176,13 @@ namespace SourceGit.Commands
         {
             if (string.IsNullOrEmpty(WorkingDirectory))
                 return false;
-            
+
             var gitDir = Path.Combine(WorkingDirectory, ".git");
             if (!Directory.Exists(gitDir))
                 return false;
-            
+
             // Check for common lock files
-            string[] lockFiles = 
+            string[] lockFiles =
             {
                 Path.Combine(gitDir, "index.lock"),
                 Path.Combine(gitDir, "HEAD.lock"),
@@ -191,7 +190,7 @@ namespace SourceGit.Commands
                 Path.Combine(gitDir, "refs", "heads", "*.lock"),
                 Path.Combine(gitDir, "refs", "remotes", "*.lock")
             };
-            
+
             foreach (var lockFile in lockFiles)
             {
                 if (lockFile.Contains('*'))
@@ -199,7 +198,7 @@ namespace SourceGit.Commands
                     // Handle wildcard patterns
                     var dir = Path.GetDirectoryName(lockFile);
                     var pattern = Path.GetFileName(lockFile);
-                    
+
                     if (Directory.Exists(dir))
                     {
                         var files = Directory.GetFiles(dir, pattern);
@@ -230,10 +229,10 @@ namespace SourceGit.Commands
                     }
                 }
             }
-            
+
             return false;
         }
-        
+
         /// <summary>
         /// Checks if the command failed due to a lock file
         /// </summary>
@@ -243,7 +242,7 @@ namespace SourceGit.Commands
             // For now, we'll rely on the external error checking
             return false;
         }
-        
+
         /// <summary>
         /// Checks if error message indicates a lock file issue
         /// </summary>
@@ -251,8 +250,8 @@ namespace SourceGit.Commands
         {
             if (string.IsNullOrEmpty(errorMessage))
                 return false;
-            
-            string[] lockIndicators = 
+
+            string[] lockIndicators =
             {
                 "index.lock",
                 "Another git process",
@@ -263,13 +262,13 @@ namespace SourceGit.Commands
                 "already exists",
                 "cannot lock ref"
             };
-            
+
             foreach (var indicator in lockIndicators)
             {
                 if (errorMessage.Contains(indicator, StringComparison.OrdinalIgnoreCase))
                     return true;
             }
-            
+
             return false;
         }
     }

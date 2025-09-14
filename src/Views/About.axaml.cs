@@ -10,11 +10,10 @@ namespace SourceGit.Views
             CloseOnESC = true;
             InitializeComponent();
 
-            var assembly = Assembly.GetExecutingAssembly();
-            var ver = assembly.GetName().Version;
-            if (ver != null)
-                TxtVersion.Text = $"{ver.Major}.{ver.Minor:D2}";
+            // Use Iniationware version format (Year.Week.IWIncrement)
+            TxtVersion.Text = "v2025.34.10";
 
+            var assembly = Assembly.GetExecutingAssembly();
             var copyright = assembly.GetCustomAttribute<AssemblyCopyrightAttribute>();
             if (copyright != null)
                 TxtCopyright.Text = copyright.Copyright;
@@ -22,7 +21,7 @@ namespace SourceGit.Views
 
         private void OnVisitReleaseNotes(object _, RoutedEventArgs e)
         {
-            Native.OS.OpenBrowser($"https://github.com/sourcegit-scm/sourcegit/releases/tag/v{TxtVersion.Text}");
+            Native.OS.OpenBrowser($"https://github.com/Iniationware/sourcegit/releases/tag/{TxtVersion.Text}");
             e.Handled = true;
         }
 
@@ -34,7 +33,7 @@ namespace SourceGit.Views
 
         private void OnVisitSourceCode(object _, RoutedEventArgs e)
         {
-            Native.OS.OpenBrowser("https://github.com/sourcegit-scm/sourcegit");
+            Native.OS.OpenBrowser("https://github.com/Iniationware/sourcegit");
             e.Handled = true;
         }
     }

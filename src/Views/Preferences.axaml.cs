@@ -189,7 +189,7 @@ namespace SourceGit.Views
 
             UpdateGitVersion();
             InitializeComponent();
-            
+
             // Initialize credential manager UI
             AvailableCredentialHelpers = Models.CredentialManager.AvailableHelpers;
             SelectedCredentialHelper = Models.CredentialManager.CurrentHelper;
@@ -210,7 +210,7 @@ namespace SourceGit.Views
                 if (helper != null)
                 {
                     IsCustomCredentialHelper = helper.Type == Models.CredentialManager.CredentialHelperType.Custom;
-                    
+
                     if (helper.Type == Models.CredentialManager.CredentialHelperType.Custom)
                     {
                         // For custom, use the user-entered command
@@ -224,7 +224,7 @@ namespace SourceGit.Views
                         // Configure store helper with a safe path
                         Models.CredentialManager.ConfigureStoreHelper();
                     }
-                    
+
                     Models.CredentialManager.CurrentHelper = helper;
                     Native.OS.CredentialHelper = Models.CredentialManager.GetHelperCommand(helper);
                 }

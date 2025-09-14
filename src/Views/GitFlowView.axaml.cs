@@ -4,7 +4,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
-using Avalonia.Media;
 using Avalonia.VisualTree;
 
 namespace SourceGit.Views
@@ -15,28 +14,28 @@ namespace SourceGit.Views
         {
             InitializeComponent();
         }
-        
+
         protected override void OnDataContextChanged(EventArgs e)
         {
             base.OnDataContextChanged(e);
             UpdateFilterIcons();
         }
-        
+
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
-            
+
             if (change.Property == IsVisibleProperty && IsVisible)
             {
                 UpdateFilterIcons();
             }
         }
-        
+
         private void UpdateFilterIcons()
         {
             if (DataContext is not ViewModels.Repository repo)
                 return;
-                
+
             // Find all filter buttons and update their icons
             var listBoxes = this.GetVisualDescendants().OfType<ListBox>();
             foreach (var listBox in listBoxes)
@@ -49,15 +48,15 @@ namespace SourceGit.Views
                     {
                         var button = listBoxItem.GetVisualDescendants().OfType<Button>()
                             .FirstOrDefault(b => b.Name == "FilterButton");
-                        
+
                         if (button?.Tag is Models.Branch branch)
                         {
                             // GitFlow branches are local branches, ensure we use the correct path
                             var branchPath = branch.IsLocal ? branch.FullName : $"refs/heads/{branch.Name}";
-                            var node = repo.LocalBranchTrees != null ? 
+                            var node = repo.LocalBranchTrees != null ?
                                 FindBranchNode(repo.LocalBranchTrees, branchPath) : null;
                             var filterMode = node?.FilterMode ?? Models.FilterMode.None;
-                            
+
                             // Find all three icon paths
                             var iconNone = button.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Path>()
                                 .FirstOrDefault(p => p.Name == "FilterIconNone");
@@ -65,14 +64,14 @@ namespace SourceGit.Views
                                 .FirstOrDefault(p => p.Name == "FilterIconIncluded");
                             var iconExcluded = button.GetVisualDescendants().OfType<Avalonia.Controls.Shapes.Path>()
                                 .FirstOrDefault(p => p.Name == "FilterIconExcluded");
-                            
+
                             // Update icon visibility based on filter mode
                             if (iconNone != null && iconIncluded != null && iconExcluded != null)
                             {
                                 iconNone.IsVisible = filterMode == Models.FilterMode.None;
                                 iconIncluded.IsVisible = filterMode == Models.FilterMode.Included;
                                 iconExcluded.IsVisible = filterMode == Models.FilterMode.Excluded;
-                                
+
                                 // Add or remove the filter-active class to control button visibility
                                 if (filterMode != Models.FilterMode.None)
                                 {
@@ -129,7 +128,7 @@ namespace SourceGit.Views
                 }
             }
         }
-        
+
         private void OnFilterButtonClicked(object sender, RoutedEventArgs e)
         {
             if (DataContext is ViewModels.Repository repo && sender is Button btn)
@@ -138,16 +137,16 @@ namespace SourceGit.Views
                 {
                     // GitFlow branches are local branches, ensure we use the correct path
                     var branchPath = branch.IsLocal ? branch.FullName : $"refs/heads/{branch.Name}";
-                    
+
                     // Find the corresponding BranchTreeNode to get current filter mode
-                    var node = repo.LocalBranchTrees != null ? 
+                    var node = repo.LocalBranchTrees != null ?
                         FindBranchNode(repo.LocalBranchTrees, branchPath) : null;
-                    
+
                     var currentMode = node?.FilterMode ?? Models.FilterMode.None;
-                    
+
                     // Create context menu like in FilterModeSwitchButton
                     var menu = new ContextMenu();
-                    
+
                     // If filter is active, show "Unset" option first
                     if (currentMode != Models.FilterMode.None)
                     {
@@ -161,7 +160,7 @@ namespace SourceGit.Views
                         menu.Items.Add(unset);
                         menu.Items.Add(new MenuItem() { Header = "-" }); // separator
                     }
-                    
+
                     // "Filter Commits" option (set to included)
                     var include = new MenuItem();
                     include.Icon = App.CreateMenuIcon("Icons.Filter");
@@ -173,7 +172,7 @@ namespace SourceGit.Views
                         Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => UpdateFilterIcons());
                     };
                     menu.Items.Add(include);
-                    
+
                     // "Hide Commits" option (set to excluded)
                     var exclude = new MenuItem();
                     exclude.Icon = App.CreateMenuIcon("Icons.EyeClose");
@@ -185,20 +184,20 @@ namespace SourceGit.Views
                         Avalonia.Threading.Dispatcher.UIThread.InvokeAsync(() => UpdateFilterIcons());
                     };
                     menu.Items.Add(exclude);
-                    
+
                     menu.Open(btn);
                 }
             }
             e.Handled = true;
         }
-        
+
         private ViewModels.BranchTreeNode FindBranchNode(System.Collections.Generic.List<ViewModels.BranchTreeNode> nodes, string path)
         {
             foreach (var node in nodes)
             {
                 if (node.Path == path)
                     return node;
-                    
+
                 if (node.Children.Count > 0)
                 {
                     var found = FindBranchNode(node.Children, path);

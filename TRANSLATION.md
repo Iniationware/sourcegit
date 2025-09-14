@@ -6,7 +6,7 @@ This document shows the translation status of each locale file in the repository
 
 ### ![en_US](https://img.shields.io/badge/en__US-%E2%88%9A-brightgreen)
 
-### ![de__DE](https://img.shields.io/badge/de__DE-97.47%25-yellow)
+### ![de__DE](https://img.shields.io/badge/de__DE-97.02%25-yellow)
 
 <details>
 <summary>Missing keys in de_DE.axaml</summary>
@@ -22,10 +22,13 @@ This document shows the translation status of each locale file in the repository
 - Text.DeleteMultiTags.Tip
 - Text.GitFlow.StartNewBranch
 - Text.GitFlow.CurrentBranch
+- Text.Preferences.AI.ReadApiKeyFromEnv
 - Text.Preferences.Appearance.EnableCompactFolders
+- Text.Preferences.Git.CredentialHelper
 - Text.RemoteCM.CustomAction
 - Text.Repository.Dashboard
 - Text.Repository.MoreOptions
+- Text.ScanRepositories.UseCustomDir
 - Text.Tag.Tagger
 - Text.Tag.Time
 - Text.TagCM.Copy.Message
@@ -33,10 +36,11 @@ This document shows the translation status of each locale file in the repository
 - Text.TagCM.Copy.Tagger
 - Text.TagCM.CopyName
 - Text.TagCM.DeleteMultiple
+- Text.WorkingCopy.NoVerify
 
 </details>
 
-### ![es__ES](https://img.shields.io/badge/es__ES-99.31%25-yellow)
+### ![es__ES](https://img.shields.io/badge/es__ES-98.85%25-yellow)
 
 <details>
 <summary>Missing keys in es_ES.axaml</summary>
@@ -47,10 +51,14 @@ This document shows the translation status of each locale file in the repository
 - Text.Configure.Git.ShowGitFlowInSidebar
 - Text.GitFlow.StartNewBranch
 - Text.GitFlow.CurrentBranch
+- Text.Preferences.AI.ReadApiKeyFromEnv
+- Text.Preferences.Git.CredentialHelper
+- Text.ScanRepositories.UseCustomDir
+- Text.WorkingCopy.NoVerify
 
 </details>
 
-### ![fr__FR](https://img.shields.io/badge/fr__FR-80.11%25-yellow)
+### ![fr__FR](https://img.shields.io/badge/fr__FR-79.73%25-yellow)
 
 <details>
 <summary>Missing keys in fr_FR.axaml</summary>
@@ -156,8 +164,10 @@ This document shows the translation status of each locale file in the repository
 - Text.MoveSubmodule
 - Text.MoveSubmodule.MoveTo
 - Text.MoveSubmodule.Submodule
+- Text.Preferences.AI.ReadApiKeyFromEnv
 - Text.Preferences.Appearance.EnableCompactFolders
 - Text.Preferences.Git.IgnoreCRAtEOLInDiff
+- Text.Preferences.Git.CredentialHelper
 - Text.Preferences.Git.UseLibsecret
 - Text.Pull.RecurseSubmodules
 - Text.Push.New
@@ -184,6 +194,7 @@ This document shows the translation status of each locale file in the repository
 - Text.ResetWithoutCheckout
 - Text.ResetWithoutCheckout.MoveTo
 - Text.ResetWithoutCheckout.Target
+- Text.ScanRepositories.UseCustomDir
 - Text.SetSubmoduleBranch
 - Text.SetSubmoduleBranch.Submodule
 - Text.SetSubmoduleBranch.Current
@@ -227,11 +238,12 @@ This document shows the translation status of each locale file in the repository
 - Text.WorkingCopy.Conflicts.OpenExternalMergeToolAllConflicts
 - Text.WorkingCopy.Conflicts.UseMine
 - Text.WorkingCopy.Conflicts.UseTheirs
+- Text.WorkingCopy.NoVerify
 - Text.WorkingCopy.ResetAuthor
 
 </details>
 
-### ![it__IT](https://img.shields.io/badge/it__IT-85.29%25-yellow)
+### ![it__IT](https://img.shields.io/badge/it__IT-84.88%25-yellow)
 
 <details>
 <summary>Missing keys in it_IT.axaml</summary>
@@ -317,7 +329,9 @@ This document shows the translation status of each locale file in the repository
 - Text.MoveSubmodule
 - Text.MoveSubmodule.MoveTo
 - Text.MoveSubmodule.Submodule
+- Text.Preferences.AI.ReadApiKeyFromEnv
 - Text.Preferences.Appearance.EnableCompactFolders
+- Text.Preferences.Git.CredentialHelper
 - Text.Preferences.Git.UseLibsecret
 - Text.Pull.RecurseSubmodules
 - Text.Push.New
@@ -337,6 +351,7 @@ This document shows the translation status of each locale file in the repository
 - Text.ResetWithoutCheckout
 - Text.ResetWithoutCheckout.MoveTo
 - Text.ResetWithoutCheckout.Target
+- Text.ScanRepositories.UseCustomDir
 - Text.SetSubmoduleBranch
 - Text.SetSubmoduleBranch.Submodule
 - Text.SetSubmoduleBranch.Current
@@ -363,11 +378,12 @@ This document shows the translation status of each locale file in the repository
 - Text.UpdateSubmodules.UpdateToRemoteTrackingBranch
 - Text.WorkingCopy.AddToGitIgnore.InFolder
 - Text.WorkingCopy.ConfirmCommitWithDetachedHead
+- Text.WorkingCopy.NoVerify
 - Text.WorkingCopy.ResetAuthor
 
 </details>
 
-### ![ja__JP](https://img.shields.io/badge/ja__JP-80.11%25-yellow)
+### ![ja__JP](https://img.shields.io/badge/ja__JP-79.73%25-yellow)
 
 <details>
 <summary>Missing keys in ja_JP.axaml</summary>
@@ -474,8 +490,10 @@ This document shows the translation status of each locale file in the repository
 - Text.MoveSubmodule
 - Text.MoveSubmodule.MoveTo
 - Text.MoveSubmodule.Submodule
+- Text.Preferences.AI.ReadApiKeyFromEnv
 - Text.Preferences.Appearance.EnableCompactFolders
 - Text.Preferences.Git.IgnoreCRAtEOLInDiff
+- Text.Preferences.Git.CredentialHelper
 - Text.Preferences.Git.UseLibsecret
 - Text.Pull.RecurseSubmodules
 - Text.Push.New
@@ -503,6 +521,7 @@ This document shows the translation status of each locale file in the repository
 - Text.ResetWithoutCheckout
 - Text.ResetWithoutCheckout.MoveTo
 - Text.ResetWithoutCheckout.Target
+- Text.ScanRepositories.UseCustomDir
 - Text.SetSubmoduleBranch
 - Text.SetSubmoduleBranch.Submodule
 - Text.SetSubmoduleBranch.Current
@@ -544,11 +563,12 @@ This document shows the translation status of each locale file in the repository
 - Text.WorkingCopy.Conflicts.OpenExternalMergeToolAllConflicts
 - Text.WorkingCopy.Conflicts.UseMine
 - Text.WorkingCopy.Conflicts.UseTheirs
+- Text.WorkingCopy.NoVerify
 - Text.WorkingCopy.ResetAuthor
 
 </details>
 
-### ![pt__BR](https://img.shields.io/badge/pt__BR-73.33%25-red)
+### ![pt__BR](https://img.shields.io/badge/pt__BR-73.08%25-red)
 
 <details>
 <summary>Missing keys in pt_BR.axaml</summary>
@@ -641,7 +661,6 @@ This document shows the translation status of each locale file in the repository
 - Text.ConfirmRestart.Title
 - Text.ConfirmRestart.Message
 - Text.CopyFullPath
-- Text.CreateBranch.Name.WarnSpace
 - Text.CreateBranch.OverwriteExisting
 - Text.DeinitSubmodule
 - Text.DeinitSubmodule.Force
@@ -691,6 +710,7 @@ This document shows the translation status of each locale file in the repository
 - Text.MoveSubmodule
 - Text.MoveSubmodule.MoveTo
 - Text.MoveSubmodule.Submodule
+- Text.Preferences.AI.ReadApiKeyFromEnv
 - Text.Preferences.AI.Streaming
 - Text.Preferences.Appearance.EditorTabWidth
 - Text.Preferences.Appearance.EnableCompactFolders
@@ -699,6 +719,7 @@ This document shows the translation status of each locale file in the repository
 - Text.Preferences.General.ShowTagsInGraph
 - Text.Preferences.Git.IgnoreCRAtEOLInDiff
 - Text.Preferences.Git.SSLVerify
+- Text.Preferences.Git.CredentialHelper
 - Text.Preferences.Git.UseLibsecret
 - Text.Pull.RecurseSubmodules
 - Text.Push.New
@@ -735,6 +756,7 @@ This document shows the translation status of each locale file in the repository
 - Text.ResetWithoutCheckout
 - Text.ResetWithoutCheckout.MoveTo
 - Text.ResetWithoutCheckout.Target
+- Text.ScanRepositories.UseCustomDir
 - Text.SetSubmoduleBranch
 - Text.SetSubmoduleBranch.Submodule
 - Text.SetSubmoduleBranch.Current
@@ -783,12 +805,13 @@ This document shows the translation status of each locale file in the repository
 - Text.WorkingCopy.Conflicts.OpenExternalMergeToolAllConflicts
 - Text.WorkingCopy.Conflicts.UseMine
 - Text.WorkingCopy.Conflicts.UseTheirs
+- Text.WorkingCopy.NoVerify
 - Text.WorkingCopy.ResetAuthor
 - Text.WorkingCopy.SignOff
 
 </details>
 
-### ![ru__RU](https://img.shields.io/badge/ru__RU-99.31%25-yellow)
+### ![ru__RU](https://img.shields.io/badge/ru__RU-98.85%25-yellow)
 
 <details>
 <summary>Missing keys in ru_RU.axaml</summary>
@@ -799,10 +822,14 @@ This document shows the translation status of each locale file in the repository
 - Text.Configure.Git.ShowGitFlowInSidebar
 - Text.GitFlow.StartNewBranch
 - Text.GitFlow.CurrentBranch
+- Text.Preferences.AI.ReadApiKeyFromEnv
+- Text.Preferences.Git.CredentialHelper
+- Text.ScanRepositories.UseCustomDir
+- Text.WorkingCopy.NoVerify
 
 </details>
 
-### ![ta__IN](https://img.shields.io/badge/ta__IN-80.23%25-yellow)
+### ![ta__IN](https://img.shields.io/badge/ta__IN-79.84%25-yellow)
 
 <details>
 <summary>Missing keys in ta_IN.axaml</summary>
@@ -909,8 +936,10 @@ This document shows the translation status of each locale file in the repository
 - Text.MoveSubmodule
 - Text.MoveSubmodule.MoveTo
 - Text.MoveSubmodule.Submodule
+- Text.Preferences.AI.ReadApiKeyFromEnv
 - Text.Preferences.Appearance.EnableCompactFolders
 - Text.Preferences.Git.IgnoreCRAtEOLInDiff
+- Text.Preferences.Git.CredentialHelper
 - Text.Preferences.Git.UseLibsecret
 - Text.Pull.RecurseSubmodules
 - Text.Push.New
@@ -937,6 +966,7 @@ This document shows the translation status of each locale file in the repository
 - Text.ResetWithoutCheckout
 - Text.ResetWithoutCheckout.MoveTo
 - Text.ResetWithoutCheckout.Target
+- Text.ScanRepositories.UseCustomDir
 - Text.SetSubmoduleBranch
 - Text.SetSubmoduleBranch.Submodule
 - Text.SetSubmoduleBranch.Current
@@ -978,11 +1008,12 @@ This document shows the translation status of each locale file in the repository
 - Text.WorkingCopy.Conflicts.OpenExternalMergeToolAllConflicts
 - Text.WorkingCopy.Conflicts.UseMine
 - Text.WorkingCopy.Conflicts.UseTheirs
+- Text.WorkingCopy.NoVerify
 - Text.WorkingCopy.ResetAuthor
 
 </details>
 
-### ![uk__UA](https://img.shields.io/badge/uk__UA-81.38%25-yellow)
+### ![uk__UA](https://img.shields.io/badge/uk__UA-80.99%25-yellow)
 
 <details>
 <summary>Missing keys in uk_UA.axaml</summary>
@@ -1084,8 +1115,10 @@ This document shows the translation status of each locale file in the repository
 - Text.MoveSubmodule
 - Text.MoveSubmodule.MoveTo
 - Text.MoveSubmodule.Submodule
+- Text.Preferences.AI.ReadApiKeyFromEnv
 - Text.Preferences.Appearance.EnableCompactFolders
 - Text.Preferences.Git.IgnoreCRAtEOLInDiff
+- Text.Preferences.Git.CredentialHelper
 - Text.Preferences.Git.UseLibsecret
 - Text.Pull.RecurseSubmodules
 - Text.Push.New
@@ -1112,6 +1145,7 @@ This document shows the translation status of each locale file in the repository
 - Text.ResetWithoutCheckout
 - Text.ResetWithoutCheckout.MoveTo
 - Text.ResetWithoutCheckout.Target
+- Text.ScanRepositories.UseCustomDir
 - Text.SetSubmoduleBranch
 - Text.SetSubmoduleBranch.Submodule
 - Text.SetSubmoduleBranch.Current
@@ -1148,11 +1182,12 @@ This document shows the translation status of each locale file in the repository
 - Text.ViewLogs.Delete
 - Text.WorkingCopy.AddToGitIgnore.InFolder
 - Text.WorkingCopy.ConfirmCommitWithDetachedHead
+- Text.WorkingCopy.NoVerify
 - Text.WorkingCopy.ResetAuthor
 
 </details>
 
-### ![zh__CN](https://img.shields.io/badge/zh__CN-99.66%25-yellow)
+### ![zh__CN](https://img.shields.io/badge/zh__CN-99.54%25-yellow)
 
 <details>
 <summary>Missing keys in zh_CN.axaml</summary>
@@ -1160,10 +1195,11 @@ This document shows the translation status of each locale file in the repository
 - Text.Configure.Git.ShowGitFlowInSidebar
 - Text.GitFlow.StartNewBranch
 - Text.GitFlow.CurrentBranch
+- Text.Preferences.Git.CredentialHelper
 
 </details>
 
-### ![zh__TW](https://img.shields.io/badge/zh__TW-99.66%25-yellow)
+### ![zh__TW](https://img.shields.io/badge/zh__TW-99.54%25-yellow)
 
 <details>
 <summary>Missing keys in zh_TW.axaml</summary>
@@ -1171,5 +1207,6 @@ This document shows the translation status of each locale file in the repository
 - Text.Configure.Git.ShowGitFlowInSidebar
 - Text.GitFlow.StartNewBranch
 - Text.GitFlow.CurrentBranch
+- Text.Preferences.Git.CredentialHelper
 
 </details>

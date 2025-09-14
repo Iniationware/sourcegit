@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace SourceGit.Commands.Optimization
@@ -14,7 +13,7 @@ namespace SourceGit.Commands.Optimization
     {
         private readonly GitProcessPool _processPool;
         private readonly GitCommandCache _cache;
-        
+
         // Common query combinations that can be batched
         private static readonly Dictionary<string, string[]> _batchTemplates = new()
         {
@@ -35,17 +34,17 @@ namespace SourceGit.Commands.Optimization
         /// Execute a batch of queries with intelligent caching and parallelization
         /// </summary>
         public async Task<BatchQueryResult> ExecuteBatchAsync(
-            string repository, 
-            string[] queries, 
+            string repository,
+            string[] queries,
             BatchExecutionOptions options = null)
         {
             options ??= new BatchExecutionOptions();
             var result = new BatchQueryResult();
             var stopwatch = Stopwatch.StartNew();
-            
+
             // Group queries by cache type
             var queryGroups = GroupQueriesByCacheType(queries);
-            
+
             // Execute based on strategy
             if (options.UseParallel && queries.Length > 3)
             {
@@ -55,18 +54,18 @@ namespace SourceGit.Commands.Optimization
             {
                 await ExecuteSequentialBatches(repository, queryGroups, result, options);
             }
-            
+
             stopwatch.Stop();
             result.TotalExecutionTime = stopwatch.ElapsedMilliseconds;
             result.Success = result.FailedQueries.Count == 0;
-            
+
             // Log performance metrics
             if (options.TrackPerformance)
             {
                 Models.PerformanceMonitor.StartTimer($"BatchQuery_{queries.Length}");
                 Models.PerformanceMonitor.StopTimer($"BatchQuery_{queries.Length}");
             }
-            
+
             return result;
         }
 
@@ -74,15 +73,15 @@ namespace SourceGit.Commands.Optimization
         /// Execute a predefined batch template
         /// </summary>
         public async Task<BatchQueryResult> ExecuteTemplateAsync(
-            string repository, 
-            string templateName, 
+            string repository,
+            string templateName,
             BatchExecutionOptions options = null)
         {
             if (!_batchTemplates.TryGetValue(templateName, out var queries))
             {
                 throw new ArgumentException($"Unknown batch template: {templateName}");
             }
-            
+
             return await ExecuteBatchAsync(repository, queries, options);
         }
 
@@ -94,19 +93,19 @@ namespace SourceGit.Commands.Optimization
             // Some Git commands can be combined with semicolons or &&
             // For safety, we'll only combine read-only queries
             var safeQueries = queries.Where(IsReadOnlyQuery).ToArray();
-            
+
             if (safeQueries.Length == 0)
                 return string.Empty;
-            
+
             if (safeQueries.Length == 1)
             {
                 var result = await _processPool.ExecuteAsync(repository, safeQueries[0]);
                 return result.IsSuccess ? result.StdOut : string.Empty;
             }
-            
+
             // For multiple queries, execute them in sequence and combine results
             var combinedResults = new List<string>();
-            
+
             foreach (var query in safeQueries)
             {
                 var cacheType = DetermineCacheType(query);
@@ -119,14 +118,14 @@ namespace SourceGit.Commands.Optimization
                         var execResult = await _processPool.ExecuteAsync(repository, query);
                         return execResult.IsSuccess ? execResult.StdOut : string.Empty;
                     });
-                
+
                 if (!string.IsNullOrEmpty(result))
                 {
                     combinedResults.Add($"=== {query} ===");
                     combinedResults.Add(result);
                 }
             }
-            
+
             return string.Join("\n", combinedResults);
         }
 
@@ -143,7 +142,7 @@ namespace SourceGit.Commands.Optimization
                 "config --get-regexp \"^gitflow\\.\"",
                 "log --oneline -1"
             };
-            
+
             var tasks = commonQueries.Select(query => Task.Run(async () =>
             {
                 var cacheType = DetermineCacheType(query);
@@ -157,7 +156,7 @@ namespace SourceGit.Commands.Optimization
                         return result.IsSuccess ? result.StdOut : string.Empty;
                     });
             }));
-            
+
             await Task.WhenAll(tasks);
         }
 
@@ -171,9 +170,9 @@ namespace SourceGit.Commands.Optimization
             {
                 MaxDegreeOfParallelism = Math.Min(options.MaxParallelism, Environment.ProcessorCount)
             };
-            
+
             var tasks = new List<Task>();
-            
+
             foreach (var group in queryGroups)
             {
                 foreach (var query in group.Value)
@@ -181,7 +180,7 @@ namespace SourceGit.Commands.Optimization
                     tasks.Add(ExecuteSingleQueryAsync(repository, query, group.Key, result, options));
                 }
             }
-            
+
             await Task.WhenAll(tasks);
         }
 
@@ -210,7 +209,7 @@ namespace SourceGit.Commands.Optimization
             try
             {
                 var stopwatch = Stopwatch.StartNew();
-                
+
                 string output;
                 if (options.UseCache)
                 {
@@ -229,9 +228,9 @@ namespace SourceGit.Commands.Optimization
                     var execResult = await _processPool.ExecuteAsync(repository, query);
                     output = execResult.IsSuccess ? execResult.StdOut : string.Empty;
                 }
-                
+
                 stopwatch.Stop();
-                
+
                 result.Results[query] = new QueryResult
                 {
                     Query = query,
@@ -249,17 +248,17 @@ namespace SourceGit.Commands.Optimization
         private Dictionary<GitCommandCache.CacheType, List<string>> GroupQueriesByCacheType(string[] queries)
         {
             var groups = new Dictionary<GitCommandCache.CacheType, List<string>>();
-            
+
             foreach (var query in queries)
             {
                 var cacheType = DetermineCacheType(query);
-                
+
                 if (!groups.ContainsKey(cacheType))
                     groups[cacheType] = new List<string>();
-                
+
                 groups[cacheType].Add(query);
             }
-            
+
             return groups;
         }
 
@@ -277,7 +276,7 @@ namespace SourceGit.Commands.Optimization
                 return GitCommandCache.CacheType.GitFlowConfig;
             if (query.Contains("config"))
                 return GitCommandCache.CacheType.Config;
-            
+
             // Default to Status (shortest cache time)
             return GitCommandCache.CacheType.Status;
         }
@@ -291,7 +290,7 @@ namespace SourceGit.Commands.Optimization
                 "config --list", "show", "diff", "ls-files", "ls-tree",
                 "rev-parse", "describe", "reflog", "ls-remote"
             };
-            
+
             return readOnlyCommands.Any(cmd => query.StartsWith(cmd));
         }
 
@@ -301,7 +300,7 @@ namespace SourceGit.Commands.Optimization
             public Dictionary<string, string> FailedQueries { get; } = new();
             public long TotalExecutionTime { get; set; }
             public bool Success { get; set; }
-            
+
             public int CacheHits => Results.Values.Count(r => r.FromCache);
             public int TotalQueries => Results.Count + FailedQueries.Count;
         }

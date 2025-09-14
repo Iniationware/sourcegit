@@ -21,7 +21,7 @@ namespace SourceGit.Commands
         public async Task<List<Models.Branch>> GetResultAsync()
         {
             var branches = new List<Models.Branch>();
-            
+
             try
             {
                 // Use retry wrapper to handle lock files

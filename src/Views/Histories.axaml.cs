@@ -12,7 +12,6 @@ using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
-using Avalonia.Reactive;
 
 namespace SourceGit.Views
 {
@@ -137,11 +136,11 @@ namespace SourceGit.Views
         public Histories()
         {
             InitializeComponent();
-            
+
             // Add F5 key binding for refresh
             this.KeyDown += OnHistoriesKeyDown;
         }
-        
+
         private void OnHistoriesKeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.F5)
@@ -172,18 +171,18 @@ namespace SourceGit.Views
                 }
             }
         }
-        
+
         protected override void OnDataContextChanged(EventArgs e)
         {
             base.OnDataContextChanged(e);
-            
+
             // Unsubscribe from previous data context
             if (_previousHistories != null)
             {
                 _previousHistories.PropertyChanged -= OnHistoriesPropertyChanged;
                 _previousHistories = null;
             }
-            
+
             // Subscribe to new Histories view model changes
             if (DataContext is ViewModels.Histories histories)
             {
@@ -191,11 +190,11 @@ namespace SourceGit.Views
                 _previousHistories = histories;
             }
         }
-        
+
         private void OnHistoriesPropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             // Refresh graph layout when commits or graph changes (e.g., after filtering)
-            if (e.PropertyName == nameof(ViewModels.Histories.Commits) || 
+            if (e.PropertyName == nameof(ViewModels.Histories.Commits) ||
                 e.PropertyName == nameof(ViewModels.Histories.Graph))
             {
                 Dispatcher.UIThread.InvokeAsync(() =>
@@ -204,51 +203,51 @@ namespace SourceGit.Views
                 }, DispatcherPriority.Render);
             }
         }
-        
+
         protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
         {
             base.OnAttachedToVisualTree(e);
-            
+
             // Subscribe to window bounds changes to handle fullscreen transitions
             if (e.Root is Window window)
             {
                 window.PropertyChanged += OnWindowPropertyChanged;
             }
-            
+
             // Subscribe to column width changes
             if (CommitListContainer?.Columns.Count > 1)
             {
                 CommitListContainer.Columns[1].PropertyChanged += OnGraphColumnPropertyChanged;
             }
-            
+
             // Force immediate refresh to prevent overlap on initial load
             Dispatcher.UIThread.InvokeAsync(() =>
             {
                 RefreshGraphLayout();
             }, DispatcherPriority.Render);
         }
-        
+
         protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
         {
             base.OnDetachedFromVisualTree(e);
-            
+
             // Unsubscribe from window events
             if (e.Root is Window window)
             {
                 window.PropertyChanged -= OnWindowPropertyChanged;
             }
-            
+
             // Unsubscribe from column events
             if (CommitListContainer?.Columns.Count > 1)
             {
                 CommitListContainer.Columns[1].PropertyChanged -= OnGraphColumnPropertyChanged;
             }
         }
-        
+
         private void OnWindowPropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
         {
             // Handle window state changes, especially fullscreen on macOS
-            if (e.Property == Window.WindowStateProperty || 
+            if (e.Property == Window.WindowStateProperty ||
                 e.Property == Window.BoundsProperty ||
                 e.Property == Window.ClientSizeProperty)
             {
@@ -260,7 +259,7 @@ namespace SourceGit.Views
                 }, DispatcherPriority.Background);
             }
         }
-        
+
         private void OnGraphColumnPropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
         {
             // Handle column width changes
@@ -269,21 +268,21 @@ namespace SourceGit.Views
                 RefreshGraphLayout();
             }
         }
-        
+
         private void RefreshGraphLayout()
         {
             if (!IsLoaded || CommitListContainer == null || CommitGraph == null)
                 return;
-                
+
             var dataGrid = CommitListContainer;
             var rowsPresenter = dataGrid.FindDescendantOfType<DataGridRowsPresenter>();
             if (rowsPresenter == null || dataGrid.Columns.Count == 0)
                 return;
-                
+
             // Get current row height
             double rowHeight = dataGrid.RowHeight;
             double startY = 0;
-            
+
             if (rowsPresenter.Children.Count > 0)
             {
                 foreach (var child in rowsPresenter.Children)
@@ -291,7 +290,7 @@ namespace SourceGit.Views
                     if (child is DataGridRow { IsVisible: true } row)
                     {
                         rowHeight = row.Bounds.Height;
-                        
+
                         // Calculate startY for scroll position
                         if (row.Bounds.Top <= 0 && row.Bounds.Top > -rowHeight)
                         {
@@ -299,31 +298,31 @@ namespace SourceGit.Views
                             if (startY < test)
                                 startY = test;
                         }
-                        
+
                         if (rowHeight > 0)
                             break;
                     }
                 }
             }
-            
+
             // Calculate the left offset for the graph overlay
             // Graph is now in column index 1 (second column)
             var firstColumn = dataGrid.Columns[0];
             var graphColumn = dataGrid.Columns[1];
             var leftOffset = firstColumn.ActualWidth;
             var clipWidth = graphColumn.ActualWidth;
-            
+
             // Update the CommitGraph margin to align with the second column
             CommitGraph.Margin = new Thickness(leftOffset, 24, 0, 0);
-            
+
             // Update cached values
             _lastGraphStartY = startY;
             _lastGraphClipWidth = clipWidth;
             _lastGraphRowHeight = rowHeight;
-            
+
             // Force update the graph layout
             CommitGraph.Layout = new(startY, clipWidth, rowHeight);
-            
+
             // Force visual refresh to ensure proper rendering
             CommitGraph.InvalidateVisual();
         }
@@ -339,7 +338,7 @@ namespace SourceGit.Views
                 var graphColumn = dataGrid.Columns[1];
                 var leftOffset = firstColumn.ActualWidth;
                 var clipWidth = graphColumn.ActualWidth;
-                
+
                 // Update the CommitGraph margin to align with the second column
                 CommitGraph.Margin = new Thickness(leftOffset, 24, 0, 0);
                 CommitGraph.Layout = new(0, clipWidth, rows[0].Bounds.Height);
@@ -347,7 +346,7 @@ namespace SourceGit.Views
 
             if (dataGrid.SelectedItems.Count == 1)
                 dataGrid.ScrollIntoView(dataGrid.SelectedItem, null);
-                
+
             // Force refresh to prevent overlap issues
             RefreshGraphLayout();
         }
@@ -365,7 +364,7 @@ namespace SourceGit.Views
             double rowHeight = dataGrid.RowHeight;
             double startY = 0;
             bool hasValidRow = false;
-            
+
             foreach (var child in rowsPresenter.Children)
             {
                 if (child is DataGridRow { IsVisible: true } row)
@@ -381,7 +380,7 @@ namespace SourceGit.Views
                     }
                 }
             }
-            
+
             // If no valid rows found, don't update (prevents resetting during refresh)
             if (!hasValidRow && rowHeight <= 0)
                 return;
@@ -393,17 +392,17 @@ namespace SourceGit.Views
             var graphColumn = dataGrid.Columns[1];
             if (firstColumn == null || graphColumn == null)
                 return;
-                
+
             var leftOffset = firstColumn.ActualWidth;
             var clipWidth = graphColumn.ActualWidth;
-            
+
             // Update the CommitGraph margin to align with the second column
             CommitGraph.Margin = new Thickness(leftOffset, 24, 0, 0);
-            
+
             // Force update if dimensions are significantly different (for fullscreen transitions or refresh)
             var forceUpdate = Math.Abs(_lastGraphClipWidth - clipWidth) > 1.0 ||
                              Math.Abs(_lastGraphRowHeight - rowHeight) > 1.0;
-            
+
             // Always update if the graph layout is null (initial load or after error)
             if (_lastGraphStartY != startY ||
                 _lastGraphClipWidth != clipWidth ||
@@ -416,7 +415,7 @@ namespace SourceGit.Views
                 _lastGraphRowHeight = rowHeight;
 
                 CommitGraph.Layout = new(startY, clipWidth, rowHeight);
-                
+
                 // Extra refresh for edge cases
                 if (forceUpdate)
                 {
@@ -477,22 +476,22 @@ namespace SourceGit.Views
         {
             RefreshHistories();
         }
-        
+
         private void RefreshHistories()
         {
             // The problem is that F5 doesn't trigger the same sequence as startup
             // At startup: RefreshCommits → Parse → new margins → OnCommitListLoaded
             // On F5: We need to simulate the same sequence
-            
+
             // Option 1: Just reset to a known good state (scroll to top)
             if (!IsLoaded || CommitGraph == null || CommitListContainer == null)
                 return;
-            
+
             // Get the DataGrid and its presenter
             var rowsPresenter = CommitListContainer.FindDescendantOfType<DataGridRowsPresenter>();
             if (rowsPresenter == null || CommitListContainer.Columns.Count == 0)
                 return;
-            
+
             // Get the actual row height from visible rows
             double rowHeight = CommitListContainer.RowHeight;
             foreach (var child in rowsPresenter.Children)
@@ -504,35 +503,35 @@ namespace SourceGit.Views
                         break;
                 }
             }
-            
+
             // Calculate the left offset for the graph overlay
             var firstColumn = CommitListContainer.Columns[0];
             var graphColumn = CommitListContainer.Columns[1];
             var leftOffset = firstColumn.ActualWidth;
             var clipWidth = graphColumn.ActualWidth;
-            
+
             // Update the CommitGraph margin to align with the second column
             CommitGraph.Margin = new Thickness(leftOffset, 24, 0, 0);
-            
+
             // Reset to top of list (startY = 0) - this matches startup state
             CommitGraph.Layout = new(0, clipWidth, rowHeight);
-            
+
             // Update cached values
             _lastGraphStartY = 0;
             _lastGraphClipWidth = clipWidth;
             _lastGraphRowHeight = rowHeight;
-            
+
             // Scroll DataGrid to top to match
             if (DataContext is ViewModels.Histories histories && histories.Commits?.Count > 0)
             {
                 CommitListContainer.ScrollIntoView(histories.Commits[0], null);
             }
-            
+
             // Force visual update
             CommitGraph.InvalidateVisual();
             CommitListContainer.InvalidateArrange();
         }
-        
+
         private async void OnCommitListKeyDown(object sender, KeyEventArgs e)
         {
             // Handle F5 for refresh
@@ -542,7 +541,7 @@ namespace SourceGit.Views
                 e.Handled = true;
                 return;
             }
-            
+
             if (!e.KeyModifiers.HasFlag(OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control))
                 return;
 

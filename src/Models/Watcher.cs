@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -18,7 +17,7 @@ namespace SourceGit.Models
         {
             _repo = repo;
             _cancellationTokenSource = new CancellationTokenSource();
-            
+
             // Create a bounded channel to prevent memory issues with rapid events
             _eventChannel = Channel.CreateBounded<FileSystemEventArgs>(new BoundedChannelOptions(1000)
             {
@@ -26,7 +25,7 @@ namespace SourceGit.Models
                 SingleReader = true,
                 SingleWriter = false
             });
-            
+
             // Start the event processor task
             _eventProcessorTask = ProcessEventsAsync(_cancellationTokenSource.Token);
 
@@ -119,10 +118,10 @@ namespace SourceGit.Models
         {
             // Stop accepting new events
             _eventChannel.Writer.TryComplete();
-            
+
             // Signal cancellation
             _cancellationTokenSource?.Cancel();
-            
+
             // Dispose watchers
             foreach (var watcher in _watchers)
             {
@@ -130,18 +129,18 @@ namespace SourceGit.Models
                 watcher.Dispose();
             }
             _watchers.Clear();
-            
+
             // Dispose timer
             _timer?.Dispose();
             _timer = null;
-            
+
             // Wait for event processor to complete (max 1 second)
             try
             {
                 _eventProcessorTask?.Wait(1000);
             }
             catch { }
-            
+
             // Dispose cancellation token
             _cancellationTokenSource?.Dispose();
         }
@@ -152,29 +151,29 @@ namespace SourceGit.Models
                 return;
 
             var now = DateTime.Now.ToFileTime();
-            
+
             // Collect all pending updates that have passed their debounce delay
             var pendingUpdates = new List<Action>();
             bool needsCommitRefresh = false;
-            
+
             var updateBranch = Interlocked.Read(ref _updateBranch);
             if (updateBranch > 0 && now > updateBranch)
             {
                 Interlocked.Exchange(ref _updateBranch, 0);
                 Interlocked.Exchange(ref _updateWC, 0);  // Branch changes often affect working copy
-                
+
                 pendingUpdates.Add(() => _repo.RefreshBranches());
                 pendingUpdates.Add(() => _repo.RefreshWorktrees());
                 pendingUpdates.Add(() => _repo.RefreshWorkingCopyChanges());
                 needsCommitRefresh = true;
-                
+
                 var updateTags = Interlocked.Read(ref _updateTags);
                 if (updateTags > 0)
                 {
                     Interlocked.Exchange(ref _updateTags, 0);
                     pendingUpdates.Add(() => _repo.RefreshTags());
                 }
-                
+
                 var updateSubmodules = Interlocked.Read(ref _updateSubmodules);
                 if (updateSubmodules > 0 || _repo.MayHaveSubmodules())
                 {
@@ -214,7 +213,7 @@ namespace SourceGit.Models
                     needsCommitRefresh = true;
                 }
             }
-            
+
             // Execute all pending updates in parallel for better multi-core utilization
             if (pendingUpdates.Count > 0)
             {
@@ -222,7 +221,7 @@ namespace SourceGit.Models
                 {
                     // Run all independent refresh operations in parallel
                     Parallel.Invoke(pendingUpdates.ToArray());
-                    
+
                     // Refresh commits last as it may depend on other data
                     if (needsCommitRefresh)
                         _repo.RefreshCommits();
@@ -262,7 +261,7 @@ namespace SourceGit.Models
             var eventBatch = new Dictionary<string, FileSystemEventArgs>();
             var lastProcessTime = DateTime.UtcNow;
             var debounceDelay = TimeSpan.FromMilliseconds(200);
-            
+
             try
             {
                 while (await _eventChannel.Reader.WaitToReadAsync(cancellationToken))
@@ -272,10 +271,10 @@ namespace SourceGit.Models
                     {
                         if (string.IsNullOrEmpty(e.Name))
                             continue;
-                            
+
                         // Use the full path as key to deduplicate events
                         eventBatch[e.FullPath] = e;
-                        
+
                         // Process batch if it gets too large
                         if (eventBatch.Count > 100)
                         {
@@ -284,7 +283,7 @@ namespace SourceGit.Models
                             lastProcessTime = DateTime.UtcNow;
                         }
                     }
-                    
+
                     // Process batch after debounce delay
                     if (eventBatch.Count > 0 && DateTime.UtcNow - lastProcessTime > debounceDelay)
                     {
@@ -292,7 +291,7 @@ namespace SourceGit.Models
                         eventBatch.Clear();
                         lastProcessTime = DateTime.UtcNow;
                     }
-                    
+
                     // Small delay to prevent tight loop
                     await Task.Delay(50, cancellationToken);
                 }
@@ -302,7 +301,7 @@ namespace SourceGit.Models
                 // Expected during shutdown
             }
         }
-        
+
         private void ProcessEventBatch(Dictionary<string, FileSystemEventArgs> batch)
         {
             foreach (var kvp in batch)
@@ -310,22 +309,22 @@ namespace SourceGit.Models
                 var e = kvp.Value;
                 if (string.IsNullOrEmpty(e.Name))
                     continue;
-                    
+
                 var name = e.Name.Replace('\\', '/').TrimEnd('/');
-                
+
                 // Process repository-wide changes
                 if (name.Equals(".git", StringComparison.Ordinal))
                     continue;
-                    
+
                 if (name.EndsWith("/.git", StringComparison.Ordinal))
                     continue;
-                    
+
                 // Route to appropriate handler
                 if (name.StartsWith(".git/", StringComparison.Ordinal))
                 {
                     HandleGitDirFileChanged(name.Substring(5));
                 }
-                else if (!name.StartsWith(".git/", StringComparison.Ordinal) && 
+                else if (!name.StartsWith(".git/", StringComparison.Ordinal) &&
                          !name.EndsWith("/.git", StringComparison.Ordinal))
                 {
                     HandleWorkingCopyFileChanged(name);
@@ -414,7 +413,7 @@ namespace SourceGit.Models
         private long _updateSubmodules = 0;
         private long _updateStashes = 0;
         private long _updateTags = 0;
-        
+
         // Thread-safe submodules collection
         private volatile HashSet<string> _submodules = new HashSet<string>();
     }

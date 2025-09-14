@@ -53,7 +53,7 @@ namespace SourceGit.ViewModels
             var succ = await Commands.GitFlow.FinishAsync(_repo.FullPath, Type, name, Squash, AutoPush, KeepBranch, log);
 
             log.Complete();
-            
+
             // Refresh branches after Git-Flow finish (branch may be deleted)
             _repo.MarkBranchesDirtyManually();
             _repo.SetWatcherEnabled(true);

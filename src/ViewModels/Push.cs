@@ -180,6 +180,15 @@ namespace SourceGit.ViewModels
 
             log.Complete();
             _repo.SetWatcherEnabled(true);
+
+            // Force comprehensive refresh to update all UI elements after successful push
+            if (succ)
+            {
+                var isCurrentBranch = _repo.CurrentBranch?.Name == _selectedLocalBranch.Name;
+                var refreshOptions = Models.RefreshOptions.ForPush(PushAllTags, isCurrentBranch);
+                await _repo.RefreshAfterOperation(refreshOptions);
+            }
+
             return succ;
         }
 

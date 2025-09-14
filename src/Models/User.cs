@@ -1,6 +1,4 @@
-﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace SourceGit.Models
@@ -47,7 +45,7 @@ namespace SourceGit.Models
             {
                 CleanupCache();
             }
-            
+
             return _caches.GetOrAdd(data, key => new User(key));
         }
 

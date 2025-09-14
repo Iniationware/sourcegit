@@ -31,6 +31,7 @@ namespace SourceGit.Commands
         public EditorType Editor { get; set; } = EditorType.CoreEditor;
         public string SSHKey { get; set; } = string.Empty;
         public string Args { get; set; } = string.Empty;
+        public bool SkipCredentials { get; set; } = false;
 
         // Only used in `ExecAsync` mode.
         public CancellationToken CancellationToken { get; set; } = CancellationToken.None;
@@ -173,13 +174,35 @@ namespace SourceGit.Commands
                 start.StandardErrorEncoding = Encoding.UTF8;
             }
 
-            // Force using this app as SSH askpass program
+            // Get self executable file for SSH askpass
             var selfExecFile = Process.GetCurrentProcess().MainModule!.FileName;
-            start.Environment.Add("SSH_ASKPASS", selfExecFile); // Can not use parameter here, because it invoked by SSH with `exec`
-            start.Environment.Add("SSH_ASKPASS_REQUIRE", "prefer");
-            start.Environment.Add("SOURCEGIT_LAUNCH_AS_ASKPASS", "TRUE");
-            if (!OperatingSystem.IsLinux())
-                start.Environment.Add("DISPLAY", "required");
+
+            // Check if this is a public repository operation (but NOT push)
+            var isPush = Args != null && Args.Contains("push ");
+            var isPublicOperation = !isPush && (SkipCredentials || (Args != null &&
+                (Args.Contains("github.com") || Args.Contains("gitlab.com") ||
+                 Args.Contains("bitbucket.org") || Args.Contains("gitee.com"))));
+
+            if (!isPublicOperation)
+            {
+                // Only set up SSH askpass for non-public repos
+                start.Environment.Add("SSH_ASKPASS", selfExecFile); // Can not use parameter here, because it invoked by SSH with `exec`
+                start.Environment.Add("SSH_ASKPASS_REQUIRE", "prefer");
+                start.Environment.Add("SOURCEGIT_LAUNCH_AS_ASKPASS", "TRUE");
+                if (!OperatingSystem.IsLinux())
+                    start.Environment.Add("DISPLAY", "required");
+            }
+            else
+            {
+                // For public repositories, completely disable all credential mechanisms
+                start.Environment["GIT_TERMINAL_PROMPT"] = "0";
+                start.Environment["GIT_ASKPASS"] = "/bin/echo";  // Return empty string
+                start.Environment["SSH_ASKPASS"] = "/bin/echo";  // Return empty string for SSH too
+                start.Environment["GCM_INTERACTIVE"] = "never";
+                start.Environment["GIT_CREDENTIAL_HELPER"] = "";
+                // Ensure no authentication is attempted
+                start.Environment["GIT_AUTH_ATTEMPTED"] = "0";
+            }
 
             // Pass through SSH_AUTH_SOCK for SSH agent authentication
             // This is critical for SSH agent to work properly on Linux/macOS
@@ -249,9 +272,58 @@ namespace SourceGit.Commands
 
             var builder = new StringBuilder();
             builder.Append("--no-pager -c core.quotepath=off");
-            
-            // Only add credential helper if it's configured
-            if (!string.IsNullOrEmpty(Native.OS.CredentialHelper))
+
+            // Check if we're working with a public repository (no credentials needed)
+            var isPublicRepo = false;
+            var needsCredentials = true;
+
+            // Check for operations that typically don't need credentials on public repos
+            if (Args != null)
+            {
+                // IMPORTANT: Push operations ALWAYS need credentials, even for public repos
+                var isPushOperation = Args.Contains("push ");
+
+                if (!isPushOperation)
+                {
+                    // Check if this is a read-only operation on GitHub/GitLab
+                    var isReadOperation = Args.Contains("fetch") || Args.Contains("pull") ||
+                                         Args.Contains("ls-remote") || Args.Contains("clone") ||
+                                         Args.Contains("remote -v") || Args.Contains("remote get-url");
+
+                    // Check if URL contains public Git hosts
+                    var hasPublicHost = Args.Contains("github.com") || Args.Contains("gitlab.com") ||
+                                       Args.Contains("bitbucket.org") || Args.Contains("gitee.com");
+
+                    // If it's a read operation on a public host, disable credentials
+                    if (isReadOperation && hasPublicHost)
+                    {
+                        isPublicRepo = true;
+                        needsCredentials = false;
+                    }
+
+                    // Also check for HTTPS URLs which are typically public (but NOT for push)
+                    if (Args.Contains("https://github.com") || Args.Contains("https://gitlab.com"))
+                    {
+                        isPublicRepo = true;
+                        needsCredentials = false;
+                    }
+                }
+            }
+
+            // ALWAYS explicitly set credential helper to avoid system defaults
+            if (SkipCredentials || !needsCredentials || isPublicRepo)
+            {
+                // Explicitly disable ALL credential helpers including system ones
+                // Use multiple methods to ensure no credentials are requested
+                builder.Append(" -c credential.helper=");
+                builder.Append(" -c credential.helper=''");
+                builder.Append(" -c credential.helper=!");
+                builder.Append(" -c core.askpass=");
+                builder.Append(" -c core.askPass=''");
+                // Also disable http.extraheader which might contain auth
+                builder.Append(" -c http.extraheader=");
+            }
+            else if (!string.IsNullOrEmpty(Native.OS.CredentialHelper))
             {
                 // For the cache helper with timeout, we need special handling
                 if (Native.OS.CredentialHelper == "cache")
@@ -270,7 +342,7 @@ namespace SourceGit.Commands
                     builder.Append($" -c credential.helper={Native.OS.CredentialHelper}");
                 }
             }
-            
+
             builder.Append(' ');
 
             switch (Editor)
