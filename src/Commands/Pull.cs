@@ -25,7 +25,7 @@ namespace SourceGit.Commands
             if (!string.IsNullOrEmpty(remoteUrl) && remoteUrl.StartsWith("https://"))
             {
                 // For public HTTPS repos, we don't need SSH keys or credentials
-                if (remoteUrl.Contains("github.com") || remoteUrl.Contains("gitlab.com") || 
+                if (remoteUrl.Contains("github.com") || remoteUrl.Contains("gitlab.com") ||
                     remoteUrl.Contains("bitbucket.org") || remoteUrl.Contains("gitee.com"))
                 {
                     SSHKey = string.Empty;
@@ -40,7 +40,7 @@ namespace SourceGit.Commands
             {
                 SSHKey = await new Config(WorkingDirectory).GetAsync($"remote.{_remote}.sshkey").ConfigureAwait(false);
             }
-            
+
             return await ExecAsync().ConfigureAwait(false);
         }
 

@@ -18,21 +18,21 @@ namespace SourceGit.Commands
             {
                 // Parse the URL to determine the repository type
                 var uri = new Uri(remoteUrl);
-                
+
                 // Handle GitHub repositories
                 if (uri.Host.Equals("github.com", StringComparison.OrdinalIgnoreCase) ||
                     uri.Host.Equals("www.github.com", StringComparison.OrdinalIgnoreCase))
                 {
                     return await CheckGitHubRepository(uri);
                 }
-                
+
                 // Handle GitLab repositories
                 if (uri.Host.Equals("gitlab.com", StringComparison.OrdinalIgnoreCase) ||
                     uri.Host.Equals("www.gitlab.com", StringComparison.OrdinalIgnoreCase))
                 {
                     return await CheckGitLabRepository(uri);
                 }
-                
+
                 // For other Git hosts, try a simple HEAD request
                 return await CheckGenericRepository(remoteUrl);
             }
@@ -58,10 +58,10 @@ namespace SourceGit.Commands
                 // Use GitHub API to check if repo is public
                 using var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "SourceGit");
-                
+
                 var apiUrl = $"https://api.github.com/repos/{owner}/{repo}";
                 var response = await client.GetAsync(apiUrl);
-                
+
                 // If we get a 200, it's public
                 // If we get a 404 or 403, it might be private or doesn't exist
                 return response.IsSuccessStatusCode;
@@ -78,14 +78,14 @@ namespace SourceGit.Commands
             {
                 // Extract project path from URL
                 var pathParts = uri.AbsolutePath.Trim('/').Replace(".git", "");
-                
+
                 // Use GitLab API to check if project is public
                 using var client = new HttpClient();
                 client.DefaultRequestHeaders.Add("User-Agent", "SourceGit");
-                
+
                 var apiUrl = $"https://gitlab.com/api/v4/projects/{Uri.EscapeDataString(pathParts)}";
                 var response = await client.GetAsync(apiUrl);
-                
+
                 return response.IsSuccessStatusCode;
             }
             catch
@@ -100,11 +100,11 @@ namespace SourceGit.Commands
             {
                 // Try to access the info/refs endpoint which should be available for public repos
                 var infoRefsUrl = remoteUrl.Replace(".git", "") + "/info/refs";
-                
+
                 using var client = new HttpClient();
                 client.Timeout = TimeSpan.FromSeconds(5);
                 var response = await client.GetAsync(infoRefsUrl);
-                
+
                 // If we can access it without auth, it's likely public
                 return response.IsSuccessStatusCode || response.StatusCode == System.Net.HttpStatusCode.NotFound;
             }

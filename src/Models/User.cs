@@ -45,7 +45,7 @@ namespace SourceGit.Models
             {
                 CleanupCache();
             }
-            
+
             return _caches.GetOrAdd(data, key => new User(key));
         }
 

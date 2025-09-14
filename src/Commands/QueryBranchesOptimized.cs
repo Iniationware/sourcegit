@@ -24,7 +24,7 @@ namespace SourceGit.Commands
             WorkingDirectory = repo;
             Context = repo;
             Args = "branch -l --all -v --format=\"%(refname)%00%(committerdate:unix)%00%(objectname)%00%(HEAD)%00%(upstream)%00%(upstream:trackshort)\"";
-            
+
             _cache = GitCommandCache.Instance;
             _batchExecutor = new BatchQueryExecutor();
             _processPool = GitProcessPool.Instance;
@@ -33,11 +33,11 @@ namespace SourceGit.Commands
         public async Task<List<Models.Branch>> GetResultAsync()
         {
             var branches = new List<Models.Branch>();
-            
+
             try
             {
                 Models.PerformanceMonitor.StartTimer("QueryBranchesOptimized");
-                
+
                 // Try to get from cache first
                 var branchData = await _cache.GetOrExecuteAsync(
                     WorkingDirectory,
@@ -49,7 +49,7 @@ namespace SourceGit.Commands
                         var result = await _processPool.ExecuteAsync(WorkingDirectory, Args);
                         return result.IsSuccess ? result.StdOut : string.Empty;
                     });
-                
+
                 if (string.IsNullOrEmpty(branchData))
                 {
                     Models.PerformanceMonitor.StopTimer("QueryBranchesOptimized");
@@ -59,7 +59,7 @@ namespace SourceGit.Commands
                 var lines = branchData.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
                 var remoteHeads = new Dictionary<string, string>();
                 var localBranchesNeedingStatus = new List<Models.Branch>();
-                
+
                 // First pass: Parse all branches
                 foreach (var line in lines)
                 {
@@ -83,7 +83,7 @@ namespace SourceGit.Commands
                 {
                     await UpdateTrackStatusBatch(localBranchesNeedingStatus, remoteHeads);
                 }
-                
+
                 Models.PerformanceMonitor.StopTimer("QueryBranchesOptimized");
             }
             catch (Exception ex)
@@ -100,13 +100,13 @@ namespace SourceGit.Commands
             // Prepare batch queries for track status
             var statusQueries = new List<string>();
             var branchToQueryMap = new Dictionary<string, (Models.Branch Branch, string UpstreamHead)>();
-            
+
             foreach (var branch in localBranches)
             {
                 if (remoteHeads.TryGetValue(branch.Upstream, out var upstreamHead))
                 {
                     branch.IsUpstreamGone = false;
-                    
+
                     // Create query for track status (without --count to get actual commits)
                     var query = $"rev-list --left-right {branch.Head}...{upstreamHead}";
                     statusQueries.Add(query);
@@ -118,7 +118,7 @@ namespace SourceGit.Commands
                     branch.TrackStatus ??= new Models.BranchTrackStatus();
                 }
             }
-            
+
             if (statusQueries.Count > 0)
             {
                 // Execute batch queries
@@ -128,9 +128,9 @@ namespace SourceGit.Commands
                     UseParallel = statusQueries.Count > 5,
                     MaxParallelism = Math.Min(4, statusQueries.Count)
                 };
-                
+
                 var batchResult = await _batchExecutor.ExecuteBatchAsync(WorkingDirectory, statusQueries.ToArray(), batchOptions);
-                
+
                 // Process results
                 foreach (var kvp in batchResult.Results)
                 {
@@ -139,7 +139,7 @@ namespace SourceGit.Commands
                         branchInfo.Branch.TrackStatus = ParseTrackStatus(kvp.Value.Output);
                     }
                 }
-                
+
                 // Handle failed queries - fallback to individual queries
                 foreach (var failedQuery in batchResult.FailedQueries)
                 {
@@ -155,10 +155,10 @@ namespace SourceGit.Commands
         private Models.BranchTrackStatus ParseTrackStatus(string output)
         {
             var status = new Models.BranchTrackStatus();
-            
+
             if (string.IsNullOrWhiteSpace(output))
                 return status;
-            
+
             var lines = output.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries);
             foreach (var line in lines)
             {
@@ -170,7 +170,7 @@ namespace SourceGit.Commands
                         status.Ahead.Add(line.Substring(1));
                 }
             }
-            
+
             return status;
         }
 
@@ -236,7 +236,7 @@ namespace SourceGit.Commands
         {
             var cache = GitCommandCache.Instance;
             var processPool = GitProcessPool.Instance;
-            
+
             // Prefetch main branch query
             await cache.GetOrExecuteAsync(
                 repository,

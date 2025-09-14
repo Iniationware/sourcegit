@@ -42,7 +42,7 @@ namespace SourceGit.Commands
         {
             // Check if remote URL is a public repository
             var remoteUrl = await new Config(WorkingDirectory).GetAsync($"remote.{_remote}.url").ConfigureAwait(false);
-            
+
             // Push ALWAYS requires authentication, even for public repos
             // This is by design - you can read from public repos without auth,
             // but writing always requires proper credentials
@@ -53,15 +53,15 @@ namespace SourceGit.Commands
                 {
                     // Note: We still need credentials for push, but we can provide a better error message
                     RaiseError = true;
-                    
+
                     // Check if we have stored credentials or SSH key
                     var hasCredentials = !string.IsNullOrEmpty(Native.OS.CredentialHelper);
                     var sshKey = await new Config(WorkingDirectory).GetAsync($"remote.{_remote}.sshkey").ConfigureAwait(false);
-                    
+
                     if (!hasCredentials && string.IsNullOrEmpty(sshKey))
                     {
                         // Provide helpful message about push requirements
-                        App.RaiseException(Context, 
+                        App.RaiseException(Context,
                             $"Push to {remoteUrl} requires authentication.\n\n" +
                             "Even though the repository is public, pushing changes always requires proper credentials.\n\n" +
                             "Options:\n" +
@@ -74,12 +74,12 @@ namespace SourceGit.Commands
                     }
                 }
             }
-            
+
             SSHKey = await new Config(WorkingDirectory).GetAsync($"remote.{_remote}.sshkey").ConfigureAwait(false);
-            
+
             // Don't skip credentials for push - it always needs auth
             SkipCredentials = false;
-            
+
             return await ExecAsync().ConfigureAwait(false);
         }
 

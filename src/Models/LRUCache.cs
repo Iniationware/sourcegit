@@ -118,11 +118,11 @@ namespace SourceGit.Models
                     // Update existing item
                     _currentMemoryUsage -= existingItem.Size;
                     _currentMemoryUsage += itemSize;
-                    
+
                     existingItem.Value = value;
                     existingItem.Size = itemSize;
                     existingItem.LastAccessed = DateTime.UtcNow;
-                    
+
                     // Move to front
                     _lruList.Remove(existingItem.Node);
                     _lruList.AddFirst(existingItem.Node);
@@ -255,7 +255,7 @@ namespace SourceGit.Models
             // Check system memory pressure
             var totalMemory = GC.GetTotalMemory(false);
             var gen2Collections = GC.CollectionCount(2);
-            
+
             // Evict if:
             // - Adding item would exceed max memory
             // - System is under memory pressure (frequent Gen2 GCs)
@@ -276,7 +276,7 @@ namespace SourceGit.Models
                        (graph.Dots?.Count ?? 0) * 50 +      // ~50 bytes per dot
                        1024;                                 // Base overhead
             }
-            
+
             // Default estimate for unknown types
             return 1024; // 1KB default
         }

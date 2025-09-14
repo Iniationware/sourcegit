@@ -75,7 +75,7 @@ namespace SourceGit.Views
                 UseGraphColorProperty,
                 BackgroundProperty,
                 ShowTagsProperty);
-            
+
             AffectsMeasure<CommitRefsSummary>(
                 FontFamilyProperty,
                 FontSizeProperty,
@@ -107,7 +107,7 @@ namespace SourceGit.Views
             {
                 displayText = $"{displayRef.Name} (+{refs.Count - 1})";
             }
-            
+
             var label = new FormattedText(
                 displayText,
                 CultureInfo.CurrentCulture,
@@ -118,19 +118,19 @@ namespace SourceGit.Views
 
             var x = 2.0;
             var y = (Bounds.Height - 16) / 2;
-            
+
             // Draw background
             var bgRect = new RoundedRect(new Rect(x, y, label.Width + 8, 16), new CornerRadius(2));
-            
+
             if (Background != null)
                 context.DrawRectangle(Background, null, bgRect);
-                
+
             using (context.PushOpacity(0.3))
                 context.DrawRectangle(bg, null, bgRect);
-            
+
             // Draw border
             context.DrawRectangle(null, new Pen(bg, 1), bgRect);
-            
+
             // Draw text
             context.DrawText(label, new Point(x + 4, y + 8 - label.Height * 0.5));
         }
@@ -166,10 +166,10 @@ namespace SourceGit.Views
             var sb = new StringBuilder();
             sb.AppendLine("Branches & Tags:");
             sb.AppendLine();
-            
+
             var branches = new List<string>();
             var tags = new List<string>();
-            
+
             foreach (var decorator in refs)
             {
                 if (decorator.Type == Models.DecoratorType.Tag)
@@ -188,14 +188,14 @@ namespace SourceGit.Views
                     branches.Add($"{prefix}{decorator.Name}");
                 }
             }
-            
+
             if (branches.Count > 0)
             {
                 sb.AppendLine("Branches:");
                 foreach (var branch in branches)
                     sb.AppendLine(branch);
             }
-            
+
             if (tags.Count > 0)
             {
                 if (branches.Count > 0)
@@ -204,7 +204,7 @@ namespace SourceGit.Views
                 foreach (var tag in tags)
                     sb.AppendLine(tag);
             }
-            
+
             var tooltip = new TextBlock
             {
                 Text = sb.ToString().TrimEnd(),
@@ -212,7 +212,7 @@ namespace SourceGit.Views
                 FontSize = FontSize - 1,
                 Foreground = Foreground
             };
-            
+
             ToolTip.SetTip(this, tooltip);
             ToolTip.SetShowDelay(this, 200);
         }
@@ -222,14 +222,14 @@ namespace SourceGit.Views
             var result = new List<Models.Decorator>();
             if (commit.Decorators == null)
                 return result;
-                
+
             foreach (var decorator in commit.Decorators)
             {
                 if (decorator.Type == Models.DecoratorType.Tag && !ShowTags)
                     continue;
                 result.Add(decorator);
             }
-            
+
             return result;
         }
 
@@ -237,28 +237,28 @@ namespace SourceGit.Views
         {
             if (refs.Count == 0)
                 return null;
-                
+
             // Prefer current branch head
             foreach (var decorator in refs)
             {
                 if (decorator.Type == Models.DecoratorType.CurrentBranchHead)
                     return decorator;
             }
-            
+
             // Then current commit head
             foreach (var decorator in refs)
             {
                 if (decorator.Type == Models.DecoratorType.CurrentCommitHead)
                     return decorator;
             }
-            
+
             // Then any branch
             foreach (var decorator in refs)
             {
                 if (decorator.Type != Models.DecoratorType.Tag)
                     return decorator;
             }
-            
+
             // Finally tags
             return refs[0];
         }
@@ -277,14 +277,14 @@ namespace SourceGit.Views
                 return new Size(0, 0);
 
             var typeface = new Typeface(FontFamily);
-            
+
             // Create display text
             var displayText = displayRef.Name;
             if (refs.Count > 1)
             {
                 displayText = $"{displayRef.Name} (+{refs.Count - 1})";
             }
-            
+
             var label = new FormattedText(
                 displayText,
                 CultureInfo.CurrentCulture,

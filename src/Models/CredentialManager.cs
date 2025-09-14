@@ -180,7 +180,7 @@ namespace SourceGit.Models
             {
                 // Check for libsecret
                 CheckHelperAvailability("git-credential-libsecret", CredentialHelperType.Libsecret);
-                
+
                 // Also check if libsecret is installed via package manager
                 if (!GetHelper(CredentialHelperType.Libsecret).IsAvailable)
                 {
@@ -333,7 +333,7 @@ namespace SourceGit.Models
                 // It needs to be configured separately via git config credential.helper 'cache --timeout=X'
                 // For now, we just use the basic 'cache' command
                 helper.Command = "cache";
-                
+
                 // Note: To properly set timeout, you would need to run:
                 // git config --global credential.helper 'cache --timeout=900'
                 // But since we're passing this via -c flag in each command, 

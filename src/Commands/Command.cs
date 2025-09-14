@@ -176,13 +176,13 @@ namespace SourceGit.Commands
 
             // Get self executable file for SSH askpass
             var selfExecFile = Process.GetCurrentProcess().MainModule!.FileName;
-            
+
             // Check if this is a public repository operation (but NOT push)
             var isPush = Args != null && Args.Contains("push ");
-            var isPublicOperation = !isPush && (SkipCredentials || (Args != null && 
-                (Args.Contains("github.com") || Args.Contains("gitlab.com") || 
+            var isPublicOperation = !isPush && (SkipCredentials || (Args != null &&
+                (Args.Contains("github.com") || Args.Contains("gitlab.com") ||
                  Args.Contains("bitbucket.org") || Args.Contains("gitee.com"))));
-            
+
             if (!isPublicOperation)
             {
                 // Only set up SSH askpass for non-public repos
@@ -217,35 +217,35 @@ namespace SourceGit.Commands
 
             var builder = new StringBuilder();
             builder.Append("--no-pager -c core.quotepath=off");
-            
+
             // Check if we're working with a public repository (no credentials needed)
             var isPublicRepo = false;
             var needsCredentials = true;
-            
+
             // Check for operations that typically don't need credentials on public repos
             if (Args != null)
             {
                 // IMPORTANT: Push operations ALWAYS need credentials, even for public repos
                 var isPushOperation = Args.Contains("push ");
-                
+
                 if (!isPushOperation)
                 {
                     // Check if this is a read-only operation on GitHub/GitLab
-                    var isReadOperation = Args.Contains("fetch") || Args.Contains("pull") || 
+                    var isReadOperation = Args.Contains("fetch") || Args.Contains("pull") ||
                                          Args.Contains("ls-remote") || Args.Contains("clone") ||
                                          Args.Contains("remote -v") || Args.Contains("remote get-url");
-                    
+
                     // Check if URL contains public Git hosts
-                    var hasPublicHost = Args.Contains("github.com") || Args.Contains("gitlab.com") || 
+                    var hasPublicHost = Args.Contains("github.com") || Args.Contains("gitlab.com") ||
                                        Args.Contains("bitbucket.org") || Args.Contains("gitee.com");
-                    
+
                     // If it's a read operation on a public host, disable credentials
                     if (isReadOperation && hasPublicHost)
                     {
                         isPublicRepo = true;
                         needsCredentials = false;
                     }
-                    
+
                     // Also check for HTTPS URLs which are typically public (but NOT for push)
                     if (Args.Contains("https://github.com") || Args.Contains("https://gitlab.com"))
                     {
@@ -254,7 +254,7 @@ namespace SourceGit.Commands
                     }
                 }
             }
-            
+
             // ALWAYS explicitly set credential helper to avoid system defaults
             if (SkipCredentials || !needsCredentials || isPublicRepo)
             {
@@ -287,7 +287,7 @@ namespace SourceGit.Commands
                     builder.Append($" -c credential.helper={Native.OS.CredentialHelper}");
                 }
             }
-            
+
             builder.Append(' ');
 
             switch (Editor)

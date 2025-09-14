@@ -11,13 +11,13 @@ namespace SourceGit.Commands
         public FetchWithoutAuth(string repo, string remote, bool noTags = false, bool force = false)
         {
             _remote = remote;
-            
+
             WorkingDirectory = repo;
             Context = repo;
-            
+
             // Build basic fetch command
             Args = "fetch --progress --verbose ";
-            
+
             if (noTags)
                 Args += "--no-tags ";
             else
@@ -36,7 +36,7 @@ namespace SourceGit.Commands
             {
                 // Get the remote URL
                 var remoteUrl = await new Config(WorkingDirectory).GetAsync($"remote.{_remote}.url").ConfigureAwait(false);
-                
+
                 if (!string.IsNullOrEmpty(remoteUrl))
                 {
                     // Check if it's a public repository URL that we can fetch without auth
@@ -44,11 +44,11 @@ namespace SourceGit.Commands
                     {
                         // For HTTPS URLs to public hosts, ensure no credentials are embedded
                         var cleanUrl = CleanUrl(remoteUrl);
-                        
+
                         // Use the clean URL directly instead of the remote name
                         // This bypasses any stored credentials
                         Args += cleanUrl;
-                        
+
                         // Ensure no credentials are used
                         SkipCredentials = true;
                         SSHKey = string.Empty;
@@ -66,7 +66,7 @@ namespace SourceGit.Commands
                     Args += _remote;
                 }
             }
-            
+
             return await ExecAsync().ConfigureAwait(false);
         }
 
@@ -74,7 +74,7 @@ namespace SourceGit.Commands
         {
             if (string.IsNullOrEmpty(url))
                 return false;
-                
+
             // Check for HTTPS URLs to known public hosts
             if (url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
             {
@@ -83,7 +83,7 @@ namespace SourceGit.Commands
                        url.Contains("bitbucket.org", StringComparison.OrdinalIgnoreCase) ||
                        url.Contains("gitee.com", StringComparison.OrdinalIgnoreCase);
             }
-            
+
             return false;
         }
 
@@ -91,14 +91,14 @@ namespace SourceGit.Commands
         {
             // Remove any embedded credentials from the URL
             // Format: https://username:password@github.com/... -> https://github.com/...
-            
+
             if (!url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
                 return url;
-                
+
             try
             {
                 var uri = new Uri(url);
-                
+
                 // If there's user info in the URL, remove it
                 if (!string.IsNullOrEmpty(uri.UserInfo))
                 {
@@ -108,10 +108,10 @@ namespace SourceGit.Commands
                         UserName = string.Empty,
                         Password = string.Empty
                     };
-                    
+
                     return cleanUri.Uri.ToString();
                 }
-                
+
                 return url;
             }
             catch
@@ -119,13 +119,13 @@ namespace SourceGit.Commands
                 // If parsing fails, try manual cleaning
                 var atIndex = url.IndexOf('@');
                 var protocolEnd = url.IndexOf("://") + 3;
-                
+
                 if (atIndex > protocolEnd && atIndex < url.Length - 1)
                 {
                     // Remove everything between :// and @
                     return url.Substring(0, protocolEnd) + url.Substring(atIndex + 1);
                 }
-                
+
                 return url;
             }
         }

@@ -82,13 +82,14 @@ namespace SourceGit.ViewModels
         #endregion
 
         #region Cache and Performance
-        protected internal static readonly Models.LRUCache<string, Models.CommitGraph> _graphCache = 
+        protected internal static readonly Models.LRUCache<string, Models.CommitGraph> _graphCache =
             new Models.LRUCache<string, Models.CommitGraph>(
                 maxCapacity: 50,
                 maxMemoryMB: 200,
-                sizeCalculator: graph => 
+                sizeCalculator: graph =>
                 {
-                    if (graph == null) return 0;
+                    if (graph == null)
+                        return 0;
                     long size = 0;
                     size += (graph.Paths?.Count ?? 0) * 250;
                     size += (graph.Links?.Count ?? 0) * 150;

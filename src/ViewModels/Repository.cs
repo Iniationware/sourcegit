@@ -717,7 +717,7 @@ namespace SourceGit.ViewModels
             // Clear cache for this repository to free memory
             ClearGraphCacheForRepository();
             _memoryMetrics = null;
-            
+
             // Clear all observable collections first to release references
             Logs.Clear();
             _branches?.Clear();
@@ -761,7 +761,7 @@ namespace SourceGit.ViewModels
 
             _localChangesCount = 0;
             _stashesCount = 0;
-            
+
             // Force garbage collection to clean up immediately
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -948,7 +948,7 @@ namespace SourceGit.ViewModels
         {
             // Invalidate branch cache when branches are manually marked dirty (e.g., after create/delete operations)
             Commands.Optimization.GitCommandCache.Instance.InvalidateByOperation(_fullpath, Commands.Optimization.GitOperation.BranchCreate);
-            
+
             if (_watcher == null)
             {
                 RefreshBranches();
@@ -1069,8 +1069,8 @@ namespace SourceGit.ViewModels
             }
 
             var type = GetGitFlowType(branch);
-            if (type == Models.GitFlowBranchType.None || 
-                type == Models.GitFlowBranchType.Master || 
+            if (type == Models.GitFlowBranchType.None ||
+                type == Models.GitFlowBranchType.Master ||
                 type == Models.GitFlowBranchType.Develop)
             {
                 App.RaiseException(_fullpath, "This branch cannot be finished using Git-Flow");
@@ -1122,8 +1122,8 @@ namespace SourceGit.ViewModels
 
             // Finish GitFlow branch
             var type = GetGitFlowType(branch);
-            if (type != Models.GitFlowBranchType.None && 
-                type != Models.GitFlowBranchType.Master && 
+            if (type != Models.GitFlowBranchType.None &&
+                type != Models.GitFlowBranchType.Master &&
                 type != Models.GitFlowBranchType.Develop)
             {
                 var finish = new MenuItem();
@@ -1413,7 +1413,7 @@ namespace SourceGit.ViewModels
             // Since we're using a static cache, we can't easily remove just this repo's entries
             // But we can trim excess to free memory
             _graphCache.TrimExcess();
-            
+
             // If this is causing memory pressure, clear more aggressively
             var stats = _graphCache.GetStatistics();
             if (stats.MemoryUsagePercent > 80)

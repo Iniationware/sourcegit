@@ -98,11 +98,11 @@ namespace SourceGit.ViewModels
             }
 
             _repo.MarkFetched();
-            
+
             // Force comprehensive refresh to update all UI elements after successful fetch
             var refreshOptions = Models.RefreshOptions.ForFetch(!notags);
             await _repo.RefreshAfterOperation(refreshOptions);
-            
+
             _repo.SetWatcherEnabled(true);
             return true;
         }

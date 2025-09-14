@@ -21,14 +21,16 @@ namespace SourceGit.ViewModels
         /// <param name="options">Options specifying which parts to refresh</param>
         public async Task RefreshAfterOperation(Models.RefreshOptions options)
         {
-            if (options == null) return;
+            if (options == null)
+                return;
 
             // Run background refreshes in parallel
             var tasks = new List<Task>();
-            
+
             if (options.RefreshBranches)
             {
-                tasks.Add(Task.Run(() => {
+                tasks.Add(Task.Run(() =>
+                {
                     Models.PerformanceMonitor.StartTimer("RefreshBranches");
                     RefreshBranches();
                     Models.PerformanceMonitor.StopTimer("RefreshBranches");
@@ -37,7 +39,8 @@ namespace SourceGit.ViewModels
 
             if (options.RefreshTags)
             {
-                tasks.Add(Task.Run(() => {
+                tasks.Add(Task.Run(() =>
+                {
                     Models.PerformanceMonitor.StartTimer("RefreshTags");
                     RefreshTags();
                     Models.PerformanceMonitor.StopTimer("RefreshTags");
@@ -46,7 +49,8 @@ namespace SourceGit.ViewModels
 
             if (options.RefreshWorkingCopy)
             {
-                tasks.Add(Task.Run(() => {
+                tasks.Add(Task.Run(() =>
+                {
                     Models.PerformanceMonitor.StartTimer("RefreshWorkingCopyChanges");
                     RefreshWorkingCopyChanges();
                     Models.PerformanceMonitor.StopTimer("RefreshWorkingCopyChanges");
@@ -55,7 +59,8 @@ namespace SourceGit.ViewModels
 
             if (options.RefreshStashes)
             {
-                tasks.Add(Task.Run(() => {
+                tasks.Add(Task.Run(() =>
+                {
                     Models.PerformanceMonitor.StartTimer("RefreshStashes");
                     RefreshStashes();
                     Models.PerformanceMonitor.StopTimer("RefreshStashes");
@@ -64,7 +69,8 @@ namespace SourceGit.ViewModels
 
             if (options.RefreshSubmodules)
             {
-                tasks.Add(Task.Run(() => {
+                tasks.Add(Task.Run(() =>
+                {
                     Models.PerformanceMonitor.StartTimer("RefreshSubmodules");
                     RefreshSubmodules();
                     Models.PerformanceMonitor.StopTimer("RefreshSubmodules");
@@ -92,12 +98,12 @@ namespace SourceGit.ViewModels
         public void RefreshAll()
         {
             Models.PerformanceMonitor.StartTimer("RefreshAll");
-            
+
             // RefreshCommits must run first as other operations may depend on commit data
             Models.PerformanceMonitor.StartTimer("RefreshCommits");
             RefreshCommits();
             Models.PerformanceMonitor.StopTimer("RefreshCommits");
-            
+
             // Run independent read-only operations in parallel for better multi-core utilization
             var parallelTasks = new List<Task>
             {
@@ -132,7 +138,7 @@ namespace SourceGit.ViewModels
                     Models.PerformanceMonitor.StopTimer("RefreshStashes");
                 })
             };
-            
+
             // Fire and forget - these will complete asynchronously
             Task.WhenAll(parallelTasks).ContinueWith(async t =>
             {
@@ -194,7 +200,7 @@ namespace SourceGit.ViewModels
                     // Use optimized query with caching and batch execution
                     var branches = await new Commands.QueryBranchesOptimized(_fullpath).GetResultAsync().ConfigureAwait(false);
                     var remotes = await new Commands.QueryRemotes(_fullpath).GetResultAsync().ConfigureAwait(false);
-                    
+
                     // Validate results before proceeding
                     if (branches == null)
                     {
@@ -206,7 +212,7 @@ namespace SourceGit.ViewModels
                         App.RaiseException(_fullpath, "QueryRemotes returned null, using empty list");
                         remotes = new List<Models.Remote>();
                     }
-                    
+
                     var builder = BuildBranchTree(branches, remotes);
 
                     ExecuteOnUIThread(() =>
@@ -273,7 +279,7 @@ namespace SourceGit.ViewModels
                 {
                     // Log the detailed error to help diagnose the issue
                     App.RaiseException(_fullpath, $"Failed to refresh branches: {ex.Message}\n\nStack trace:\n{ex.StackTrace}");
-                    
+
                     ExecuteOnUIThread(() =>
                     {
                         // Keep existing data if refresh fails
@@ -366,7 +372,7 @@ namespace SourceGit.ViewModels
                     builder.Append(filters);
 
                 var commits = await new Commands.QueryCommits(_fullpath, builder.ToString()).GetResultAsync().ConfigureAwait(false);
-                
+
                 var graph = await GetOrCreateCommitGraph(commits);
 
                 ExecuteOnUIThread(() =>
@@ -483,27 +489,27 @@ namespace SourceGit.ViewModels
         private async Task<Models.CommitGraph> GetOrCreateCommitGraph(List<Models.Commit> commits)
         {
             // Generate cache key based on repository state and settings
-            var cacheKey = commits.Count > 0 
+            var cacheKey = commits.Count > 0
                 ? $"{_fullpath}_{commits[0].SHA}_{commits.Count}_{_settings.HistoryShowFlags}_{_currentBranch}"
                 : null;
-            
+
             Models.CommitGraph graph = null;
             if (cacheKey != null)
             {
                 // Try to get from LRU cache
                 graph = _graphCache.Get(cacheKey);
             }
-            
+
             if (graph == null)
             {
                 // Parse new graph and add to cache
-                graph = await Task.Run(() => 
+                graph = await Task.Run(() =>
                     Models.CommitGraph.Parse(commits, _settings.HistoryShowFlags.HasFlag(Models.HistoryShowFlags.FirstParentOnly)));
-                
+
                 if (cacheKey != null && graph != null)
                 {
                     _graphCache.Set(cacheKey, graph);
-                    
+
                     // Periodically trim cache if under memory pressure
                     if (_graphCache.Count > 30)
                     {

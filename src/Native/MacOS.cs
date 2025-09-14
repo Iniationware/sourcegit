@@ -17,13 +17,13 @@ namespace SourceGit.Native
         /// <summary>
         /// Detects if running on Apple Silicon (ARM64) Mac
         /// </summary>
-        public static bool IsAppleSilicon() => 
+        public static bool IsAppleSilicon() =>
             RuntimeInformation.ProcessArchitecture == Architecture.Arm64;
 
         /// <summary>
         /// Gets the current processor architecture
         /// </summary>
-        public static Architecture ProcessorArchitecture => 
+        public static Architecture ProcessorArchitecture =>
             RuntimeInformation.ProcessArchitecture;
         public void SetupApp(AppBuilder builder)
         {
@@ -71,7 +71,7 @@ namespace SourceGit.Native
         public string FindGitExecutable()
         {
             // Optimize path search order based on architecture
-            var gitPathVariants = IsAppleSilicon() 
+            var gitPathVariants = IsAppleSilicon()
                 ? new List<string>() {
                     // Apple Silicon: Prioritize ARM64 native paths
                     "/opt/homebrew/bin/git",           // Homebrew ARM64
@@ -104,7 +104,7 @@ namespace SourceGit.Native
                             RedirectStandardOutput = true,
                             RedirectStandardError = true
                         };
-                        
+
                         using var process = Process.Start(startInfo);
                         if (process != null)
                         {

@@ -180,7 +180,7 @@ namespace SourceGit.ViewModels
 
             log.Complete();
             _repo.SetWatcherEnabled(true);
-            
+
             // Force comprehensive refresh to update all UI elements after successful push
             if (succ)
             {
@@ -188,7 +188,7 @@ namespace SourceGit.ViewModels
                 var refreshOptions = Models.RefreshOptions.ForPush(PushAllTags, isCurrentBranch);
                 await _repo.RefreshAfterOperation(refreshOptions);
             }
-            
+
             return succ;
         }
 

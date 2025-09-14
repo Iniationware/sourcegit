@@ -33,7 +33,8 @@ namespace SourceGit.Models
         /// </summary>
         public static void TrackObject(object obj)
         {
-            if (!_isEnabled || obj == null) return;
+            if (!_isEnabled || obj == null)
+                return;
 
             lock (_lock)
             {
@@ -47,7 +48,7 @@ namespace SourceGit.Models
         public static void ForceCleanup()
         {
             CleanupInternal();
-            
+
             // Force garbage collection
             GC.Collect();
             GC.WaitForPendingFinalizers();
@@ -60,7 +61,7 @@ namespace SourceGit.Models
         public static MemoryStatistics GetStatistics()
         {
             var stats = new MemoryStatistics();
-            
+
             // Get process memory info
             using (var process = Process.GetCurrentProcess())
             {
@@ -83,7 +84,7 @@ namespace SourceGit.Models
             }
 
             stats.LastCleanupTime = new DateTime(_lastCleanupTime);
-            
+
             return stats;
         }
 
@@ -93,7 +94,7 @@ namespace SourceGit.Models
         public static bool IsMemoryPressureHigh()
         {
             var stats = GetStatistics();
-            
+
             // Consider memory pressure high if:
             // - Working set > 500MB
             // - Or managed memory > 300MB
@@ -102,7 +103,8 @@ namespace SourceGit.Models
 
         private static void CleanupCallback(object state)
         {
-            if (!_isEnabled) return;
+            if (!_isEnabled)
+                return;
             CleanupInternal();
         }
 
@@ -117,7 +119,7 @@ namespace SourceGit.Models
             // Clean up various caches
             CleanupUserCache();
             CleanupPerformanceMonitor();
-            
+
             _lastCleanupTime = DateTime.Now.Ticks;
 
             // If memory pressure is high, force GC
@@ -150,7 +152,7 @@ namespace SourceGit.Models
         public static void Shutdown()
         {
             _cleanupTimer?.Dispose();
-            
+
             lock (_lock)
             {
                 _trackedObjects.Clear();
