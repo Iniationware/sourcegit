@@ -1501,7 +1501,7 @@ namespace SourceGit.Views
             if (diff.SyncScrollOffset.NearlyEquals(_scrollViewer.Offset))
                 return;
 
-            if (IsPointerOver || !e.OffsetDelta.NearlyEquals(Vector.Zero))
+            if (IsPointerOver || e.OffsetDelta.SquaredLength > 1.0f)
             {
                 diff.SyncScrollOffset = _scrollViewer.Offset;
 
