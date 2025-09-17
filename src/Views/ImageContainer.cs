@@ -397,6 +397,12 @@ namespace SourceGit.Views
             AffectsRender<ImageDifferenceControl>(AlphaProperty);
         }
 
+        // Cached render target for performance optimization
+        private RenderTargetBitmap _cachedRenderTarget;
+        private Size _cachedSize;
+        private Bitmap _cachedOldImage;
+        private Bitmap _cachedNewImage;
+
         public override void Render(DrawingContext context)
         {
             base.Render(context);
@@ -409,19 +415,45 @@ namespace SourceGit.Views
 
             if (drawLeft && drawRight)
             {
-                using (var rt = new RenderTargetBitmap(new PixelSize((int)Bounds.Width, (int)Bounds.Height), right.Dpi))
+                // Bounds checking for safe integer casting
+                var width = Math.Min(Math.Max(1, Bounds.Width), 8192);  // Max 8K width
+                var height = Math.Min(Math.Max(1, Bounds.Height), 8192); // Max 8K height
+                var pixelWidth = (int)Math.Ceiling(width);
+                var pixelHeight = (int)Math.Ceiling(height);
+
+                // Check if we need to recreate the cached render target
+                var currentSize = new Size(pixelWidth, pixelHeight);
+                var needsRecreate = _cachedRenderTarget == null ||
+                                   _cachedSize != currentSize ||
+                                   _cachedOldImage != left ||
+                                   _cachedNewImage != right;
+
+                if (needsRecreate)
                 {
-                    using (var dc = rt.CreateDrawingContext())
-                    {
-                        using (dc.PushRenderOptions(RO_SRC))
-                            RenderSingleSide(dc, left, rt.Size.Width, rt.Size.Height, Math.Min(1.0, 2.0 - 2.0 * alpha));
+                    // Dispose old cached render target
+                    _cachedRenderTarget?.Dispose();
 
-                        using (dc.PushRenderOptions(RO_DST))
-                            RenderSingleSide(dc, right, rt.Size.Width, rt.Size.Height, Math.Min(1.0, 2.0 * alpha));
-                    }
-
-                    context.DrawImage(rt, new Rect(0, 0, Bounds.Width, Bounds.Height));
+                    // Create new render target with bounds checking
+                    _cachedRenderTarget = new RenderTargetBitmap(new PixelSize(pixelWidth, pixelHeight), right.Dpi);
+                    _cachedSize = currentSize;
+                    _cachedOldImage = left;
+                    _cachedNewImage = right;
                 }
+
+                // Render to the cached target
+                using (var dc = _cachedRenderTarget.CreateDrawingContext())
+                {
+                    // Clear the render target first
+                    dc.DrawRectangle(Brushes.Transparent, null, new Rect(0, 0, pixelWidth, pixelHeight));
+
+                    using (dc.PushRenderOptions(RO_SRC))
+                        RenderSingleSide(dc, left, pixelWidth, pixelHeight, Math.Min(1.0, 2.0 - 2.0 * alpha));
+
+                    using (dc.PushRenderOptions(RO_DST))
+                        RenderSingleSide(dc, right, pixelWidth, pixelHeight, Math.Min(1.0, 2.0 * alpha));
+                }
+
+                context.DrawImage(_cachedRenderTarget, new Rect(0, 0, Bounds.Width, Bounds.Height));
             }
             else if (drawLeft)
             {
@@ -475,5 +507,30 @@ namespace SourceGit.Views
 
         private static readonly RenderOptions RO_SRC = new RenderOptions() { BitmapBlendingMode = BitmapBlendingMode.Source, BitmapInterpolationMode = BitmapInterpolationMode.HighQuality };
         private static readonly RenderOptions RO_DST = new RenderOptions() { BitmapBlendingMode = BitmapBlendingMode.Difference, BitmapInterpolationMode = BitmapInterpolationMode.HighQuality };
+
+        protected override void OnUnloaded(Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            base.OnUnloaded(e);
+
+            // Clean up cached render target to prevent memory leaks
+            _cachedRenderTarget?.Dispose();
+            _cachedRenderTarget = null;
+            _cachedOldImage = null;
+            _cachedNewImage = null;
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+
+            // Invalidate cache when images change
+            if (change.Property == OldImageProperty || change.Property == NewImageProperty)
+            {
+                _cachedRenderTarget?.Dispose();
+                _cachedRenderTarget = null;
+                _cachedOldImage = null;
+                _cachedNewImage = null;
+            }
+        }
     }
 }
