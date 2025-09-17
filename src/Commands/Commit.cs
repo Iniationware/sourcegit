@@ -41,18 +41,18 @@ namespace SourceGit.Commands
             try
             {
                 await File.WriteAllTextAsync(_tmpFile, _message).ConfigureAwait(false);
-                
+
                 // Store original RaiseError setting to provide custom error handling
                 var originalRaiseError = RaiseError;
                 RaiseError = false;
-                
+
                 var result = await ReadToEndAsync().ConfigureAwait(false);
-                
+
                 if (!result.IsSuccess)
                 {
                     // Check for common GPG signing errors and provide helpful messages
                     var errorMessage = result.StdErr;
-                    
+
                     if (errorMessage.Contains("gpg failed to sign", System.StringComparison.OrdinalIgnoreCase) ||
                         errorMessage.Contains("gpg: signing failed", System.StringComparison.OrdinalIgnoreCase))
                     {
@@ -63,7 +63,7 @@ namespace SourceGit.Commands
                                             "• Passphrase required but no TTY available\n" +
                                             "• Key expired or revoked\n\n" +
                                             "Original error: " + errorMessage;
-                        
+
                         if (originalRaiseError)
                             App.RaiseException(Context, enhancedMessage);
                     }
@@ -74,7 +74,7 @@ namespace SourceGit.Commands
                                             "• Verify the signing key in git config matches your GPG key\n" +
                                             "• Run 'gpg --list-secret-keys' to see available keys\n\n" +
                                             "Original error: " + errorMessage;
-                        
+
                         if (originalRaiseError)
                             App.RaiseException(Context, enhancedMessage);
                     }
@@ -86,7 +86,7 @@ namespace SourceGit.Commands
                                             "• Try running: export GPG_TTY=$(tty)\n" +
                                             "• Or disable commit signing temporarily: git config commit.gpgsign false\n\n" +
                                             "Original error: " + errorMessage;
-                        
+
                         if (originalRaiseError)
                             App.RaiseException(Context, enhancedMessage);
                     }
@@ -97,7 +97,7 @@ namespace SourceGit.Commands
                             App.RaiseException(Context, errorMessage);
                     }
                 }
-                
+
                 File.Delete(_tmpFile);
                 return result.IsSuccess;
             }
@@ -105,7 +105,7 @@ namespace SourceGit.Commands
             {
                 if (File.Exists(_tmpFile))
                     File.Delete(_tmpFile);
-                    
+
                 App.RaiseException(Context, $"Commit operation failed: {ex.Message}");
                 return false;
             }

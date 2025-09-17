@@ -251,7 +251,7 @@ namespace SourceGit.Commands
                             ttyProcess.Start();
                             tty = ttyProcess.StandardOutput.ReadToEnd().Trim();
                             ttyProcess.WaitForExit();
-                            
+
                             if (!string.IsNullOrEmpty(tty) && tty.StartsWith("/dev/"))
                             {
                                 start.Environment.Add("GPG_TTY", tty);
