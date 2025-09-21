@@ -18,7 +18,8 @@
       "Bash(dotnet test:*)",
       "Bash(git add:*)",
       "Bash(dotnet clean:*)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(./check_before_tag.sh:*)"
     ],
     "deny": [],
     "ask": [],
