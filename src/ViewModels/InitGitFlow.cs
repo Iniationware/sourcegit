@@ -60,6 +60,14 @@ namespace SourceGit.ViewModels
             set => SetProperty(ref _tagPrefix, value, true);
         }
 
+        [Required(ErrorMessage = "Support prefix is required!!!")]
+        [RegularExpression(@"^[\w\-\.]+/$", ErrorMessage = "Bad support prefix format!")]
+        public string SupportPrefix
+        {
+            get => _supportPrefix;
+            set => SetProperty(ref _supportPrefix, value, true);
+        }
+
         public InitGitFlow(Repository repo)
         {
             _repo = repo;
@@ -146,6 +154,7 @@ namespace SourceGit.ViewModels
                 _featurePrefix,
                 _releasePrefix,
                 _hotfixPrefix,
+                _supportPrefix,
                 _tagPrefix,
                 log);
 
@@ -159,7 +168,7 @@ namespace SourceGit.ViewModels
                 gitflow.FeaturePrefix = _featurePrefix;
                 gitflow.ReleasePrefix = _releasePrefix;
                 gitflow.HotfixPrefix = _hotfixPrefix;
-                gitflow.SupportPrefix = "support/";
+                gitflow.SupportPrefix = _supportPrefix;
                 gitflow.VersionTagPrefix = _tagPrefix;
                 _repo.GitFlow = gitflow;
 
@@ -178,6 +187,7 @@ namespace SourceGit.ViewModels
         private string _featurePrefix = "feature/";
         private string _releasePrefix = "release/";
         private string _hotfixPrefix = "hotfix/";
+        private string _supportPrefix = "support/";
         private string _tagPrefix = string.Empty;
     }
 }

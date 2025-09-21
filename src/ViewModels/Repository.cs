@@ -829,6 +829,8 @@ namespace SourceGit.ViewModels
                 return Models.GitFlowBranchType.Release;
             if (name.StartsWith(GitFlow.HotfixPrefix, StringComparison.Ordinal))
                 return Models.GitFlowBranchType.Hotfix;
+            if (name.StartsWith(GitFlow.SupportPrefix, StringComparison.Ordinal))
+                return Models.GitFlowBranchType.Support;
             return Models.GitFlowBranchType.None;
         }
 
@@ -1071,9 +1073,13 @@ namespace SourceGit.ViewModels
             var type = GetGitFlowType(branch);
             if (type == Models.GitFlowBranchType.None ||
                 type == Models.GitFlowBranchType.Master ||
-                type == Models.GitFlowBranchType.Develop)
+                type == Models.GitFlowBranchType.Develop ||
+                type == Models.GitFlowBranchType.Support)  // Support branches are permanent and cannot be finished
             {
-                App.RaiseException(_fullpath, "This branch cannot be finished using Git-Flow");
+                if (type == Models.GitFlowBranchType.Support)
+                    App.RaiseException(_fullpath, "Support branches are permanent and cannot be finished. They are maintained for legacy version support.");
+                else
+                    App.RaiseException(_fullpath, "This branch cannot be finished using Git-Flow");
                 return;
             }
 
@@ -1101,6 +1107,19 @@ namespace SourceGit.ViewModels
         {
             StartGitFlowBranch(Models.GitFlowBranchType.Hotfix);
         }
+
+        public void StartGitFlowSupport()
+        {
+            if (!IsGitFlowEnabled())
+            {
+                if (CanCreatePopup())
+                    ShowPopup(new InitGitFlow(this));
+                return;
+            }
+            if (CanCreatePopup())
+                ShowPopup(new GitFlowStartSupport(this));
+        }
+
         public ContextMenu CreateContextMenuForGitFlowBranch(Models.Branch branch)
         {
             if (branch == null)
@@ -1121,10 +1140,12 @@ namespace SourceGit.ViewModels
             menu.Items.Add(checkout);
 
             // Finish GitFlow branch
+            // Note: Support branches cannot be finished - they are permanent branches for legacy support
             var type = GetGitFlowType(branch);
             if (type != Models.GitFlowBranchType.None &&
                 type != Models.GitFlowBranchType.Master &&
-                type != Models.GitFlowBranchType.Develop)
+                type != Models.GitFlowBranchType.Develop &&
+                type != Models.GitFlowBranchType.Support)  // Support branches have no finish command
             {
                 var finish = new MenuItem();
                 finish.Header = App.Text("GitFlow.FinishBranch");

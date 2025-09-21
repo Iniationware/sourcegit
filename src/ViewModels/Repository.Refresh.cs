@@ -590,6 +590,7 @@ namespace SourceGit.ViewModels
                     var featureGroup = new Models.GitFlowBranchGroup { Type = Models.GitFlowBranchType.Feature, Name = "Features" };
                     var releaseGroup = new Models.GitFlowBranchGroup { Type = Models.GitFlowBranchType.Release, Name = "Releases" };
                     var hotfixGroup = new Models.GitFlowBranchGroup { Type = Models.GitFlowBranchType.Hotfix, Name = "Hotfixes" };
+                    var supportGroup = new Models.GitFlowBranchGroup { Type = Models.GitFlowBranchType.Support, Name = "Support" };
 
                     foreach (var branch in localBranches)
                     {
@@ -608,6 +609,10 @@ namespace SourceGit.ViewModels
                                 hotfixGroup.Branches.Add(branch);
                                 gitFlowBranches.Add(branch);
                                 break;
+                            case Models.GitFlowBranchType.Support:
+                                supportGroup.Branches.Add(branch);
+                                gitFlowBranches.Add(branch);
+                                break;
                         }
                     }
 
@@ -617,6 +622,8 @@ namespace SourceGit.ViewModels
                         groups.Add(releaseGroup);
                     if (hotfixGroup.Branches.Count > 0)
                         groups.Add(hotfixGroup);
+                    if (supportGroup.Branches.Count > 0)
+                        groups.Add(supportGroup);
 
                     GitFlowBranchGroups = groups;
                     GitFlowBranches = gitFlowBranches;

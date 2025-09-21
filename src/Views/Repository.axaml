@@ -445,7 +445,7 @@
                         Classes="group_expander" 
                         IsChecked="{Binding IsGitFlowGroupExpanded, Mode=TwoWay}"
                         IsVisible="{Binding ShowGitFlowInSidebar}">
-            <Grid ColumnDefinitions="16,*,Auto,Auto,Auto,Auto">
+            <Grid ColumnDefinitions="16,*,Auto,Auto,Auto,Auto,Auto">
               <Path Grid.Column="0" Width="12" Height="12" HorizontalAlignment="Left" Data="{StaticResource Icons.GitFlow}" Fill="{DynamicResource Brush.FG2}"/>
               <TextBlock Grid.Column="1" Classes="group_header_label" Margin="0">
                 <Run Text="{DynamicResource Text.GitFlow}"/>
@@ -476,6 +476,14 @@
                 <Path Width="11" Height="11" Data="{StaticResource Icons.GitFlow.Hotfix}"/>
               </Button>
               <Button Grid.Column="5"
+                      Classes="icon_button"
+                      Width="14"
+                      Margin="8,0,0,0"
+                      Command="{Binding StartGitFlowSupport}"
+                      ToolTip.Tip="Start Support">
+                <Path Width="11" Height="11" Data="{StaticResource Icons.GitFlow.Support}"/>
+              </Button>
+              <Button Grid.Column="6"
                       Classes="icon_button"
                       Width="14"
                       Margin="8,0"

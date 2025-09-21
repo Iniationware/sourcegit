@@ -5,7 +5,7 @@ namespace SourceGit.Commands
 {
     public static class GitFlow
     {
-        public static async Task<bool> InitAsync(string repo, string master, string develop, string feature, string release, string hotfix, string version, Models.ICommandLog log)
+        public static async Task<bool> InitAsync(string repo, string master, string develop, string feature, string release, string hotfix, string support, string version, Models.ICommandLog log)
         {
             var config = new Config(repo);
             await config.SetAsync("gitflow.branch.master", master).ConfigureAwait(false);
@@ -14,7 +14,7 @@ namespace SourceGit.Commands
             await config.SetAsync("gitflow.prefix.bugfix", "bugfix/").ConfigureAwait(false);
             await config.SetAsync("gitflow.prefix.release", release).ConfigureAwait(false);
             await config.SetAsync("gitflow.prefix.hotfix", hotfix).ConfigureAwait(false);
-            await config.SetAsync("gitflow.prefix.support", "support/").ConfigureAwait(false);
+            await config.SetAsync("gitflow.prefix.support", support).ConfigureAwait(false);
             await config.SetAsync("gitflow.prefix.versiontag", version, true).ConfigureAwait(false);
 
             var init = new Command();
@@ -41,6 +41,9 @@ namespace SourceGit.Commands
                 case Models.GitFlowBranchType.Hotfix:
                     start.Args = $"flow hotfix start {name}";
                     break;
+                case Models.GitFlowBranchType.Support:
+                    start.Args = $"flow support start {name}";
+                    break;
                 default:
                     App.RaiseException(repo, "Bad git-flow branch type!!!");
                     return false;
@@ -64,6 +67,9 @@ namespace SourceGit.Commands
                     break;
                 case Models.GitFlowBranchType.Hotfix:
                     builder.Append("hotfix");
+                    break;
+                case Models.GitFlowBranchType.Support:
+                    builder.Append("support");
                     break;
                 default:
                     App.RaiseException(repo, "Bad git-flow branch type!!!");
