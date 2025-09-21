@@ -36,7 +36,7 @@ namespace SourceGit.Commands
 
             var builder = new StringBuilder();
             builder.Append("restore ");
-            builder.Append(isStaged ? "--staged " : "--worktree --recurse-submodules ");
+            builder.Append(isStaged ? "--staged " : "--source=HEAD --worktree --recurse-submodules ");
             builder.Append("--pathspec-from-file=").Append(pathspecFile.Quoted());
 
             Args = builder.ToString();

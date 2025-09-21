@@ -159,7 +159,13 @@ namespace SourceGit.ViewModels
                 gitflow.FeaturePrefix = _featurePrefix;
                 gitflow.ReleasePrefix = _releasePrefix;
                 gitflow.HotfixPrefix = _hotfixPrefix;
+                gitflow.SupportPrefix = "support/";
+                gitflow.VersionTagPrefix = _tagPrefix;
                 _repo.GitFlow = gitflow;
+
+                // Force refresh branches and reload to ensure everything is in sync
+                _repo.RefreshBranches();
+                _repo.RefreshAll();
             }
 
             _repo.SetWatcherEnabled(true);
