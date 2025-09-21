@@ -428,8 +428,10 @@ namespace SourceGit.Models
         /// </summary>
         private static bool IsLinearRepository(List<Commit> commits)
         {
-            if (commits.Count == 0) return true;
-            if (commits.Count == 1) return true;
+            if (commits.Count == 0)
+                return true;
+            if (commits.Count == 1)
+                return true;
 
             System.Diagnostics.Debug.WriteLine($"IsLinearRepository: Checking {commits.Count} commits");
 
@@ -476,7 +478,8 @@ namespace SourceGit.Models
             const double halfHeight = 0.5;
 
             var graph = new CommitGraph();
-            if (commits.Count == 0) return graph;
+            if (commits.Count == 0)
+                return graph;
 
             // Create a single path for the linear history
             var path = new Path(0, false); // Color 0, not merged (main branch)
@@ -701,7 +704,8 @@ namespace SourceGit.Models
             const double halfHeight = 0.5;
 
             var graph = new CommitGraph();
-            if (commits.Count == 0) return graph;
+            if (commits.Count == 0)
+                return graph;
 
             // Create a single path for the linear history
             var path = new Path(0, false); // Color 0, not merged (main branch)

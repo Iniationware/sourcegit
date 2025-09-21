@@ -120,8 +120,10 @@ namespace SourceGit.Models
         /// </summary>
         public static void ClearPools()
         {
-            while (_commitListPool.TryDequeue(out _)) { }
-            while (_stringListPool.TryDequeue(out _)) { }
+            while (_commitListPool.TryDequeue(out _))
+            { }
+            while (_stringListPool.TryDequeue(out _))
+            { }
 
             lock (_poolLock)
             {
