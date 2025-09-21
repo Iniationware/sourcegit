@@ -340,57 +340,71 @@ namespace SourceGit.ViewModels
         }
 
         /// <summary>
-        /// Refreshes commit history
+        /// Refreshes commit history with optimized async patterns and progress feedback
         /// </summary>
         public void RefreshCommits()
         {
             Task.Run(async () =>
             {
-                await Dispatcher.UIThread.InvokeAsync(() => _histories.IsLoading = true);
-
-                var builder = new StringBuilder();
-                builder.Append($"-{Preferences.Instance.MaxHistoryCommits} ");
-
-                if (_settings.EnableTopoOrderInHistories)
-                    builder.Append("--topo-order ");
-                else
-                    builder.Append("--date-order ");
-
-                if (_settings.HistoryShowFlags.HasFlag(Models.HistoryShowFlags.Reflog))
-                    builder.Append("--reflog ");
-
-                if (_settings.HistoryShowFlags.HasFlag(Models.HistoryShowFlags.FirstParentOnly))
-                    builder.Append("--first-parent ");
-
-                if (_settings.HistoryShowFlags.HasFlag(Models.HistoryShowFlags.SimplifyByDecoration))
-                    builder.Append("--simplify-by-decoration ");
-
-                var filters = _settings.BuildHistoriesFilter();
-                if (string.IsNullOrEmpty(filters))
-                    builder.Append("--branches --remotes --tags HEAD");
-                else
-                    builder.Append(filters);
-
-                var commits = await new Commands.QueryCommits(_fullpath, builder.ToString()).GetResultAsync().ConfigureAwait(false);
-
-                var graph = await GetOrCreateCommitGraph(commits);
-
-                ExecuteOnUIThread(() =>
+                try
                 {
-                    if (_histories != null)
+                    await Dispatcher.UIThread.InvokeAsync(() => _histories.IsLoading = true);
+
+                    var builder = new StringBuilder();
+                    builder.Append($"-{Preferences.Instance.MaxHistoryCommits} ");
+
+                    if (_settings.EnableTopoOrderInHistories)
+                        builder.Append("--topo-order ");
+                    else
+                        builder.Append("--date-order ");
+
+                    if (_settings.HistoryShowFlags.HasFlag(Models.HistoryShowFlags.Reflog))
+                        builder.Append("--reflog ");
+
+                    if (_settings.HistoryShowFlags.HasFlag(Models.HistoryShowFlags.FirstParentOnly))
+                        builder.Append("--first-parent ");
+
+                    if (_settings.HistoryShowFlags.HasFlag(Models.HistoryShowFlags.SimplifyByDecoration))
+                        builder.Append("--simplify-by-decoration ");
+
+                    var filters = _settings.BuildHistoriesFilter();
+                    if (string.IsNullOrEmpty(filters))
+                        builder.Append("--branches --remotes --tags HEAD");
+                    else
+                        builder.Append(filters);
+
+                    // Use the optimized QueryCommits with streaming and batching
+                    var commits = await new Commands.QueryCommitsOptimized(_fullpath, builder.ToString()).GetResultAsync().ConfigureAwait(false);
+
+                    // Create graph with enhanced progress feedback
+                    var graph = await GetOrCreateCommitGraphOptimized(commits);
+
+                    ExecuteOnUIThread(() =>
                     {
-                        _histories.IsLoading = false;
-                        _histories.Commits = commits;
-                        _histories.Graph = graph;
+                        if (_histories != null)
+                        {
+                            _histories.IsLoading = false;
+                            _histories.Commits = commits;
+                            _histories.Graph = graph;
 
-                        BisectState = _histories.UpdateBisectInfo();
+                            BisectState = _histories.UpdateBisectInfo();
 
-                        if (!string.IsNullOrEmpty(_navigateToCommitDelayed))
-                            NavigateToCommit(_navigateToCommitDelayed);
-                    }
+                            if (!string.IsNullOrEmpty(_navigateToCommitDelayed))
+                                NavigateToCommit(_navigateToCommitDelayed);
+                        }
 
-                    _navigateToCommitDelayed = string.Empty;
-                });
+                        _navigateToCommitDelayed = string.Empty;
+                    });
+                }
+                catch (Exception ex)
+                {
+                    App.RaiseException(_fullpath, $"Failed to refresh commits: {ex.Message}");
+                    ExecuteOnUIThread(() =>
+                    {
+                        if (_histories != null)
+                            _histories.IsLoading = false;
+                    });
+                }
             });
         }
 
@@ -484,10 +498,20 @@ namespace SourceGit.ViewModels
         #region Helper Methods
 
         /// <summary>
-        /// Gets or creates commit graph with caching
+        /// Gets or creates commit graph with caching and chunked loading for large repositories
         /// </summary>
         private async Task<Models.CommitGraph> GetOrCreateCommitGraph(List<Models.Commit> commits)
         {
+            return await GetOrCreateCommitGraphOptimized(commits);
+        }
+
+        /// <summary>
+        /// Optimized commit graph creation with enhanced performance monitoring and memory management
+        /// </summary>
+        private async Task<Models.CommitGraph> GetOrCreateCommitGraphOptimized(List<Models.Commit> commits)
+        {
+            var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
             // Generate cache key based on repository state and settings
             var cacheKey = commits.Count > 0
                 ? $"{_fullpath}_{commits[0].SHA}_{commits.Count}_{_settings.HistoryShowFlags}_{_currentBranch}"
@@ -498,25 +522,53 @@ namespace SourceGit.ViewModels
             {
                 // Try to get from LRU cache
                 graph = _graphCache.Get(cacheKey);
-            }
-
-            if (graph == null)
-            {
-                // Parse new graph and add to cache
-                graph = await Task.Run(() =>
-                    Models.CommitGraph.Parse(commits, _settings.HistoryShowFlags.HasFlag(Models.HistoryShowFlags.FirstParentOnly)));
-
-                if (cacheKey != null && graph != null)
+                if (graph != null)
                 {
-                    _graphCache.Set(cacheKey, graph);
-
-                    // Periodically trim cache if under memory pressure
-                    if (_graphCache.Count > 30)
-                    {
-                        _graphCache.TrimExcess();
-                    }
+                    System.Diagnostics.Debug.WriteLine($"[PERF] CommitGraph cache hit for {commits.Count} commits");
+                    return graph;
                 }
             }
+
+            // Enhanced thresholds for better performance
+            const int CHUNK_SIZE = 50;
+            const int LARGE_REPO_THRESHOLD = 300;
+            const int YIELD_FREQUENCY = 100;
+
+            if (commits.Count > LARGE_REPO_THRESHOLD)
+            {
+                // Process large repos with progress feedback and memory optimization
+                graph = await Task.Run(async () =>
+                {
+                    System.Diagnostics.Debug.WriteLine($"[PERF] Processing large repository with {commits.Count} commits");
+
+                    // Use the optimized async CommitGraph.ParseAsync method
+                    var tempGraph = await Models.CommitGraph.ParseAsync(commits,
+                        _settings.HistoryShowFlags.HasFlag(Models.HistoryShowFlags.FirstParentOnly),
+                        CHUNK_SIZE, YIELD_FREQUENCY);
+
+                    return tempGraph;
+                });
+            }
+            else
+            {
+                // Small repositories: use optimized sync method
+                graph = await Task.Run(() =>
+                    Models.CommitGraph.Parse(commits, _settings.HistoryShowFlags.HasFlag(Models.HistoryShowFlags.FirstParentOnly)));
+            }
+
+            if (cacheKey != null && graph != null)
+            {
+                _graphCache.Set(cacheKey, graph);
+
+                // Memory management: trim cache if growing too large
+                if (_graphCache.Count > 20) // Reduced from 30 for better memory usage
+                {
+                    _graphCache.TrimExcess();
+                }
+            }
+
+            stopwatch.Stop();
+            System.Diagnostics.Debug.WriteLine($"[PERF] CommitGraph creation took {stopwatch.ElapsedMilliseconds}ms for {commits.Count} commits");
 
             return graph;
         }
@@ -732,7 +784,7 @@ namespace SourceGit.ViewModels
 
                         // Auto-initialize GitFlow configuration for the repository
                         // This allows GitFlow commands to work without manual initialization
-                        Task.Run(async () =>
+                        _ = Task.Run(async () =>
                         {
                             try
                             {

@@ -5,6 +5,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Avalonia.Collections;
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 
 namespace SourceGit.ViewModels
 {
@@ -123,6 +124,14 @@ namespace SourceGit.ViewModels
         {
             get => _maxHistoryCommits;
             set => SetProperty(ref _maxHistoryCommits, value);
+        }
+
+        [JsonIgnore]
+        public IRelayCommand<string> SetMaxHistoryCommitsCommand { get; }
+
+        public Preferences()
+        {
+            SetMaxHistoryCommitsCommand = new RelayCommand<string>(SetMaxHistoryCommits);
         }
 
         public int SubjectGuideLength
@@ -433,6 +442,14 @@ namespace SourceGit.ViewModels
             _isReadonly = false;
         }
 
+        private void SetMaxHistoryCommits(string value)
+        {
+            if (int.TryParse(value, out int commits))
+            {
+                MaxHistoryCommits = Math.Clamp(commits, 100, 10000);
+            }
+        }
+
         public bool IsGitConfigured()
         {
             var path = GitInstallPath;
@@ -558,8 +575,35 @@ namespace SourceGit.ViewModels
                 return;
 
             var file = Path.Combine(Native.OS.DataDir, "preference.json");
-            using var stream = File.Create(file);
-            JsonSerializer.Serialize(stream, this, JsonCodeGen.Default.Preferences);
+            try
+            {
+                // Create backup of existing file before saving
+                if (File.Exists(file))
+                {
+                    var backupFile = file + ".backup";
+                    File.Copy(file, backupFile, true);
+                }
+
+                using var stream = File.Create(file);
+                JsonSerializer.Serialize(stream, this, JsonCodeGen.Default.Preferences);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Failed to save preferences: {ex.Message}");
+                // Try to restore from backup
+                var backupFile = file + ".backup";
+                if (File.Exists(backupFile))
+                {
+                    try
+                    {
+                        File.Copy(backupFile, file, true);
+                    }
+                    catch
+                    {
+                        // Even restore failed, nothing we can do
+                    }
+                }
+            }
         }
 
         private static Preferences Load()
@@ -573,8 +617,21 @@ namespace SourceGit.ViewModels
                 using var stream = File.OpenRead(path);
                 return JsonSerializer.Deserialize(stream, JsonCodeGen.Default.Preferences);
             }
-            catch
+            catch (Exception ex)
             {
+                // Log the error and backup the corrupted file
+                var backupPath = path + ".corrupted." + DateTime.Now.ToString("yyyyMMddHHmmss");
+                try
+                {
+                    File.Copy(path, backupPath, true);
+                    System.Diagnostics.Debug.WriteLine($"Preferences loading failed: {ex.Message}");
+                    System.Diagnostics.Debug.WriteLine($"Corrupted preferences backed up to: {backupPath}");
+                }
+                catch
+                {
+                    // Even backup failed, just continue with defaults
+                }
+
                 return new Preferences();
             }
         }
@@ -627,6 +684,29 @@ namespace SourceGit.ViewModels
                 {
                     workspace.Repositories.Clear();
                     workspace.ActiveIdx = 0;
+                }
+                else
+                {
+                    // Validate that repositories actually exist
+                    var validRepos = new List<string>();
+                    foreach (var repo in workspace.Repositories)
+                    {
+                        if (Directory.Exists(Path.Combine(repo, ".git")) || File.Exists(Path.Combine(repo, ".git")))
+                        {
+                            validRepos.Add(repo);
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Repository not found, removing from workspace: {repo}");
+                        }
+                    }
+                    workspace.Repositories = validRepos;
+
+                    // Adjust ActiveIdx if necessary
+                    if (workspace.ActiveIdx >= workspace.Repositories.Count)
+                    {
+                        workspace.ActiveIdx = Math.Max(0, workspace.Repositories.Count - 1);
+                    }
                 }
             }
         }

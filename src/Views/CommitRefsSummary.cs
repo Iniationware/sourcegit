@@ -145,6 +145,8 @@ namespace SourceGit.Views
         {
             base.OnDataContextChanged(e);
             UpdateTooltip();
+            InvalidateMeasure();
+            InvalidateVisual();
         }
 
         private void UpdateTooltip()

@@ -82,7 +82,7 @@
             
             <DataGridTemplateColumn.CellTemplate>
               <DataTemplate DataType="m:Commit">
-                <Border Padding="4,0" ClipToBounds="True" Background="Transparent">
+                <Border Padding="4,0" ClipToBounds="False" Background="Transparent">
                   <v:CommitRefsSummary Background="{DynamicResource Brush.Contents}"
                                        Foreground="{DynamicResource Brush.FG1}"
                                        FontFamily="{DynamicResource Fonts.Primary}"
@@ -102,19 +102,34 @@
           </DataGridTemplateColumn>
 
           <!-- Column 2: Graph -->
-          <DataGridTemplateColumn Width="120" MinWidth="60" MaxWidth="300" IsReadOnly="True" CanUserResize="True">
+          <DataGridTemplateColumn Width="180" MinWidth="100" MaxWidth="400" IsReadOnly="True" CanUserResize="True">
             <DataGridTemplateColumn.Header>
-              <Grid ColumnDefinitions="Auto,*">
-                <Button Grid.Column="0" 
-                        Classes="icon_button"
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Classes="icon_button"
                         Width="14" Height="14"
-                        Margin="4,0,0,0"
+                        Margin="0,0,8,0"
                         ToolTip.Tip="Refresh (F5)"
                         Click="OnRefreshButtonClicked">
                   <Path Width="12" Height="12" Data="{StaticResource Icons.Refresh}"/>
                 </Button>
-                <TextBlock Grid.Column="1" Classes="table_header" Text="Graph" HorizontalAlignment="Center"/>
-              </Grid>
+                <TextBlock Classes="table_header" Text="Graph" VerticalAlignment="Center"/>
+                <Border Background="#FF007ACC"
+                        CornerRadius="3"
+                        Padding="6,2"
+                        Margin="8,0,0,0"
+                        VerticalAlignment="Center"
+                        IsVisible="{Binding Source={x:Static vm:Preferences.Instance}, Path=MaxHistoryCommits, Converter={x:Static c:IntConverters.IsNotInfinite}}">
+                  <TextBlock FontSize="9"
+                             Foreground="White"
+                             FontWeight="Bold">
+                    <TextBlock.Text>
+                      <MultiBinding StringFormat="Max {0}">
+                        <Binding Source="{x:Static vm:Preferences.Instance}" Path="MaxHistoryCommits"/>
+                      </MultiBinding>
+                    </TextBlock.Text>
+                  </TextBlock>
+                </Border>
+              </StackPanel>
             </DataGridTemplateColumn.Header>
             
             <DataGridTemplateColumn.CellTemplate>
