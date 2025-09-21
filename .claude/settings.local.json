@@ -16,7 +16,9 @@
       "Bash(git cherry-pick:*)",
       "Bash(find:*)",
       "Bash(dotnet test:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(dotnet clean:*)",
+      "WebSearch"
     ],
     "deny": [],
     "ask": [],
