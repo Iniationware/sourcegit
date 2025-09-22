@@ -135,23 +135,23 @@
               </Grid>
 
               <!-- Quick preset buttons -->
-              <StackPanel Orientation="Horizontal" Spacing="4">
-                <Button Content="100" Width="50" Height="24" FontSize="11"
+              <StackPanel Orientation="Horizontal" Spacing="4" Margin="0,0,0,4">
+                <Button Content="100" Width="50" Height="28" FontSize="12"
                         Background="{DynamicResource Brush.Window}"
                         Command="{Binding SetMaxHistoryCommitsCommand}" CommandParameter="100"/>
-                <Button Content="500" Width="50" Height="24" FontSize="11"
+                <Button Content="500" Width="50" Height="28" FontSize="12"
                         Background="{DynamicResource Brush.Window}"
                         Command="{Binding SetMaxHistoryCommitsCommand}" CommandParameter="500"/>
-                <Button Content="1K" Width="50" Height="24" FontSize="11"
+                <Button Content="1K" Width="50" Height="28" FontSize="12"
                         Background="{DynamicResource Brush.Window}"
                         Command="{Binding SetMaxHistoryCommitsCommand}" CommandParameter="1000"/>
-                <Button Content="2K" Width="50" Height="24" FontSize="11"
+                <Button Content="2K" Width="50" Height="28" FontSize="12"
                         Background="{DynamicResource Brush.Window}"
                         Command="{Binding SetMaxHistoryCommitsCommand}" CommandParameter="2000"/>
-                <Button Content="5K" Width="50" Height="24" FontSize="11"
+                <Button Content="5K" Width="50" Height="28" FontSize="12"
                         Background="{DynamicResource Brush.Window}"
                         Command="{Binding SetMaxHistoryCommitsCommand}" CommandParameter="5000"/>
-                <Button Content="10K" Width="50" Height="24" FontSize="11"
+                <Button Content="10K" Width="50" Height="28" FontSize="12"
                         Background="{DynamicResource Brush.Window}"
                         Command="{Binding SetMaxHistoryCommitsCommand}" CommandParameter="10000"/>
               </StackPanel>
