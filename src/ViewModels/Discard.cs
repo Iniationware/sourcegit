@@ -78,6 +78,10 @@ namespace SourceGit.ViewModels
             log.Complete();
             _repo.MarkWorkingCopyDirtyManually();
             _repo.SetWatcherEnabled(true);
+
+            // Force refresh to ensure changes are reflected
+            _repo.RefreshWorkingCopyChanges();
+
             return true;
         }
 

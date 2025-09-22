@@ -11,7 +11,7 @@
     <TextBlock FontSize="18"
                Classes="bold"
                Text="{DynamicResource Text.GitFlow.Init}"/>
-    <Grid Margin="8,16,0,0" RowDefinitions="32,32,8,32,32,32,32" ColumnDefinitions="Auto,*">
+    <Grid Margin="8,16,0,0" RowDefinitions="32,32,8,32,32,32,32,32" ColumnDefinitions="Auto,*">
       <TextBlock Grid.Row="0" Grid.Column="0"
                  HorizontalAlignment="Right" VerticalAlignment="Center"
                  Margin="0,0,8,0"
@@ -71,8 +71,18 @@
       <TextBlock Grid.Row="6" Grid.Column="0"
                  HorizontalAlignment="Right" VerticalAlignment="Center"
                  Margin="0,0,8,0"
-                 Text="{DynamicResource Text.GitFlow.TagPrefix}"/>
+                 Text="Support Prefix :"/>
       <TextBox Grid.Row="6" Grid.Column="1"
+               Height="26"
+               VerticalAlignment="Center"
+               CornerRadius="2"
+               Text="{Binding SupportPrefix, Mode=TwoWay}"/>
+
+      <TextBlock Grid.Row="7" Grid.Column="0"
+                 HorizontalAlignment="Right" VerticalAlignment="Center"
+                 Margin="0,0,8,0"
+                 Text="{DynamicResource Text.GitFlow.TagPrefix}"/>
+      <TextBox Grid.Row="7" Grid.Column="1"
                Height="26"
                VerticalAlignment="Center"
                CornerRadius="2"
