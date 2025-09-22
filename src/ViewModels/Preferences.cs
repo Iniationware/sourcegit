@@ -626,7 +626,7 @@ namespace SourceGit.ViewModels
             catch (Exception ex)
             {
                 // Log the error and backup the corrupted file
-                var backupPath = path + ".corrupted." + DateTime.Now.ToString("yyyyMMddHHmmss");
+                var backupPath = $"{path}.corrupted.{DateTime.Now:yyyyMMddHHmmss}";
                 try
                 {
                     File.Copy(path, backupPath, true);

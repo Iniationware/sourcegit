@@ -29,18 +29,25 @@ namespace SourceGit.Views
 
         private async void OnStashListKeyDown(object sender, KeyEventArgs e)
         {
-            if (DataContext is ViewModels.StashesPage { SelectedStash: { } stash } vm)
+            try
             {
-                if (e.Key is Key.Delete or Key.Back)
+                if (DataContext is ViewModels.StashesPage { SelectedStash: { } stash } vm)
                 {
-                    vm.Drop(stash);
-                    e.Handled = true;
+                    if (e.Key is Key.Delete or Key.Back)
+                    {
+                        vm.Drop(stash);
+                        e.Handled = true;
+                    }
+                    else if (e.Key is Key.C && e.KeyModifiers == (OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control))
+                    {
+                        await App.CopyTextAsync(stash.Message);
+                        e.Handled = true;
+                    }
                 }
-                else if (e.Key is Key.C && e.KeyModifiers == (OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control))
-                {
-                    await App.CopyTextAsync(stash.Message);
-                    e.Handled = true;
-                }
+            }
+            catch (Exception ex)
+            {
+                App.RaiseException(string.Empty, $"Error in stash list key handler: {ex.Message}");
             }
         }
 

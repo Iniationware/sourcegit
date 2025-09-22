@@ -187,7 +187,7 @@ namespace SourceGit.ViewModels
             {
                 SelectedSearchedCommit = null;
 
-                var target = await new Commands.QuerySingleCommit(_fullpath, branch.Head).GetResultAsync();
+                var target = await new Commands.QuerySingleCommit(_fullpath, branch.Head).GetResultAsync().ConfigureAwait(false);
                 _histories.AutoSelectedCommit = null;
                 _histories.DetailContext = new RevisionCompare(_fullpath, target, null);
             }
@@ -218,7 +218,7 @@ namespace SourceGit.ViewModels
         /// <param name="tag">The tag to checkout</param>
         public async Task CheckoutTagAsync(Models.Tag tag)
         {
-            var c = await new Commands.QuerySingleCommit(_fullpath, tag.SHA).GetResultAsync();
+            var c = await new Commands.QuerySingleCommit(_fullpath, tag.SHA).GetResultAsync().ConfigureAwait(false);
             if (c != null)
                 await _histories?.CheckoutBranchByCommitAsync(c);
         }

@@ -759,17 +759,24 @@ namespace SourceGit.Views
 
         private async void OnTextAreaKeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyModifiers.Equals(OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control))
+            try
             {
-                if (e.Key == Key.C)
+                if (e.KeyModifiers.Equals(OperatingSystem.IsMacOS() ? KeyModifiers.Meta : KeyModifiers.Control))
                 {
-                    await CopyWithoutIndicatorsAsync();
-                    e.Handled = true;
+                    if (e.Key == Key.C)
+                    {
+                        await CopyWithoutIndicatorsAsync();
+                        e.Handled = true;
+                    }
                 }
-            }
 
-            if (!e.Handled)
-                base.OnKeyDown(e);
+                if (!e.Handled)
+                    base.OnKeyDown(e);
+            }
+            catch (Exception ex)
+            {
+                App.RaiseException(string.Empty, $"Error in text area key handler: {ex.Message}");
+            }
         }
 
         private void OnBlockNavigationPropertyChanged(object _1, PropertyChangedEventArgs e)
@@ -1816,55 +1823,74 @@ namespace SourceGit.Views
 
         private async void OnStageChunk(object _1, RoutedEventArgs _2)
         {
-            var chunk = SelectedChunk;
-            if (chunk == null)
-                return;
-
-            var diff = DataContext as Models.TextDiff;
-
-            var change = diff?.Option.WorkingCopyChange;
-            if (change == null)
-                return;
-
-            var selection = diff.MakeSelection(chunk.StartIdx + 1, chunk.EndIdx + 1, chunk.Combined, chunk.IsOldSide);
-            if (!selection.HasChanges)
-                return;
-
-            var repoView = this.FindAncestorOfType<Repository>();
-
-            if (repoView?.DataContext is not ViewModels.Repository repo)
-                return;
-
-            repo.SetWatcherEnabled(false);
-
-            if (!selection.HasLeftChanges)
+            try
             {
-                await new Commands.Add(repo.FullPath, change).ExecAsync();
+                var chunk = SelectedChunk;
+                if (chunk == null)
+                    return;
+
+                var diff = DataContext as Models.TextDiff;
+
+                var change = diff?.Option.WorkingCopyChange;
+                if (change == null)
+                    return;
+
+                var selection = diff.MakeSelection(chunk.StartIdx + 1, chunk.EndIdx + 1, chunk.Combined, chunk.IsOldSide);
+                if (!selection.HasChanges)
+                    return;
+
+                var repoView = this.FindAncestorOfType<Repository>();
+
+                if (repoView?.DataContext is not ViewModels.Repository repo)
+                    return;
+
+                repo.SetWatcherEnabled(false);
+                try
+                {
+                    if (!selection.HasLeftChanges)
+                    {
+                        await new Commands.Add(repo.FullPath, change).ExecAsync();
+                    }
+                    else
+                    {
+                        var tmpFile = Path.GetTempFileName();
+                        try
+                        {
+                            if (change.WorkTree == Models.ChangeState.Untracked)
+                            {
+                                diff.GenerateNewPatchFromSelection(change, null, selection, false, tmpFile);
+                            }
+                            else if (chunk.Combined)
+                            {
+                                var treeGuid = await new Commands.QueryStagedFileBlobGuid(diff.Repo, change.Path).GetResultAsync();
+                                diff.GeneratePatchFromSelection(change, treeGuid, selection, false, tmpFile);
+                            }
+                            else
+                            {
+                                var treeGuid = await new Commands.QueryStagedFileBlobGuid(diff.Repo, change.Path).GetResultAsync();
+                                diff.GeneratePatchFromSelectionSingleSide(change, treeGuid, selection, false, chunk.IsOldSide, tmpFile);
+                            }
+
+                            await new Commands.Apply(diff.Repo, tmpFile, true, "nowarn", "--cache --index").ExecAsync();
+                        }
+                        finally
+                        {
+                            if (File.Exists(tmpFile))
+                                File.Delete(tmpFile);
+                        }
+                    }
+
+                    repo.MarkWorkingCopyDirtyManually();
+                }
+                finally
+                {
+                    repo.SetWatcherEnabled(true);
+                }
             }
-            else
+            catch (Exception ex)
             {
-                var tmpFile = Path.GetTempFileName();
-                if (change.WorkTree == Models.ChangeState.Untracked)
-                {
-                    diff.GenerateNewPatchFromSelection(change, null, selection, false, tmpFile);
-                }
-                else if (chunk.Combined)
-                {
-                    var treeGuid = await new Commands.QueryStagedFileBlobGuid(diff.Repo, change.Path).GetResultAsync();
-                    diff.GeneratePatchFromSelection(change, treeGuid, selection, false, tmpFile);
-                }
-                else
-                {
-                    var treeGuid = await new Commands.QueryStagedFileBlobGuid(diff.Repo, change.Path).GetResultAsync();
-                    diff.GeneratePatchFromSelectionSingleSide(change, treeGuid, selection, false, chunk.IsOldSide, tmpFile);
-                }
-
-                await new Commands.Apply(diff.Repo, tmpFile, true, "nowarn", "--cache --index").ExecAsync();
-                File.Delete(tmpFile);
+                App.RaiseException(string.Empty, $"Error staging chunk: {ex.Message}");
             }
-
-            repo.MarkWorkingCopyDirtyManually();
-            repo.SetWatcherEnabled(true);
         }
 
         private async void OnUnstageChunk(object _1, RoutedEventArgs _2)

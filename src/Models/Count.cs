@@ -13,7 +13,7 @@ namespace SourceGit.Models
 
         public void Dispose()
         {
-            // Ignore
+            // Empty implementation - required for DetailContext interface compatibility
         }
     }
 }
