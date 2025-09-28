@@ -94,6 +94,9 @@ namespace SourceGit.Views
             if (_refreshTimer != null)
                 return;
 
+            // Use adaptive timer interval based on power mode
+            var interval = CalculateAdaptiveInterval();
+
             _refreshTimer = DispatcherTimer.Run(() =>
             {
                 Dispatcher.UIThread.Invoke(() =>
@@ -104,7 +107,7 @@ namespace SourceGit.Views
                 });
 
                 return true;
-            }, TimeSpan.FromSeconds(10));
+            }, interval);
         }
 
         private void StopTimer()
@@ -132,7 +135,14 @@ namespace SourceGit.Views
                 return App.Text("Period.JustNow");
 
             if (span.TotalHours < 1)
-                return App.Text("Period.MinutesAgo", (int)span.TotalMinutes);
+            {
+                var minutes = (int)span.TotalMinutes;
+                // Group into 5-minute buckets to reduce update frequency
+                var bucket = (minutes / 5) * 5;
+                if (bucket == 0)
+                    return App.Text("Period.JustNow");
+                return App.Text("Period.MinutesAgo", bucket);
+            }
 
             if (span.TotalDays < 1)
             {
@@ -165,6 +175,30 @@ namespace SourceGit.Views
                 return App.Text("Period.LastYear");
 
             return App.Text("Period.YearsAgo", diffYear);
+        }
+
+        private TimeSpan CalculateAdaptiveInterval()
+        {
+            // If on battery, use longer intervals
+            if (Models.PowerManagement.IsOnBattery)
+                return TimeSpan.FromMinutes(5);
+
+            if (DataContext is not Models.Commit commit)
+                return TimeSpan.FromMinutes(2);
+
+            var timestamp = UseAuthorTime ? commit.AuthorTime : commit.CommitterTime;
+            var localTime = DateTime.UnixEpoch.AddSeconds(timestamp).ToLocalTime();
+            var age = DateTime.Now - localTime;
+
+            // Adaptive intervals based on commit age and power mode
+            if (age.TotalHours < 1)
+                return TimeSpan.FromSeconds(Models.PowerManagement.RefreshIntervals.CommitTimeUpdateInterval);
+            if (age.TotalDays < 1)
+                return TimeSpan.FromMinutes(2);
+            if (age.TotalDays < 7)
+                return TimeSpan.FromMinutes(10);
+
+            return TimeSpan.FromMinutes(30); // Very old commits update rarely
         }
 
         private IDisposable _refreshTimer = null;

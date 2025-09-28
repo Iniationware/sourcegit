@@ -36,7 +36,7 @@ namespace SourceGit.Models
                 var combined = new FileSystemWatcher();
                 combined.Path = fullpath;
                 combined.Filter = "*";
-                combined.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.Size | NotifyFilters.CreationTime;
+                combined.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.DirectoryName | NotifyFilters.FileName;
                 combined.IncludeSubdirectories = true;
                 combined.Created += OnRepositoryChanged;
                 combined.Renamed += OnRepositoryChanged;
@@ -51,7 +51,7 @@ namespace SourceGit.Models
                 var wc = new FileSystemWatcher();
                 wc.Path = fullpath;
                 wc.Filter = "*";
-                wc.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.DirectoryName | NotifyFilters.FileName | NotifyFilters.Size | NotifyFilters.CreationTime;
+                wc.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.DirectoryName | NotifyFilters.FileName;
                 wc.IncludeSubdirectories = true;
                 wc.Created += OnWorkingCopyChanged;
                 wc.Renamed += OnWorkingCopyChanged;
@@ -74,7 +74,9 @@ namespace SourceGit.Models
                 _watchers.Add(git);
             }
 
-            _timer = new Timer(Tick, null, 100, 100);
+            // Use power-aware timer interval
+            var interval = PowerManagement.RefreshIntervals.FileWatcherInterval;
+            _timer = new Timer(Tick, null, interval, interval);
         }
 
         public void SetEnabled(bool enabled)
@@ -150,6 +152,16 @@ namespace SourceGit.Models
             if (Interlocked.Read(ref _lockCount) > 0)
                 return;
 
+            // Skip tick if no pending updates to save CPU cycles
+            var hasPendingUpdates = Interlocked.Read(ref _updateBranch) > 0 ||
+                                   Interlocked.Read(ref _updateWC) > 0 ||
+                                   Interlocked.Read(ref _updateSubmodules) > 0 ||
+                                   Interlocked.Read(ref _updateStashes) > 0 ||
+                                   Interlocked.Read(ref _updateTags) > 0;
+
+            if (!hasPendingUpdates)
+                return;
+
             var now = DateTime.Now.ToFileTime();
 
             // Collect all pending updates that have passed their debounce delay
@@ -214,13 +226,20 @@ namespace SourceGit.Models
                 }
             }
 
-            // Execute all pending updates in parallel for better multi-core utilization
+            // Execute all pending updates with throttled parallelism to reduce CPU spikes
             if (pendingUpdates.Count > 0)
             {
                 Task.Run(() =>
                 {
-                    // Run all independent refresh operations in parallel
-                    Parallel.Invoke(pendingUpdates.ToArray());
+                    // Limit parallel operations to reduce CPU load
+                    // Use power-aware parallelism
+                    var parallelOptions = new ParallelOptions
+                    {
+                        MaxDegreeOfParallelism = PowerManagement.RefreshIntervals.MaxParallelOperations
+                    };
+
+                    // Run refresh operations with limited parallelism
+                    Parallel.Invoke(parallelOptions, pendingUpdates.ToArray());
 
                     // Refresh commits last as it may depend on other data
                     if (needsCommitRefresh)
@@ -260,7 +279,7 @@ namespace SourceGit.Models
         {
             var eventBatch = new Dictionary<string, FileSystemEventArgs>();
             var lastProcessTime = DateTime.UtcNow;
-            var debounceDelay = TimeSpan.FromMilliseconds(200);
+            var debounceDelay = TimeSpan.FromMilliseconds(PowerManagement.RefreshIntervals.EventDebounceDelay);
 
             try
             {
@@ -292,8 +311,9 @@ namespace SourceGit.Models
                         lastProcessTime = DateTime.UtcNow;
                     }
 
-                    // Small delay to prevent tight loop
-                    await Task.Delay(50, cancellationToken);
+                    // Dynamic delay based on power mode
+                    var delay = PowerManagement.IsOnBattery ? 200 : 100;
+                    await Task.Delay(delay, cancellationToken);
                 }
             }
             catch (OperationCanceledException)

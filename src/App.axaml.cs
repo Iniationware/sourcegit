@@ -385,6 +385,9 @@ namespace SourceGit
             SetLocale(pref.Locale);
             SetTheme(pref.Theme, pref.ThemeOverrides);
             SetFonts(pref.DefaultFontFamily, pref.MonospaceFontFamily, pref.OnlyUseMonoFontInEditor);
+
+            // Initialize power management for better battery life
+            Models.PowerManagement.Initialize();
         }
 
         public override void OnFrameworkInitializationCompleted()
