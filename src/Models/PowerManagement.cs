@@ -108,29 +108,33 @@ namespace SourceGit.Models
         {
             try
             {
-                var psi = new System.Diagnostics.ProcessStartInfo
+                // Use Windows API via P/Invoke instead of wmic to avoid antivirus false positives
+                var status = GetSystemPowerStatus(out SYSTEM_POWER_STATUS sps);
+                if (status)
                 {
-                    FileName = "wmic",
-                    Arguments = "path Win32_Battery get BatteryStatus /value",
-                    RedirectStandardOutput = true,
-                    UseShellExecute = false,
-                    CreateNoWindow = true
-                };
-
-                using var process = System.Diagnostics.Process.Start(psi);
-                if (process != null)
-                {
-                    var output = process.StandardOutput.ReadToEnd();
-                    process.WaitForExit();
-
-                    // BatteryStatus=2 means AC powered, 1 means battery
-                    return output.Contains("BatteryStatus=1");
+                    // ACLineStatus: 0 = Offline (on battery), 1 = Online (AC power)
+                    return sps.ACLineStatus == 0;
                 }
             }
             catch { }
 
             return false;
         }
+
+        // Windows API structures and imports for battery status
+        [StructLayout(LayoutKind.Sequential)]
+        private struct SYSTEM_POWER_STATUS
+        {
+            public byte ACLineStatus;
+            public byte BatteryFlag;
+            public byte BatteryLifePercent;
+            public byte SystemStatusFlag;
+            public int BatteryLifeTime;
+            public int BatteryFullLifeTime;
+        }
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        private static extern bool GetSystemPowerStatus(out SYSTEM_POWER_STATUS lpSystemPowerStatus);
 
         private static bool CheckMacOSBattery()
         {

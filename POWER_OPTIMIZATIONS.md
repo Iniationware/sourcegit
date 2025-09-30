@@ -23,7 +23,8 @@ Implemented comprehensive power-saving optimizations to drastically reduce batte
   - Older: 30 minutes
 
 ### 3. Power Management System (`Models/PowerManagement.cs`)
-- **Automatic battery detection**: Works on Windows, macOS, and Linux
+- **Automatic battery detection**: Uses native Windows API (kernel32.dll) on Windows, system utilities on macOS/Linux
+- **Antivirus-safe implementation**: Direct Windows API calls instead of wmic to avoid false positives
 - **Three power modes**:
   - **Power Saver** (on battery): Minimal refresh rates, no parallel operations
   - **Balanced** (default on AC): Moderate refresh rates, limited parallelism
